@@ -1,0 +1,10 @@
+[28-Jun-2016 10:03:03 America/Mexico_City] PHP Fatal error:  Uncaught exception 'RuntimeException' with message 'Unable to load ZF2. Run `php composer.phar install` or define a ZF2_PATH environment variable.' in /home/numerico/public_html/inflarun.mx/InflaRun/init_autoloader.php:51
+Stack trace:
+#0 /home/numerico/public_html/inflarun.mx/InflaRun/public/index.php(18): require()
+#1 {main}
+  thrown in /home/numerico/public_html/inflarun.mx/InflaRun/init_autoloader.php on line 51
+[28-Jun-2016 13:49:45 America/Mexico_City] PHP Fatal error:  Uncaught exception 'RuntimeException' with message 'Unable to load ZF2. Run `php composer.phar install` or define a ZF2_PATH environment variable.' in /home/numerico/public_html/inflarun.mx/InflaRun/init_autoloader.php:51
+Stack trace:
+#0 /home/numerico/public_html/inflarun.mx/InflaRun/public/index.php(18): require()
+#1 {main}
+  thrown in /home/numerico/public_html/inflarun.mx/InflaRun/init_autoloader.php on line 51

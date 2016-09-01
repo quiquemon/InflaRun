@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>InflaRun</title>
+		<link rel="icon" href="<?php echo $this -> basePath(); ?>/css/Imagenes/icono-inflarun.png.ico">
+		<link rel="stylesheet" type="text/css" href="<?php echo $this -> basePath(); ?>/css/bootstrap.min.css">
+		<link rel="stylesheet" type="text/css" href="<?php echo $this -> basePath(); ?>/css/bootstrap-theme.min.css">
+		<link rel="stylesheet" type="text/css" href="<?php echo $this -> basePath(); ?>/css/bootstrap-datepicker.min.css">
+		<link rel="stylesheet" type="text/css" href="<?php echo $this -> basePath(); ?>/css/estilo-main.css">
+		<script src="<?php echo $this -> basePath(); ?>/js/jquery.min.js"></script>
+		<script src="<?php echo $this -> basePath(); ?>/js/bootstrap.min.js"></script>
+		<script src="<?php echo $this -> basePath(); ?>/js/bootstrap-datepicker.min.js"></script>
+		<script src="https://platform.twitter.com/widgets.js"></script>
+		<script src="https://connect.facebook.net/es_LA/sdk.js" id="facebook-jssdk"></script>
+		<script src="<?php echo $this -> basePath(); ?>/js/inflarun.js"></script>
+	</head>
+    <body>
+		<div id="fb-root"></div>
+		<section id="encabezado">
+			<div id="areaTrabajo" class="container-fluid">
+				<div class="row">
+					<div class="col-sm-6">
+						<img id="logoInflarun" src="<?php echo $this -> basePath(); ?>/css/Imagenes/LOGO-INFLARUN.png" />
+					</div>
+					<div id="botonesRedesSociales" class="col-sm-6" align="right">
+						<a href="https://www.facebook.com/inflarun/?fref=ts" target="_blank"><img src="<?php echo $this -> basePath(); ?>/css/Imagenes/logo-facebook.png" /></a>
+						<a href="https://twitter.com/search?q=%23InflaRun&src=typd" target="_blank"><img src="<?php echo $this -> basePath(); ?>/css/Imagenes/logo-twitter.png" /></a>
+						<a href="https://www.instagram.com/inflarunmx/" target="_blank"><img src="<?php echo $this -> basePath(); ?>/css/Imagenes/logo-instagram.png" /></a>
+						<a href="https://www.youtube.com/channel/UCuTmDnWYxkhX_p55WUtqiRw" target="_blank"><img src="<?php echo $this -> basePath(); ?>/css/Imagenes/logo-youtube.png" /></a>
+					</div>
+				</div>
+			</div>
+		</section>
+		<header id="barraNavegacion">
+			<div id="nav" class="navbar navbar-default navbar-custom" role="navigation">
+				<div class="navbar-inner navbar-right">
+					<div class="navbar-header">
+						<button type="button" data-target="#navbarCollapse" data-toggle="collapse" class="navbar-toggle">
+							<span class="sr-only">Toggle navigation</span>
+							<span class="icon-bar"></span>
+							<span class="icon-bar"></span>
+							<span class="icon-bar"></span>
+						</button>
+					</div>
+					<div id="navbarCollapse" class="container-fluid collapse navbar-collapse">
+						<ul class="nav navbar-nav">
+							<li class="active"><a href="<?php echo $this -> basePath(); ?>/application/index"><h4>Home</h4></a></li>
+							<li><a href="<?php echo $this -> basePath(); ?>/application/queesinflarun"><h4>¿Qué es InflaRun?</h4></a></li>
+							<li><a href="<?php echo $this -> basePath(); ?>/application/fundacion"><h4>Fundación</h4></a></li>
+							<li><a href="<?php echo $this -> basePath(); ?>/application/convocatoria"><h4>Convocatoria</h4></a></li>
+							<li><a href="<?php echo $this -> basePath(); ?>/application/preguntasfrecuentes"><h4>FAQs</h4></a></li>
+							<li><a href="#" data-toggle="modal" data-target="#formularioRegistro"><h4>Regístrate</h4></a></li>
+							<?php if((new \Zend\Session\Container("usuario")) -> offsetExists("usuario")): ?>
+								<?php echo '<li><a href="/InflaRun/public/application/cuenta/index"><h4>Mi Cuenta</h4></a></li>'; ?>
+							<?php else: ?>
+								<?php echo '<li><a href="/InflaRun/public/application/cuenta/login"><h4>Inscripciones</h4></a></li>'; ?>
+							<?php endif; ?>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</header>
+		<div id="formularioRegistro" class="modal fade" role="dialog">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button class="close" data-dismiss="modal">&times;</button>
+						<h4 class="modal-title">Regístrate en InflaRun</h4>
+					</div>
+					<div class="modal-body">
+						<form id="formRegistro">
+							<div class="row">
+								<div class="col-md-6">
+									<div class="form-group">
+										<label for="nombreInscripcion">Nombre:</label>
+										<input type="text" class="form-control" id="nombreInscripcion" name="nombreInscripcion" required />
+									</div>
+								</div>
+								<div class="col-md-6">
+									<div class="form-group">
+										<label for="emailInscripcion">E-mail:</label>
+										<input type="email" class="form-control" id="emailInscripcion" name="emailInscripcion" required />
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-md-6">
+									<div class="form-group">
+										<label for="paternoInscripcion">Apellido paterno:</label>
+										<input type="text" class="form-control" id="paternoInscripcion" name="paternoInscripcion" required />
+									</div>
+								</div>
+								<div class="col-md-6">
+									<div class="form-group">
+										<label>Contraseña:</label>
+										<input type="password" class="form-control" id="pwdInscripcion" name="pwdInscripcion" required />
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-md-6">
+									<div class="form-group">
+										<label for="paternoInscripcion">Apellido materno:</label>
+										<input type="text" class="form-control" id="maternoInscripcion" name="maternoInscripcion" />
+									</div>
+								</div>
+								<div class="col-md-6">
+									<div class="form-group">
+										<label>Repetir contraseña:</label>
+										<input type="password" class="form-control" id="pwdRepetidaInscripcion" name="pwdRepetidaInscripcion" required />
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-md-6">
+									<div class="form-group">
+										<label for="sexoInscripcion">Sexo:</label>
+										<select class="form-control" id="sexoInscripcion" name="sexoInscripcion" required>
+											<option value="H">Hombre</option>
+											<option value="M">Mujer</option>
+										</select>
+									</div>
+								</div>
+								<div class="col-md-6">
+									<div class="form-group">
+										<label for="estadoInscripcion">Estado:</label>
+										<select class="form-control" id="estadoInscripcion" name="estadoInscripcion" required>
+											<option value="1">Aguascalientes</option>
+											<option value="2">Baja California</option>
+											<option value="3">Baja California Sur</option>
+											<option value="4">Campeche</option>
+											<option value="5">Chiapas</option>
+											<option value="6">Chihuahua</option>
+											<option value="7">Ciudad de México</option>
+											<option value="8">Coahuila de Zaragoza</option>
+											<option value="9">Colima</option>
+											<option value="10">Durango</option>
+											<option value="11">Estado de México</option>
+											<option value="12">Guanajuato</option>
+											<option value="13">Guerrero</option>
+											<option value="14">Hidalgo</option>
+											<option value="15">Jalisco</option>
+											<option value="16">Michoacán de Ocampo</option>
+											<option value="17">Morelos</option>
+											<option value="18">Nayarit</option>
+											<option value="19">Nuevo León</option>
+											<option value="20">Oaxaca</option>
+											<option value="21">Puebla</option>
+											<option value="22">Querétaro</option>
+											<option value="23">Quintana Roo</option>
+											<option value="24">San Luis Potosí</option>
+											<option value="25">Sinaloa</option>
+											<option value="26">Sonora</option>
+											<option value="27">Tabasco</option>
+											<option value="28">Tamaulipas</option>
+											<option value="29">Tlaxcala</option>
+											<option value="30">Veracruz de Ignacio de la Llave</option>
+											<option value="31">Yucatán</option>
+											<option value="32">Zacatecas</option>
+										</select>
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-md-6">
+									<div class="form-group">
+										<label>Fecha de Nacimiento</label>
+										<div id="datetimepicker" class="input-group date">
+											<input type="text" id="fechaNacimiento" name="fechaNacimiento" class="form-control" />
+											<span class="input-group-addon">
+												<span class="glyphicon glyphicon-calendar"></span>
+											</span>
+										</div>
+									</div>
+								</div>
+								<div class="col-md-6">
+									<div class="checkbox">
+										<label><input type="checkbox" id="chkBoletin" name="chkBoletin" checked />Suscribirse a nuestro boletín.</label>
+									</div>
+								</div>
+							</div>
+							<button id="btnSuscribirse" class="btn btn-danger btn-block btn-lg">Registrarse</button>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+		<?php echo $this -> content; ?>
+	</body>
+</html>

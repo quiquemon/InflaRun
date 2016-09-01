@@ -1,0 +1,405 @@
+/**
+ * +++++++++++++++++++++++++++++++++++++++++++++++
+ * Estilo para la página principal.
+ * +++++++++++++++++++++++++++++++++++++++++++++++
+ */
+
+#areaTrabajo {
+	max-width: 80%;
+}
+
+#logoInflarun {
+	width: 35%;
+}
+
+#botonesRedesSociales a > img {
+	width: 15%;
+}
+
+#nav > .navbar-inner {
+	border-left: 0;
+    border-right: 0;
+    border-radius: 0;
+    -webkit-border-radius: 0;
+    -moz-border-radius: 0;
+    -o-border-radius: 0;
+}
+
+#fotoNuevoEvento {
+	width: 82%;
+	height: 700px;
+}
+@media only screen and (max-width: 1020px) {
+	#fotoNuevoEvento {
+		height: 160px;
+	}
+}
+
+
+#carouselCarrera {
+	width: 82%;
+}
+
+#fundacionBack {
+	background: url(Imagenes/back-prueba.png) no-repeat center center;
+	background-size: 82% 500px;
+}
+
+#mensajeFundacion {
+	background: #edf204;
+	padding: 2em;
+}
+
+#galeriaBack {
+	background: #0099ff;
+	width: 82%;
+}
+
+#carouselGaleria {
+	width: 75%;
+}
+
+#redessocialesBack {
+	background: white;
+	background-size: 82% 800px;
+}
+
+#redessocialesBack .row .col-sm-4 {
+	left: 10%;
+}
+
+#redessocialesBack .row .col-sm-3 {
+	left: 10%;
+}
+
+#mensajeRedesSociales {
+	color: white;
+	background: #0099ff;
+	padding: 1em;
+}
+
+#mensajeRedesSociales a {
+	color: white;
+}
+
+@media only screen and (max-width: 767px) {
+	#redessocialesPreguntasImg a img {
+		height: 300px;
+		width: 300px;
+	}
+}
+
+.modal-content {
+	background-color: #666666;
+	color: white;
+}
+
+.navbar-custom {
+  background-color: #7d1e94;
+  border-color: #661878;
+  background-image: -webkit-gradient(linear, left 0%, left 100%, from(#a127be), to(#7d1e94));
+  background-image: -webkit-linear-gradient(top, #a127be, 0%, #7d1e94, 100%);
+  background-image: -moz-linear-gradient(top, #a127be 0%, #7d1e94 100%);
+  background-image: linear-gradient(to bottom, #a127be 0%, #7d1e94 100%);
+  background-repeat: repeat-x;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffa127be', endColorstr='#ff7d1e94', GradientType=0);
+  left: 9%;
+  width: 82%;
+}
+.navbar-custom .navbar-brand {
+  color: #ffffff;
+}
+.navbar-custom .navbar-brand:hover,
+.navbar-custom .navbar-brand:focus {
+  color: #e6e6e6;
+  background-color: transparent;
+}
+.navbar-custom .navbar-text {
+  color: #ffffff;
+}
+.navbar-custom .navbar-nav > li:last-child > a {
+  border-right: 1px solid #661878;
+}
+.navbar-custom .navbar-nav > li > a {
+  color: #ffffff;
+  border-left: 1px solid #661878;
+}
+.navbar-custom .navbar-nav > li > a:hover,
+.navbar-custom .navbar-nav > li > a:focus {
+  color: #c0c0c0;
+  background-color: transparent;
+}
+.navbar-custom .navbar-nav > .active > a,
+.navbar-custom .navbar-nav > .active > a:hover,
+.navbar-custom .navbar-nav > .active > a:focus {
+  color: #c0c0c0;
+  background-color: #661878;
+  background-image: -webkit-gradient(linear, left 0%, left 100%, from(#661878), to(#8a21a3));
+  background-image: -webkit-linear-gradient(top, #661878, 0%, #8a21a3, 100%);
+  background-image: -moz-linear-gradient(top, #661878 0%, #8a21a3 100%);
+  background-image: linear-gradient(to bottom, #661878 0%, #8a21a3 100%);
+  background-repeat: repeat-x;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff661878', endColorstr='#ff8a21a3', GradientType=0);
+}
+.navbar-custom .navbar-nav > .disabled > a,
+.navbar-custom .navbar-nav > .disabled > a:hover,
+.navbar-custom .navbar-nav > .disabled > a:focus {
+  color: #cccccc;
+  background-color: transparent;
+}
+.navbar-custom .navbar-toggle {
+  border-color: #dddddd;
+}
+.navbar-custom .navbar-toggle:hover,
+.navbar-custom .navbar-toggle:focus {
+  background-color: #dddddd;
+}
+.navbar-custom .navbar-toggle .icon-bar {
+  background-color: #cccccc;
+}
+.navbar-custom .navbar-collapse,
+.navbar-custom .navbar-form {
+  border-color: #641876;
+}
+.navbar-custom .navbar-nav > .dropdown > a:hover .caret,
+.navbar-custom .navbar-nav > .dropdown > a:focus .caret {
+  border-top-color: #c0c0c0;
+  border-bottom-color: #c0c0c0;
+}
+.navbar-custom .navbar-nav > .open > a,
+.navbar-custom .navbar-nav > .open > a:hover,
+.navbar-custom .navbar-nav > .open > a:focus {
+  background-color: #661878;
+  color: #c0c0c0;
+}
+.navbar-custom .navbar-nav > .open > a .caret,
+.navbar-custom .navbar-nav > .open > a:hover .caret,
+.navbar-custom .navbar-nav > .open > a:focus .caret {
+  border-top-color: #c0c0c0;
+  border-bottom-color: #c0c0c0;
+}
+.navbar-custom .navbar-nav > .dropdown > a .caret {
+  border-top-color: #ffffff;
+  border-bottom-color: #ffffff;
+}
+@media (max-width: 767) {
+  .navbar-custom .navbar-nav .open .dropdown-menu > li > a {
+    color: #ffffff;
+  }
+  .navbar-custom .navbar-nav .open .dropdown-menu > li > a:hover,
+  .navbar-custom .navbar-nav .open .dropdown-menu > li > a:focus {
+    color: #c0c0c0;
+    background-color: transparent;
+  }
+  .navbar-custom .navbar-nav .open .dropdown-menu > .active > a,
+  .navbar-custom .navbar-nav .open .dropdown-menu > .active > a:hover,
+  .navbar-custom .navbar-nav .open .dropdown-menu > .active > a:focus {
+    color: #c0c0c0;
+    background-color: #661878;
+  }
+  .navbar-custom .navbar-nav .open .dropdown-menu > .disabled > a,
+  .navbar-custom .navbar-nav .open .dropdown-menu > .disabled > a:hover,
+  .navbar-custom .navbar-nav .open .dropdown-menu > .disabled > a:focus {
+    color: #cccccc;
+    background-color: transparent;
+  }
+}
+.navbar-custom .navbar-link {
+  color: #ffffff;
+}
+.navbar-custom .navbar-link:hover {
+  color: #c0c0c0;
+}
+
+.carousel-inner > .item > img, .carousel-inner > .item > a > img {
+	width: 90%;
+	height: 500px;
+	margin: auto;
+}
+
+textarea {
+	resize: none;
+}
+
+/**
+ * +++++++++++++++++++++++++++++++++++++++++++++++
+ * Estilo para la página de la fundación.
+ * +++++++++++++++++++++++++++++++++++++++++++++++
+ */
+
+/* Sticky footer styles
+-------------------------------------------------- */
+html {
+  position: relative;
+  min-height: 100%;
+}
+#bodyFundacion {
+  /* Margin bottom by footer height */
+  margin-bottom: 60px;
+}
+.footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  /* Set the fixed height of the footer here */
+  height: 60px;
+}
+
+#footerInnerFundacion {
+	background-color: #f5f5f5;
+}
+
+#fotoSuperiorInnerFundacion {
+	width: 82%;
+	height: 400px;
+}
+
+#introFundacion {
+	background: #0099ff;
+	color: white;
+	left: 13.5%;
+	font-size: 170%;
+}
+
+@media only screen and (max-width: 420px) {
+	#introFundacion {
+		font-size: 100%;
+	}
+}
+
+@media only screen and (max-width: 1020px) {
+	#fotoSuperiorInnerFundacion {
+		height: 160px;
+	}
+}
+
+#foto2Fundacion {
+	width: 95%;
+}
+
+#chochoAmarilloFundacion {
+	width: 95%;
+}
+
+@media only screen and (max-width: 1020px) {
+	#introFundacion, #foto2ParentFundacion {
+		width: 82%;
+		left: 9%;
+	}
+}
+
+#footerFundacion {
+	color: #0099ff;
+}
+
+/**
+ * +++++++++++++++++++++++++++++++++++++++++++++++
+ * Estilo para la página de la Ruta.
+ * +++++++++++++++++++++++++++++++++++++++++++++++
+ */
+#fotoSuperiorInnerRuta {
+	width: 82%;
+	height: 400px;
+}
+
+@media only screen and (max-width: 1020px) {
+	#fotoSuperiorInnerRuta {
+		height: 160px;
+	}
+}
+
+/**
+ * +++++++++++++++++++++++++++++++++++++++++++++++
+ * Estilo responsivo de propósito general.
+ * +++++++++++++++++++++++++++++++++++++++++++++++
+ */
+
+/* Móviles */
+@media (max-width: 767px) {
+	#carouselCarrera .slider-size {
+		height: auto;
+	}
+	#carouselGaleria .slider-size {
+		height: 200px;
+	}
+	.slider-size > img {
+		width: 80%;
+	}
+	#carouselGaleria {
+		width: 100%;
+	}
+}
+
+/* Tabletas */
+@media (max-width: 991px) and (min-width: 768px) {
+	#carouselCarrera .slider-size {
+		height: auto;
+	}
+	#carouselGaleria .slider-size {
+		height: 350px;
+	}
+	.slider-size > img {
+		width: 80%;
+	}
+}
+
+/* Laptops */
+@media (max-width: 1023px) and (min-width: 992px) {
+	#carouselCarrera .slider-size {
+		height: 200px;
+	}
+	#carouselGaleria .slider-size {
+		height: 200px;
+	}
+	.slider-size > img {
+		width: 80%;
+	}
+}
+
+/* Desktops */
+@media (min-width: 1024px) {
+	.slider-size {
+		height: 400px;
+	}
+	.slider-size > img {
+		width: 60%;
+	}
+}
+
+/**
+ * +++++++++++++++++++++++++++++++++++++++++++++++
+ * Estilo para la página de preguntas frecuentes.
+ * +++++++++++++++++++++++++++++++++++++++++++++++
+ */
+#fotoSuperiorInnerPreguntas {
+	width: 82%;
+	height: 400px;
+}
+
+#outerPreguntas {
+	width: 82%;
+	left: 13.5%;
+	font-size: 170%;
+}
+
+@media only screen and (max-width: 1020px) {
+	#fotoSuperiorInnerPreguntas {
+		height: 160px;
+	}
+}
+
+@media only screen and (max-width: 420px) {
+	#outerPreguntas {
+		font-size: 100%;
+	}
+}
+
+/**
+ * +++++++++++++++++++++++++++++++++++++++++++++++
+ * Estilo para la página de inicio de sesión.
+ * +++++++++++++++++++++++++++++++++++++++++++++++
+ */
+#cuentaBody {
+	width: 82%;
+	left: 13.5%;
+}

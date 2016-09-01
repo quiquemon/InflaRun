@@ -1,0 +1,101 @@
+<?php
+	$session = new \Zend\Session\Container("usuario");
+	
+	if ($session -> offsetExists("metodoPago"))
+		$session -> offsetUnset("metodoPago");
+	
+	if ($session -> offsetExists("datosBancarios"))
+		$session -> offsetUnset("datosBancarios");
+?>
+<script>
+	(function() {
+		$("#navbarCollapse ul li").each(function() {
+			$(this).removeClass("active");
+		});
+		$("#navbarCollapse ul").children().last().addClass("active");
+		$("#navbarCollapse ul li a").children().last().html("Inscripciones");
+		$("#navbarCollapse ul li").children().last().attr("href", "<?php echo $this -> basePath(); ?>/application/cuenta/index");
+		document.title = "Método de Pago - InflaRun";
+		
+		$(document).ready(function() {
+			$("#rdbTarjeta").click(function() {
+				$("#sucursalesAccordion").removeClass("in");
+				$("#sucursalesAccordion").addClass("collapse");
+			});
+			$("#rdbEfectivo").click(function() {
+				$("#sucursalesAccordion").removeClass("collapse");
+				$("#sucursalesAccordion").addClass("in");
+			});
+		});
+	})();
+</script>
+<div id="cuentaBody" class="container-fluid">
+	<div class="row">
+		<div class="col-md-7 col-xs-7">
+			<div class="panel panel-success">
+				<div class="panel-heading">
+					<strong>Elige tu método de pago</strong>
+				</div>
+				<div class="panel-body">
+					<div class="col-md-12">
+						<?php if(isset($this -> Error)): ?>
+							<div class="alert alert-danger fade in">
+								<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+								<?php echo $this -> Error["message"]; ?>
+							</div>
+						<?php endif; ?>
+						<form action="<?php echo $this -> basePath(); ?>/application/cuenta/metodopago" method="post">
+							<label class="radio">
+								<input id="rdbTarjeta" type="radio" name="rdbMetodoPago" value="tarjeta" checked />
+								Tarjeta de crédito o débito <img src="<?php echo $this -> basePath(); ?>/css/Imagenes/tarjetas.jpg" height="30" />
+							</label>
+							<label class="radio">
+								<input id="rdbEfectivo" type="radio" name="rdbMetodoPago" value="efectivo" />
+								Pago en efectivo
+							</label>
+							<div class="panel-group">
+								<div class="panel panel-info">
+									<div class="panel-heading">
+										Elige tu sucursal
+									</div>
+									<div id="sucursalesAccordion" class="panel-collapse collapse">
+										<div class="panel-body">
+											<div class="col-md-12">
+												<label class="radio">
+													<input type="radio" name="rdbSucursal" value="OXXO" checked />
+													Oxxo <img src="<?php echo $this -> basePath(); ?>/css/Imagenes/tienda_oxxo.png" height="30" /> (Máx. $15,000)
+												</label>
+												<label class="radio">
+													<input type="radio" name="rdbSucursal" value="SEVEN_ELEVEN" />
+													Seven Eleven <img src="<?php echo $this -> basePath(); ?>/css/Imagenes/tienda_seven.png" height="30" /> (Máx. $15,000)
+												</label>
+												<label class="radio">
+													<input type="radio" name="rdbSucursal" value="EXTRA" />
+													Extra <img src="<?php echo $this -> basePath(); ?>/css/Imagenes/tienda_extra.png" height="30" /> (Máx. $5,000)
+												</label>
+												<label class="radio">
+													<input type="radio" name="rdbSucursal" value="FARMACIA_BENAVIDES" />
+													Farmacias Benavides <img src="<?php echo $this -> basePath(); ?>/css/Imagenes/tienda_benavides.png" height="30" /> (Máx. $5,000)
+												</label>
+												<label class="radio">
+													<input type="radio" name="rdbSucursal" value="FARMACIA_ESQUIVAR" />
+													Farmacias Esquivar <img src="<?php echo $this -> basePath(); ?>/css/Imagenes/tienda_esquivar.png" height="30" /> (Máx. $5,000)
+												</label>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<input type="submit" value="Continuar" class="btn btn-primary btn-lg" />
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="col-md-5 col-xs-5">
+			<a href="<?php echo $this -> basePath(); ?>/application/cuenta/elegirbloque" class="btn btn-warning btn-lg btn-block" style="white-space: normal">Regresar a elección de bloques</a>
+			<br>
+			<a href="<?php echo $this -> basePath(); ?>/application/cuenta/index" class="btn btn-danger btn-lg btn-block">Cancelar</a>	
+		</div>
+	</div>
+</div>

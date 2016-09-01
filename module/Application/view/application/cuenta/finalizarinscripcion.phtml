@@ -1,0 +1,56 @@
+<?php
+	$session = new \Zend\Session\Container("usuario");
+	$metodoPago = $session -> offsetGet("metodoPago");
+?>
+<script>
+	(function() {
+		$("#navbarCollapse ul li").each(function() {
+			$(this).removeClass("active");
+		});
+		$("#navbarCollapse ul").children().last().addClass("active");
+		$("#navbarCollapse ul li a").children().last().html("Inscripciones");
+		$("#navbarCollapse ul li").children().last().attr("href", "<?php echo $this -> basePath(); ?>/application/cuenta/index");
+		document.title = "Finalizar Inscripción - InflaRun";
+	})();
+</script>
+<div id="cuentaBody" class="container-fluid">
+	<div class="row">
+		<div class="col-md-7 col-xs-7">
+			<div class="panel panel-success">
+				<div class="panel-heading">
+					<strong>Finalizando inscripción...</strong>
+				</div>
+				<div class="panel-body">
+					<div class="col-md-12">
+						<?php if($session -> offsetExists("ERROR_PAGO")): ?>
+							<div class="alert alert-danger fade in">
+								<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+								<?php echo $session -> offsetGet("ERROR_PAGO"); ?>
+							</div>
+							<br>
+							<?php if ($metodoPago["rdbMetodoPago"] === "tarjeta"): ?>
+								<a href="<?php echo $this -> basePath(); ?>/application/cuenta/formulariotarjeta" class="btn btn-warning btn-lg btn-block">Regresar a datos bancarios</a>
+							<?php else: ?>
+								<a href="<?php echo $this -> basePath(); ?>/application/cuenta/metodopago" class="btn btn-warning btn-lg btn-block">Regresar a método de pago</a>
+							<?php endif; ?>
+						<?php else: ?>
+							<?php if ($metodoPago["rdbMetodoPago"] === "tarjeta" || $session -> offsetExists("equipoCodigo")): ?>
+								¡Listo! ¡Has quedado inscrito en InflaRun! En breve te enviaremos un correo con
+								los detalles de la inscripción y tu número de corredor. Si el correo no aparece en tu bandeja
+								principal, chécalo en la de spam. ¡Prepárate!
+								<?php $session -> offsetSet("inscrito", true); ?>
+							<?php else: ?>
+								¡Listo! Se ha generado tu orden de pago. Verifica tu correo, se te ha enviado un formato con la información
+								para hacer el pago. Si el correo no aparece en tu bandeja principal, chécalo en la de spam.
+							<?php endif; ?>
+						<?php endif; ?>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="col-md-5 col-xs-5">
+			<br>
+			<a href="<?php echo $this -> basePath(); ?>/application/cuenta/index" class="btn btn-danger btn-lg btn-block">Finalizar</a>	
+		</div>
+	</div>
+</div>

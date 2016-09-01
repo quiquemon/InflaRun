@@ -1,0 +1,178 @@
+<section id="carrera">
+	<div id="carouselCarrera" class="container-fluid">
+		<div class="row">
+			<div id="carouselCarreraSlide" class="carousel slide" data-ride="carousel" data-interval="4000">
+				<div id="carouselCarreraInterior" class="carousel-inner" role="listbox">
+					<div class="item active">
+						<div class="slider-size">
+							<img src="<?php echo $this -> basePath(); ?>/css/Imagenes/banner-carrera.png" style="height: 100%; width: 100%" />
+						</div>
+					</div>
+					<div class="item">
+						<div class="slider-size">
+							<img src="<?php echo $this -> basePath(); ?>/css/Imagenes/Secciones/WEBFOTO-SITIO1.png" style="height: 100%; width: 100%" />
+						</div>
+					</div>
+					<div class="item">
+						<div class="slider-size">
+							<img src="<?php echo $this -> basePath(); ?>/css/Imagenes/Secciones/WEBFOTO-SITIO-CHOCHO.png" style="height: 100%; width: 100%" />
+						</div>
+					</div>
+					<div class="item">
+						<div class="slider-size">
+							<img src="<?php echo $this -> basePath(); ?>/css/Imagenes/Secciones/WEBFOTO-SITIO3.png" style="height: 100%; width: 100%" />
+						</div>
+					</div>
+					<div class="item">
+						<div class="slider-size">
+							<img src="<?php echo $this -> basePath(); ?>/css/Imagenes/Secciones/WEBFOTO3.png" style="height: 100%; width: 100%" />
+						</div>
+					</div>
+					<div class="item">
+						<div class="slider-size">
+							<img src="<?php echo $this -> basePath(); ?>/css/Imagenes/Secciones/WEBFOTO5.png" style="height: 100%; width: 100%" />
+						</div>
+					</div>
+					<div class="item">
+						<div class="slider-size">
+							<img src="<?php echo $this -> basePath(); ?>/css/Imagenes/Secciones/WEBFOTO8.png" style="height: 100%; width: 100%" />
+						</div>
+					</div>
+					<div class="item">
+						<div class="slider-size">
+							<img src="<?php echo $this -> basePath(); ?>/css/Imagenes/Secciones/WEBFOTO9.png" style="height: 100%; width: 100%" />
+						</div>
+					</div>
+					<div class="item">
+						<div class="slider-size">
+							<img src="<?php echo $this -> basePath(); ?>/css/Imagenes/Secciones/WEBFOTO12.png" style="height: 100%; width: 100%" />
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+<section id="fundacion">
+	<div id="fundacionBack" class="container-fluid">
+		<div class="row">
+			<div id="videoFundacion" class="col-sm-6" align="right">
+				<div class="fb-video" data-href="https://www.facebook.com/inflarun/videos/934388460013837/" data-allowfullscreen="true" data-width="500px"></div>
+			</div>
+			<div class="col-sm-5" align="center">
+				<br>
+				<br>
+				<div id="mensajeFundacion" align="center">
+					<h3><a href="https://twitter.com/search?f=tweets&q=%23MeDiviertoMientrasAyudo&src=typd" target="_blank">#MeDiviertoMientrasAyudo</a></h3>
+					<h4><p class="just">Con tu ayuda y la fundación Chocho lograremos la <a href="https://twitter.com/search?q=%23Meta&src=typd" target="_blank">#Meta</a> de preservar la felicidad de niños en condiciones desfavorables.</p></h4>
+					<h4><p class="just" align="right"><a class="btn btn-danger" href="<?php echo $this -> basePath(); ?>/application/fundacion">Información</a></p></h4>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+<section id="galeria">
+	<div id="galeriaBack" class="container-fluid">
+		<div class="row">
+			<div class="col-sm-12" align="center">
+				<br>
+				<div id="carouselGaleria" class="carousel slide" data-ride="carousel">
+					<ol class="carousel-indicators">
+						<?php
+							try {
+								// Carga de imágenes de Facebook.
+								$appId = "1783216848631932";
+								$appSecret = "8d9ffceef95b4319e80b8b5bc03d7ee5";
+								$accessToken = "1783216848631932|tLdzjFbqagNbFpDqMMP84frx33o";
+								$fb = new Facebook\Facebook([
+									"app_id" => $appId,
+									"app_secret" => $appSecret,
+									"default_graph_version" => "v2.6"
+								]);
+								$fb -> setDefaultAccessToken($accessToken);
+
+								// Fotos del álbum 'Biografía': albums['INFLARUN MÉXICO'], photos[1..10], images[1..n]
+								$request = $fb -> request("GET", "/928393653946651", array("fields" => "albums{photos{images},name}"));
+								$albums = $fb -> getClient() -> sendRequest($request) -> getGraphNode() -> asArray();
+								$albumName = $albums["albums"][0]["name"];
+								$fotos = $albums["albums"][($albumName === "INFLARUN MÉXICO" ? 0 : 1)]["photos"];
+								$longitud = count($fotos);
+								$excepcionOcurrida = false;
+								
+								if ($longitud > 0) {
+									$longitud = $longitud > 10 ? 10 : $longitud;
+									for ($i = 0; $i < $longitud; $i++)
+										echo "\t\t\t\t\t\t<li data-target='#carouselGaleria' data-slide-to='$i'" . ($i === 0 ? " class='active'" : "") . "></li>\n";
+								}
+							} catch (Facebook\Exceptions\FacebookSDKException $e) {
+								$excepcionOcurrida = true;
+								echo "<li data-target='#carouselGaleria' data-slide-to='0' class='active'></li>\n";
+								
+							}
+						?>
+					</ol>
+					<div id="carouselInterior" class="carousel-inner" role="listbox">
+						<?php
+							if (!$excepcionOcurrida) {
+								if ($longitud > 0) {
+									$longitud = $longitud > 10 ? 10 : $longitud;
+									for ($i = 0; $i < $longitud; $i++) {
+										$div = "\t\t\t\t\t\t<div class=" . ($i === 0 ? "'item active'" : "'item'") . ">\n";
+										$div .= "<div class='slider-size'>";
+										echo $div . "<img src='{$fotos[$i]["images"][0]["source"]}' style='height: 100%; width: 100%' /></div></div>\n";
+									}
+								}
+							} else {
+								echo "<div class='item active'><div class='slider-size'><img src='" . $this -> basePath() ."/css/Imagenes/logo_chocho.png' style='height: 100%; width: 100%' /></div></div>";
+							}
+						?>
+					</div>
+					<a class="left carousel-control" href="#carouselGaleria" role="button" data-slide="prev">
+						<span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+						 <span class="sr-only">Anterior</span>
+					</a>
+					<a class="right carousel-control" href="#carouselGaleria" role="button" data-slide="next">
+						<span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+						<span class="sr-only">Siguiente</span>
+					</a>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+<section id="redessociales">
+	<div id="redessocialesBack" class="container-fluid">
+		<div class="row">
+			<div class="col-sm-4" align="center">
+				<br>
+				<div class="row">
+					<div id="mensajeRedesSociales" class="col-sm-12">
+						<h1><a href="https://twitter.com/search?q=%23VuelveaSerNi%C3%B1o&src=typd" target="_blank">#VuelveaSerNiño</a></h1>
+						<br>
+						<h4><p class="just">Encuéntranos en tus redes sociales...</p></h4>
+						<h4><p class="just">¡Comparte con tus amigos esta experiencia!</p></h4>
+					</div>
+				</div>
+				<br>
+				<div id="redessocialesPreguntasImg">
+					<a href="<?php echo $this -> basePath(); ?>/application/preguntasfrecuentes">
+						<img src="<?php echo $this -> basePath(); ?>/css/Imagenes/preguntas-frecuentes.png" height="390" width="400" class="img-responsive" />
+					</a>
+				</div>
+			</div>
+			<div class="col-sm-3">
+				<h1>
+					<a class="twitter-timeline"  href="https://twitter.com/hashtag/InflaRun" data-widget-id="740726700447670272">Tweets sobre #InflaRun</a>
+				</h1>
+			</div>
+			<div class="col-sm-5" align="center">
+				<br>
+				<div class="fb-page" data-href="https://www.facebook.com/inflarun" data-tabs="timeline" data-small-header="false" data-adapt-container-width="true" data-hide-cover="false" data-show-facepile="true">
+					<blockquote cite="https://www.facebook.com/inflarun" class="fb-xfbml-parse-ignore">
+						<a href="https://www.facebook.com/inflarun">InflaRun</a>
+					</blockquote>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
