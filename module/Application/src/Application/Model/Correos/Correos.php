@@ -8,7 +8,7 @@ abstract class Correos extends PHPMailer {
 	protected $port = 465;
 	protected $security = "ssl";
 	protected $user = "lenrique@numeri.mx";
-	protected $pass = "@Numeri_2016";
+	protected $pass = "@Numeri2016";
 	
 	public function __construct($exceptions = null) {
 		parent::__construct($exceptions);
