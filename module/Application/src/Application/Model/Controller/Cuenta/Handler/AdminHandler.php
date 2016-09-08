@@ -51,6 +51,49 @@ class AdminHandler {
 	}
 	
 	/**
+	 * Obtiene la información personal del usuario con el correo dado.
+	 * 
+	 * @param string $correo El correo del usuario.
+	 * @return Array Arreglo asociativo con la información personal del usuario.
+	 */
+	public static function obtenerInfoPersonalUsuario($correo) {
+		try {
+			$usuario = self::obtenerInfoPersonal($correo);
+			return $usuario;
+		} catch (\Exception $ex) {
+			return array(
+				"estatus" => 3,
+				"message" => $ex -> getMessage()
+			);
+		}
+	}
+	
+	/**
+	 * Obtiene un arreglo asociativo con la información personal del usuario.
+	 * 
+	 * @param string $correo El correo del usuario.
+	 * @return Arreglo asociativo con la información personal del usuario.
+	 * @throws Exception
+	 */
+	private static function obtenerInfoPersonal($correo){
+		$dao = new EquipoDao();
+		
+		$usuario = $dao -> consultaGenerica("SELECT * FROM Usuario WHERE correo like ?", array("%$correo%"));
+		if (empty($usuario)) {
+			return array(
+				"estatus" => 1,
+				"message" => "El usuario con el correo '$correo' no está registrado.",
+			);
+		}
+		
+		return array(
+			"estatus" => 0,
+			"message" => "",
+			"info" => $usuario[0]
+		);
+	}
+	
+	/**
 	 * Obtiene los datos del usuario necesarios para su inscripción (número de corredor, equipo, etc).
 	 * Es la misma información que se les envía por correo al momento de finalizar su inscripción.
 	 * 
@@ -64,9 +107,8 @@ class AdminHandler {
 			return $info;
 		} catch (\Exception $ex) {
 			return array(
-				"estatus" => 1,
+				"estatus" => 3,
 				"message" => $ex -> getMessage(),
-				"info" => array()
 			);
 		}
 	}

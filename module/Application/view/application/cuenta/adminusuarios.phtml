@@ -97,7 +97,11 @@
 					<span class="caret"></span>
 				</button>
 				<ul class="dropdown-menu">
-					<li><a href="<?php echo $this -> basePath(); ?>/application/cuenta/adminmain">Página Principal</a></li>
+					<li class="dropdown-header">Usuarios</li>
+					<li><a href="<?php echo $this -> basePath(); ?>/application/cuenta/adminmoduser">Modificar Info Usuario</a></li>
+					<li class="divider"></li>
+					<li class="dropdown-header">Administrador</li>
+					<li><a href="<?php echo $this -> basePath(); ?>/application/cuenta/adminmain">Página Principal</a></li>					
 					<li><a href="<?php echo $this -> basePath(); ?>/application/cuenta/adminlogout">Cerrar Sesión</a></li>
 				</ul>
 			</div>

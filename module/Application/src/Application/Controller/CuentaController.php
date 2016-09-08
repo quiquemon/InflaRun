@@ -9,6 +9,7 @@ use Application\Model\Controller\Cuenta\Handler\DiaHitHandler;
 use Application\Model\Controller\Cuenta\Handler\PagosHandler;
 use Application\Model\Controller\Cuenta\Handler\InscripcionHandler;
 use Application\Model\Controller\Cuenta\Handler\AdminHandler;
+use Application\Model\Controller\Cuenta\Handler\UsuarioHandler;
 use Application\Model\Dao\EquipoDao;
 use Application\Model\Dao\DiaHitDao;
 use Application\Model\Dao\UsuarioDao;
@@ -596,6 +597,35 @@ class CuentaController extends AbstractActionController {
 		AdminHandler::reenviarCorreo($usuario);
 		(new Container("admin")) -> offsetSet("message", "El correo se ha enviado exitosamente.");
 		return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/adminusuarios");
+	}
+	
+	public function adminmoduserAction() {
+		if (!(new Container("admin")) -> offsetExists("admin"))
+			return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/adminlogin");
+		
+		return new ViewModel();
+	}
+	
+	public function adminmodusergetinfoAction() {
+		$correo = $this -> params() -> fromQuery("correo", "");
+		$usuario = AdminHandler::obtenerInfoPersonalUsuario($correo);
+		return new JsonModel($usuario);
+	}
+	
+	public function adminmodinfoAction() {
+		$params = UsuarioHandler::obtenerParametrosPost($this -> params());
+		$result = UsuarioHandler::filtrarParametros($params);
+		if ($result["code"] === 0) {
+			$r = UsuarioHandler::modificarUsuario($params);
+			if ($r === 0)
+				(new Container("admin")) -> offsetSet("message", "La información se ha modificado exitosamente.");
+			else
+				(new Container("admin")) -> offsetSet("message", $r);
+		} else {
+			(new Container("admin")) -> offsetSet("message", $result["message"]);
+		}
+		
+		return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/adminmoduser");
 	}
 	
 	public function adminaceptarpagadasAction() {

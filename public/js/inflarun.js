@@ -7,7 +7,7 @@ FB.init({
 
 $(document).ready(function() {
 	// Opciones del DatePicker
-	$("#datetimepicker").datepicker({
+	$(".datetimepicker").datepicker({
 		format: "yyyy/mm/dd",
 		todayHighlight: true,
 		autoclose: true,
