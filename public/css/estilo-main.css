@@ -36,6 +36,39 @@
 }
 
 
+/*Footer*/
+
+
+#foot
+{
+	background: #22BCE0;
+	color:  rgba(255,255,255,0.7);
+	text-align:  center;
+	padding: 1em;
+}
+
+#foot p:first-child
+{
+	margin-bottom: 0em;
+        
+}
+
+#foot a:last-child
+{
+	margin-top: 0em;
+       color:  rgba(255,255,255,0.7);
+}
+
+#foot a h4:last-child:before
+{
+	content: "- 	";
+}
+
+#foot a h4:last-child:after
+{
+	content: " -";
+}
+
 #carouselCarrera {
 	width: 82%;
 }
@@ -93,6 +126,39 @@
 	background-color: #666666;
 	color: white;
 }
+
+/* Aviso de de privacidad*/
+
+.modal-contentAviso {
+	background-color: white;
+}
+
+.modal-contentAviso h1
+{
+    color: #00b8e4;
+    font-size: 31px;
+    text-align: center;
+    font-weight: 300;
+}
+
+.modal-contentAviso .sub
+{
+	color: #00b8e4;
+	font-size: 16px;
+	text-align: left;
+	font-weight: 300;
+	text-transform: uppercase;
+}
+
+.modal-contentAviso p
+{
+	color: #353f48;
+	font-size: 14px;
+	text-align: justify;
+	font-weight: 300;
+	text-decoration: none;
+}
+
 
 .navbar-custom {
   background-color: #7d1e94;
