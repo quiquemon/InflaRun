@@ -154,6 +154,12 @@ class UsuarioHandler {
 			. " WHERE idUsuario = ?";
 		
 		try {
+			$user = $dao -> consultaGenerica("SELECT * FROM Usuario WHERE correo = ?", array($params["email"]));
+			if (!empty($user)) {
+				if ($user[0]["idUsuario"] != $params["idUsuario"])
+					return "Ese correo ya ha sido registrado. Elige otro.";
+			}
+			
 			$dao -> beginTransaction();
 			$dao -> sentenciaGenerica($sql, array(
 				$params["nombre"],
@@ -165,6 +171,32 @@ class UsuarioHandler {
 				$params["boletin"],
 				$params["idEstado"],
 				$params["idUsuario"]
+			));
+			$dao -> commit();
+			return 0;
+		} catch (\Exception $ex) {
+			$dao -> rollback();
+			return $ex -> getMessage();
+		}
+	}
+	
+	/**
+	 * Modifica la contraseña del usuario indicado.
+	 * 
+	 * @param int $idUsuario El ID del usuario.
+	 * @param string $pass La nueva contraseña.
+	 * @return int|string 0 si la contraseña fue modificada con éxito.
+	 * De lo contrario, regresa el mensaje de error.
+	 */
+	public static function modificarPassword($idUsuario, $pass) {
+		$dao = new UsuarioDao();
+		$sql = "UPDATE Usuario SET password = ? WHERE idUsuario = ?";
+		
+		try {
+			$dao -> beginTransaction();
+			$dao -> sentenciaGenerica($sql, array(
+				password_hash($pass, PASSWORD_DEFAULT),
+				$idUsuario
 			));
 			$dao -> commit();
 			return 0;

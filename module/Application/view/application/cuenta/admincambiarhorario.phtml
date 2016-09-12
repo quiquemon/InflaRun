@@ -7,11 +7,11 @@
 			$(this).removeClass("active");
 		});
 		$("#navbarCollapse ul").children().last().addClass("active");
-		document.title = "Admin Modificar Usuario - InflaRun";
+		document.title = "Admin Cambiar Horario - InflaRun";
 	})();
 	
 	$(document).ready(function() {
-		$("#btnBuscar").click(function() {
+		/*$("#btnBuscar").click(function() {
 			var message;	
 			$(".alert").remove();
 			$("#formulario input[type='submit']").remove();
@@ -62,12 +62,12 @@
 				$(".progress").remove();
 				$("#btnBuscar").prop("disabled", false);
 			});
-		});
+		});*/
 	});
 </script>
 <div id="cuentaBody" class="container-fluid">
 	<div class="row">
-		<h2>Modificar Información de Usuarios.</h2>
+		<h2>Cambiar Horario</h2>
 		<br>
 		<?php if ($session -> offsetExists("message")): ?>
 			<div class="alert alert-info fade in">
@@ -87,7 +87,7 @@
 				<ul class="dropdown-menu">
 					<li class="dropdown-header">Usuarios</li>
 					<li><a href="<?php echo $this -> basePath(); ?>/application/cuenta/adminusuarios">Administración de Usuarios</a></li>
-					<li><a href="<?php echo $this -> basePath(); ?>/application/cuenta/admincambiarhorario">Cambiar Horario</a></li>
+					<li><a href="<?php echo $this -> basePath(); ?>/application/cuenta/adminmoduser">Modificar Info Usuario</a></li>
 					<li class="divider"></li>
 					<li class="dropdown-header">Administrador</li>
 					<li><a href="<?php echo $this -> basePath(); ?>/application/cuenta/adminmain">Página Principal</a></li>
@@ -106,10 +106,10 @@
 		<div class="col-md-10 col-xs-9">
 			<div class="panel panel-success">
 				<div class="panel-heading">
-					<strong>Información Personal</strong>
+					<strong>Información de Inscripción</strong>
 				</div>
 				<div id="bodyPanel" class="panel-body">
-					<form id="formulario" action="<?php echo $this -> basePath(); ?>/application/cuenta/adminmodinfo" method="post">
+					<!--<form id="formulario" action="<?php echo $this -> basePath(); ?>/application/cuenta/adminmodinfo" method="post">
 						<input type="hidden" id="idUsuario" name="idUsuario" />
 						<div class="col-md-6">
 							<div class="form-group">
@@ -192,21 +192,15 @@
 							</div>
 						</div>
 						<br>
-					</form>
+					</form>-->
 				</div>
 				<div class="panel panel-danger">
 					<div class="panel-heading">
-						<strong>Contraseña</strong>
+						<strong>Cambio de Horario</strong>
 					</div>
 					<div class="panel-body">
 						<div class="col-md-12">
-							<form id="formPass" action="<?php echo $this -> basePath(); ?>/application/cuenta/adminmodpass" method="post">
-								<input type="hidden" id="idUsuarioPass" name="idUsuarioPass" />
-								<div class="form-group">
-									<label>Contraseña:</label>
-									<input type="text" class="form-control" id="password" name="password" required disabled />
-								</div>
-							</form>
+							
 						</div>
 					</div>
 				</div>

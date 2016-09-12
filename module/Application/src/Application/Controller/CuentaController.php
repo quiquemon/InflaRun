@@ -628,6 +628,22 @@ class CuentaController extends AbstractActionController {
 		return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/adminmoduser");
 	}
 	
+	public function adminmodpassAction() {
+		$pass = $this -> params() -> fromPost("password", "pass");
+		$idUsuario = $this -> params() -> fromPost("idUsuarioPass", 0);
+		$r = UsuarioHandler::modificarPassword($idUsuario, $pass);
+		if ($r === 0)
+			(new Container("admin")) -> offsetSet("message", "La contraseña se ha modificado exitosamente.");
+		else
+			(new Container("admin")) -> offsetSet("message", $r);
+		
+		return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/adminmoduser");
+	}
+	
+	public function admincambiarhorarioAction() {
+		return new ViewModel();
+	}
+	
 	public function adminaceptarpagadasAction() {
 		if (!(new Container("admin")) -> offsetExists("admin"))
 			return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/adminlogin");
