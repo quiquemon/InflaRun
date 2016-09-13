@@ -644,6 +644,25 @@ class CuentaController extends AbstractActionController {
 		return new ViewModel();
 	}
 	
+	public function admincambiarhorariogetinfoAction() {
+		$correo = $this -> params() -> fromQuery("correo", "");
+		$idDetallesEvento = $this -> params() -> fromQuery("idDetallesEvento", "");
+		$info = UsuarioHandler::obtenerInformacionHorario($correo, $idDetallesEvento);
+		return new JsonModel($info);
+	}
+	
+	public function admincambiarhorariopostAction() {
+		$idEquipo = $this -> params() -> fromPost("idEquipo");
+		$hit = $this -> params() -> fromPost("hit");
+		$r = UsuarioHandler::cambiarHorario($idEquipo, $hit);
+		if ($r === 0)
+			(new Container("admin")) -> offsetSet("message", "El equipo se ha cambiado de horario con éxito.");
+		else
+			(new Container("admin")) -> offsetSet("message", $r);
+		
+		return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/admincambiarhorario");
+	}
+	
 	public function adminaceptarpagadasAction() {
 		if (!(new Container("admin")) -> offsetExists("admin"))
 			return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/adminlogin");

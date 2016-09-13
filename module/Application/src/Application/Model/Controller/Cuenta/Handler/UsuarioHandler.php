@@ -207,6 +207,119 @@ class UsuarioHandler {
 	}
 	
 	/**
+	 * Regresa la información sobre la fecha y horario de la inscripción del
+	 * usuario dado.
+	 * 
+	 * @param string $correo El correo del usuario.
+	 * @param int $idDetallesEvento El ID del evento.
+	 * @return Array Arreglo asociativo con la información de inscripción del
+	 * usuario.
+	 */
+	public static function obtenerInformacionHorario($correo, $idDetallesEvento) {
+		try {
+			$info = self::obtenerInfoHorario($correo, $idDetallesEvento);
+			return $info;
+		} catch (\Exception $ex) {
+			return array(
+				"estatus" => 3,
+				"message" => $ex -> getMessage()
+			);
+		}
+	}
+	
+	/**
+	 * Cambia el horario del equipo indicado.
+	 * 
+	 * @param int $idEquipo El ID del equipo.
+	 * @param int $idDiaHit El ID del bloque.
+	 * @return int|string 0 si el horario se pudo cambiar con éxito. De lo contrario
+	 * regresa el mensaje de error.
+	 */
+	public static function cambiarHorario($idEquipo, $idDiaHit) {
+		$dao = new UsuarioDao();
+		try {
+			$dao -> beginTransaction();
+			$dao -> sentenciaGenerica("UPDATE Equipo SET idDiaHit = ? WHERE idEquipo = ?", array(
+				$idDiaHit,
+				$idEquipo
+			));
+			$dao -> commit();
+			return 0;
+		} catch (\Exception $ex) {
+			$dao -> rollback();
+			return $ex -> getMessage();
+		}
+	}
+	
+	/**
+	 * Regresa la información sobre la fecha y horario de la inscripción del
+	 * usuario dado.
+	 * 
+	 * @param string $correo El correo del usuario.
+	 * @param int $idDetallesEvento El ID del evento.
+	 * @return Array Arreglo asociativo con la información de inscripción del
+	 * usuario.
+	 * @throws Exception
+	 */
+	private static function obtenerInfoHorario($correo, $idDetallesEvento) {
+		$dao = new UsuarioDao();
+		
+		$usuario = $dao -> consultaGenerica("SELECT * FROM Usuario WHERE correo LIKE ?", array("%$correo%"));
+		if (empty($usuario)) {
+			return array(
+				"estatus" => 1,
+				"message" => "El usuario con el correo '$correo' no está registrado.",
+			);
+		}
+		
+		$usuario = $usuario[0];
+		$usEq = $dao -> consultaGenerica("SELECT * FROM UsuarioEquipo WHERE idUsuario = ? AND folio LIKE ?", array(
+			$usuario["idUsuario"],
+			"%-$idDetallesEvento"
+		));
+		
+		if (empty($usEq)) {
+			return array(
+				"estatus" => 2,
+				"message" => "Este usuario aún no está inscrito en la carrera."
+			);
+		}
+		
+		$usEq = $usEq[0];
+		$equipo = $dao -> consultaGenerica("SELECT * FROM Equipo WHERE idEquipo = ?", array($usEq["idEquipo"]))[0];
+		$hit = $dao -> consultaGenerica("SELECT * FROM DiaHit WHERE idDiaHit = ?", array($equipo["idDiaHit"]))[0];
+		$dia = $dao -> consultaGenerica("SELECT * FROM DiaEvento WHERE idDiaEvento = ?", array($hit["idDiaEvento"]))[0];
+		
+		$dias = $dao -> consultaGenerica("SELECT * FROM DiaEvento WHERE idDetallesEvento = ?", array($idDetallesEvento));
+		$numDias = count($dias);
+		for ($i = 0; $i < $numDias; $i++) {
+			$dias[$i]["hit"] = array();
+			$dias[$i]["hit"] = $dao -> consultaGenerica("SELECT * FROM DiaHit WHERE idDiaEvento = ? AND horario >= '12:00:00'", array(
+				$dias[$i]["idDiaEvento"]
+			));
+		}
+		
+		return array(
+			"estatus" => 0,
+			"inscripcion" => array(
+				"nombre" => "{$usuario["nombre"]} {$usuario["aPaterno"]} {$usuario["aMaterno"]}",
+				"correo" => $correo,
+				"equipo" => !$equipo["nombre"] ? "Individual" : $equipo["nombre"],
+				"noIntegrantes" => "{$equipo["noIntegrantes"]}",
+				"codigoCanje" => $equipo["codigoCanje"],
+				"noCorredor" => "{$usEq["noCorredor"]}",
+				"folio" => $usEq["folio"],
+				"fecha" => $dia["fechaRealizacion"],
+				"bloque" => $hit["horario"],
+				"idEquipo" => "{$equipo["idEquipo"]}"
+			),
+			"cambioHorario" => array(
+				"dias" => $dias
+			)
+		);
+	}
+	
+	/**
 	 * Obtiene los parámetros GET y POST con la información
 	 * a registrar o modificar del usuario.
 	 * 
