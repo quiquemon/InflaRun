@@ -3,7 +3,6 @@ namespace Application\Model\Controller\Cuenta\Handler;
 
 use Application\Model\Correos\CorreoInscripcion;
 use Application\Model\Dao\EquipoDao;
-use Application\Model\Controller\Cuenta\Handler\DiaHitHandler;
 use Application\Model\Controller\Cuenta\Pagos\PagoEfectivo;
 
 /**
@@ -189,13 +188,15 @@ class AdminHandler {
 	 * necesaria para su inscripción.
 	 * 
 	 * @param Array $usuario Información obtenida con el método obtenerInfo().
+	 * @return string|int TRUE si el correo se envió de manera exitosa. De lo contrario
+	 * regresa el mensaje de error.
 	 */
 	public static function reenviarCorreo($usuario) {
 		$user = $usuario["info"]["usuario"];
 		$carrera = $usuario["info"]["carrera"];
 		$inscripcion = $usuario["info"]["inscripcion"];
 		
-		(new CorreoInscripcion(array(
+		return (new CorreoInscripcion(array(
 			"nombre" => $user["nombre"],
 			"paterno" => $user["paterno"],
 			"materno" => $user["materno"],

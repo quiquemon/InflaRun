@@ -299,11 +299,17 @@ class UsuarioHandler {
 			));
 		}
 		
+		$sql = "SELECT u.nombre, u.aPaterno AS paterno, u.correo FROM Usuario u, UsuarioEquipo ue"
+			. " WHERE u.idUsuario = ue.idUsuario AND ue.idEquipo = ?";
+		$integrantes = $dao -> consultaGenerica($sql, array(
+			$equipo["idEquipo"]
+		));
+		
 		return array(
 			"estatus" => 0,
 			"inscripcion" => array(
 				"nombre" => "{$usuario["nombre"]} {$usuario["aPaterno"]} {$usuario["aMaterno"]}",
-				"correo" => $correo,
+				"correo" => $usuario["correo"],
 				"equipo" => !$equipo["nombre"] ? "Individual" : $equipo["nombre"],
 				"noIntegrantes" => "{$equipo["noIntegrantes"]}",
 				"codigoCanje" => $equipo["codigoCanje"],
@@ -311,7 +317,8 @@ class UsuarioHandler {
 				"folio" => $usEq["folio"],
 				"fecha" => $dia["fechaRealizacion"],
 				"bloque" => $hit["horario"],
-				"idEquipo" => "{$equipo["idEquipo"]}"
+				"idEquipo" => "{$equipo["idEquipo"]}",
+				"integrantes" => $integrantes
 			),
 			"cambioHorario" => array(
 				"dias" => $dias

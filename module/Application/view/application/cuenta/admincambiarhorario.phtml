@@ -19,15 +19,26 @@
 	
 	function rellenarCampos(inscripcion, cambioHorario) {
 		$("#nombre").val(inscripcion.nombre);
-		$("#correo").val(inscripcion.correo);
+		$("#correo2").val(inscripcion.correo);
 		$("#equipo").val(inscripcion.equipo);
-		$("#integrantes").val(inscripcion.noIntegrantes);
+		$("#noIntegrantes").val(inscripcion.noIntegrantes);
 		$("#codigoCanje").val(inscripcion.codigoCanje);
 		$("#noCorredor").val(inscripcion.noCorredor);
 		$("#folio").val(inscripcion.folio);
 		$("#fecha").val(inscripcion.fecha);
 		$("#bloque").val(inscripcion.bloque);
 		$("#idEquipo").val(inscripcion.idEquipo);
+		
+		inscripcion.integrantes.forEach(function(e) {
+			var nombre = "<li class='list-group-item'><strong>Nombre:</strong> " + e.nombre + " " + e.paterno;
+			var correo = " | <strong>Correo:</strong> "
+				+ e.correo
+				+ " <button id='"
+				+ e.correo + "|" + $("#idDetallesEvento").val()
+				+ "' class='btn btn-success btn-sm btn-reenviar-correo'>Reenviar Correo</button></li>";
+
+			$("#integrantes").append(nombre + correo);
+		});
 		
 		cambioHorario.dias.forEach(function(e) {
 			var option = "<option value='" + e.idDiaEvento + "'>"
@@ -63,6 +74,7 @@
 			var message;	
 			$(".alert").remove();
 			$("#formulario input[type='submit']").remove();
+			$("#integrantes").empty();
 			$("#btnBuscar").prop("disabled", true);
 			$("#bodyPanel").prepend("\
 				<div class='progress'>\n\
@@ -88,7 +100,7 @@
 					$("#bodyPanel input[type='text']").prop("disabled", true);
 					$("#formulario select").prop("disabled", true);
 					$("#formulario select").empty();
-					
+					$("#integrantes").empty();
 				} else {
 					rellenarCampos(response.inscripcion, response.cambioHorario);
 					$("#formulario select").prop("disabled", false);
@@ -97,6 +109,47 @@
 				
 				$(".progress").remove();
 				$("#btnBuscar").prop("disabled", false);
+			});
+		});
+		
+		$("#integrantes").on("click", ".btn-reenviar-correo", function() {
+			$("#integrantesPanel .alert").remove();
+			$("#integrantesPanel").prepend("\
+				<div class='progress'>\n\
+					<div class='progress-bar progress-bar-striped active' aria-valuenow='100' aria-valuemin='0' aria-valuemax='100' style='width: 100%'>\n\
+						Estamos reenviando el correo. ¡Solo un momento!\n\
+					</div>\n\
+				</div>"
+			);
+			$(this).prop("disabled", true);
+			var button = $(this);
+			var id = button.attr("id");
+			var correo = id.split("|")[0];
+			var idDetallesEvento = id.split("|")[1];
+			var message;
+			
+			$.get("<?php echo $this -> basePath(); ?>/application/cuenta/adminusuariosreenviarcorreoajax", {
+				correo: correo,
+				idDetallesEvento: idDetallesEvento
+			}, function(response) {
+				if (response.estatus != 0) {
+					message = 
+						"<div class='alert alert-warning fade in'>\n\
+							<a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a>\n\
+							" + response.message + "\n\
+						</div>";
+					$("integrantesPanel").prepend(message);
+					button.prop("disabled", false);
+				} else {
+					message = 
+						"<div class='alert alert-success fade in'>\n\
+							<a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a>\n\
+							" + response.message + "\n\
+						</div>";
+				}
+				
+				$("#integrantesPanel .progress").remove();
+				$("#integrantesPanel").prepend(message);
 			});
 		});
 	});
@@ -161,7 +214,7 @@
 						</div>
 						<div class="form-group">
 							<label>Correo:</label>
-							<input type="text" class="form-control" id="correo" disabled />
+							<input type="text" class="form-control" id="correo2" disabled />
 						</div>
 						<div class="form-group">
 							<label>Equipo:</label>
@@ -169,7 +222,7 @@
 						</div>
 						<div class="form-group">
 							<label>Número de integrantes:</label>
-							<input type="text" class="form-control" id="integrantes" disabled />
+							<input type="text" class="form-control" id="noIntegrantes" disabled />
 						</div>
 						<div class="form-group">
 							<label>Código de canje:</label>
@@ -219,6 +272,16 @@
 								</div>
 								<br>
 							</form>
+						</div>
+					</div>
+				</div>
+				<div class="panel panel-info">
+					<div class="panel-heading">
+						<strong>Integrantes del Equipo</strong>
+					</div>
+					<div id="integrantesPanel" class="panel-body">
+						<div class="col-md-12">
+							<ul id="integrantes" class="list-group"></ul>
 						</div>
 					</div>
 				</div>

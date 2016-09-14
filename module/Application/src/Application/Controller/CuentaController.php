@@ -599,6 +599,17 @@ class CuentaController extends AbstractActionController {
 		return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/adminusuarios");
 	}
 	
+	public function adminusuariosreenviarcorreoajaxAction() {
+		$correo = $this -> params() -> fromQuery("correo", "");
+		$idDetallesEvento = $this -> params() -> fromQuery("idDetallesEvento", 1);
+		$usuario = AdminHandler::obtenerInformacionUsuario($correo, $idDetallesEvento);
+		$r = AdminHandler::reenviarCorreo($usuario);
+		return new JsonModel(array(
+			"estatus" => ($r === true) ? 0 : 1,
+			"message" => ($r === true) ? "El mensaje se envió exitosamente." : $r
+		));
+	}
+	
 	public function adminmoduserAction() {
 		if (!(new Container("admin")) -> offsetExists("admin"))
 			return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/adminlogin");
@@ -656,7 +667,8 @@ class CuentaController extends AbstractActionController {
 		$hit = $this -> params() -> fromPost("hit");
 		$r = UsuarioHandler::cambiarHorario($idEquipo, $hit);
 		if ($r === 0)
-			(new Container("admin")) -> offsetSet("message", "El equipo se ha cambiado de horario con éxito.");
+			(new Container("admin")) -> offsetSet("message",
+				"El equipo se ha cambiado de horario con éxito. No olvides reenviar el comprobante a los demás integrantes.");
 		else
 			(new Container("admin")) -> offsetSet("message", $r);
 		
