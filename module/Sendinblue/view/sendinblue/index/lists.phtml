@@ -1,0 +1,312 @@
+
+<?php
+
+
+	$session = new \Zend\Session\Container("admin");
+	
+	try {
+		$dao = new \Application\Model\Dao\UsuarioDao();
+		$pagos = $dao -> consultaGenerica("SELECT * FROM Pago WHERE estatus = 0");
+		$hayPagos = !empty($pagos);
+		
+		if ($hayPagos) {
+			$equipos = array();
+			
+			$noPagos = count($pagos);
+			for ($i = 0; $i < $noPagos; $i++) {
+				$pagos[$i]["equipo"] = $dao
+					-> consultaGenerica("SELECT * FROM Equipo WHERE idEquipo = ?", array($pagos[$i]["idEquipo"]))[0];
+				$pagos[$i]["equipo"]["usuarioEquipo"] = $dao
+					-> consultaGenerica("SELECT * FROM UsuarioEquipo WHERE idEquipo = ?", array($pagos[$i]["idEquipo"]))[0];
+				$pagos[$i]["equipo"]["usuarioEquipo"]["usuario"] = $dao
+					-> consultaGenerica("SELECT * FROM Usuario WHERE idUsuario = ?",
+						array($pagos[$i]["equipo"]["usuarioEquipo"]["idUsuario"]))[0];
+			}
+		}
+	} catch (\Exception $ex) {
+		$hayPagos = false;
+	}
+      
+      
+?>
+<script>
+	(function() {
+		$("#navbarCollapse ul li").each(function() {
+			$(this).removeClass("active");
+		});
+		$("#navbarCollapse ul").children().last().addClass("active");
+		document.title = "Admin Main - InflaRun";
+	})();
+</script>
+
+<h2>Saludos : <?php echo $this->texto?></h2>
+<div id="dashboard" class="container-fluid">
+    <div class="row">
+	<div class="col-sm-12">
+            <div class="container-fluid">
+                <!-- begin <row> -->
+                <!-- begin #main-content -->
+<div id="main-content">
+
+    <!-- begin #header -->
+    <div id="header" class="spacer-bottom">
+
+        <!-- begin .row -->
+        <div class="row">
+
+            <!-- begin .col -->
+            <div class="col-md-12 clearfix">
+                
+                <h2 class="title-content-header">
+                    <span>Listas</span>
+                </h2>
+                
+                <div class="calltoaction-content-header">
+                    <a id="modalimportcontacts" class="btn btn-success"><i class="fa fa-plus"></i> Agregar una nueva lista</a>
+                </div>                
+                
+            </div>
+            <!-- end .col -->
+
+        </div>
+        <!-- end .row -->
+
+    </div>
+    <!-- end #header -->
+
+    <!-- begin #content -->
+    <div id="content" class="spacer-bottom-lg">
+
+<!-- begin if message -->
+<div class="message-alert">
+    <div id="message_content"></div>
+</div>
+<!-- end if message -->
+
+    
+        <!-- begin .row -->
+        <div class="row spacer-bottom-sm">
+
+            <!-- begin .col -->
+            <div class="col-md-4">
+                <div class="input-group">
+                    <input class="form-control" id="editfoldername" style="display:none;" />
+                    <select class="form-control" id="folder-list" style="display: block;"><option value="Su Primera Carpeta" selected="selected" list_id="1">Su Primera Carpeta</option><option value="" list_id="addFolder">Crear una carpeta</option></select>
+                    <div class="input-group-btn">
+                        <button type="button" class="btn btn-default edit" tabindex="-1"><i class="fa fa-pencil"></i></button>
+                        <button type="button" class="btn btn-default delete" tabindex="-1"><i class="fa fa-trash"></i></button>
+                    </div>
+                </div>
+            </div>
+            <!-- end .col -->
+            
+            <!-- begin .col -->
+            <div class="col-md-5">
+                <div class="spacer-top-xs">
+                    <b id="listCount"></b> 
+                    <span class="listWord">Lista  </span>
+                    <span class="folder-contacts"> & 
+                        <b class="totalCount"><i class="fa fa-circle-o-notch fa-spin"></i></b>
+                        <span class="contactWord">Contacto</span>
+                    </span>
+                </div>
+            </div>
+            <!-- end .col -->
+            
+            <!-- begin .col -->
+            <div class="col-md-3">
+                <div class="input-group">
+                    <input type="text" name="filter" id="filter" class="form-control" placeholder="Búsqueda de lista" />
+                    <div class="input-group-btn">
+                        <button class="btn btn-default" type="button" name="search_lists_submit" id="search_lists_submit"><i class="fa fa-search"></i></button>
+                    </div>
+                </div>
+            </div>
+            <!-- end .col -->
+
+        </div>
+        <!-- end .row -->
+
+        <!-- begin .row -->
+        <div class="row">
+
+            <!-- begin .col -->
+            <div class="col-md-12">
+
+                <div class="showLoader" id="showLoader"></div>
+                <div id="message"></div>
+
+                <!-- begin Listing -->
+                <div id="listsDetails" class="pane pane-default">
+                    
+                    <div id="listsDetails" class="pane pane-default"><div class="table-responsive">                
+                            <table class="table table-hover table-middle">                    
+                                <thead>                        
+                                    <tr>                            
+                                        <th class="td-w-xs">Id</th>                            
+                                        <th class="td-w-xlg">Nombre</th>                            
+                                        <th class="td-w-xlg">Número de contactos</th>                            
+                                        <th></th>                            
+                                        <th class="td-w-sm listsDetails-th1">Acciones</th>                        
+                                    </tr>                    
+                                </thead>                    
+                                <tbody>
+                                    <tr id="list-4">                               
+                                        <td class="text-muted">#4</td>                               
+                                        <td class="listRename">Newsletter</td>                               
+                                        <td><a href="https://my.sendinblue.com/users/list/id/4"><span>3.758</span> Contactos </a></td> 
+                                        <td class="text-right text-muted"></td>
+                                        <td class="text-right">                                
+                                            <div class="btn-group ">                                    
+                                                <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown">Acciones <span class="caret"></span></button>                                    
+                                                <ul class="dropdown-menu dropdown-menu-right">                                        
+                                                    <li><a href="https://my.sendinblue.com/users/list/id/4">
+                                                            <i class="fa fa-user fa-fw"></i> Ver la lista</a></li>   
+                                                            <li><a href="https://my.sendinblue.com/lists/settings/id/4">
+                                                                    <i class="fa fa-wrench fa-fw"></i> Preferencias de la lista</a>
+                                                            </li>                                        
+                                                            <li><a href="#" id="replicate_list_4" class="replicate_class">
+                                                                    <i class="fa fa-file fa-fw"></i> Duplicar</a></li>   
+                                                                    <li class="save-and-add" data-toggle="modal" list_id="4" data-target1="#modal-add-contact"><a href="javascript:void(0);">
+                                                                            <i class="fa fa-plus fa-fw"></i> Agregar un suscriptor</a></li>  
+                                                                            <li class="save-and-add" data-toggle="modal" list_id="4" data-target1="#modal-import-files"><a href="#">
+                                                                                    <i class="fa fa-download fa-fw"></i> Importar un archivo</a></li>                                        
+                                                                                    <li class="save-and-add" data-toggle="modal" list_id="4" data-target1="#modal-copy-paste-contacts"><a href="#">
+                                                                                            <i class="fa fa-share fa-fw"></i> Copiar/Pegar suscriptores</a></li>                                        
+                                                                                            <li list_id="4" class="rename"><a href="javascript:void(0)">
+                                                                                                    <i class="fa fa-pencil fa-fw"></i> Renombrar</a></li>
+                                                                                                    <li><a href="javascript:void(0)" id="delete_list_4" class="delete_list"><i class="fa fa-trash fa-fw"></i> Eliminar</a></li> 
+                                                </ul>                                
+                                            </div>                            
+                                        </td>                        
+                                    </tr>
+                                    <tr id="list-2">                               
+                                        <td class="text-muted">#2</td>                               
+                                        <td class="listRename">Lista 1</td>                               
+                                        <td><a href="https://my.sendinblue.com/users/list/id/2"><span>2</span> Contactos </a></td>
+                                        <td class="text-right text-muted"></td>
+                                        <td class="text-right">                                
+                                            <div class="btn-group ">                                    
+                                                <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown">Acciones <span class="caret"></span></button>       
+                                                <ul class="dropdown-menu dropdown-menu-right">                                        
+                                                    <li><a href="https://my.sendinblue.com/users/list/id/2"><i class="fa fa-user fa-fw"></i> Ver la lista</a></li>
+                                                    <li><a href="https://my.sendinblue.com/lists/settings/id/2"><i class="fa fa-wrench fa-fw"></i> Preferencias de la lista</a></li>
+                                                    <li><a href="#" id="replicate_list_2" class="replicate_class"><i class="fa fa-file fa-fw"></i> Duplicar</a></li>   
+                                                    <li class="save-and-add" data-toggle="modal" list_id="2" data-target1="#modal-add-contact"><a href="javascript:void(0);">
+                                                            <i class="fa fa-plus fa-fw"></i> Agregar un suscriptor</a></li>                                        
+                                                            <li class="save-and-add" data-toggle="modal" list_id="2" data-target1="#modal-import-files"><a href="#">
+                                                                    <i class="fa fa-download fa-fw"></i> Importar un archivo</a></li>    
+                                                                    <li class="save-and-add" data-toggle="modal" list_id="2" data-target1="#modal-copy-paste-contacts"><a href="#">
+                                                                            <i class="fa fa-share fa-fw"></i> Copiar/Pegar suscriptores</a></li>                                        
+                                                                            <li list_id="2" class="rename"><a href="javascript:void(0)"><i class="fa fa-pencil fa-fw"></i> Renombrar</a></li>
+                                                                            <li><a href="javascript:void(0)" id="delete_list_2" class="delete_list"><i class="fa fa-trash fa-fw"></i> Eliminar</a></li> 
+                                                </ul>                                
+                                            </div>                            
+                                        </td>                        
+                                    </tr>
+                                </tbody>
+                            </table><
+                            /div>
+                        </div>
+                </div>
+                <!-- end Listing -->
+                        
+                <div class="text-center">
+                    <div id="btn-view-more-wrap">
+                        <a href="javascript:void(0);" class="btn btn-default spacer-top-xs spacer-bottom-md" id="btn-view-more">Ver más</a>
+                    </div>
+                    <div id="loader-view-more"></div>
+                </div>
+
+            </div>
+            <!-- end .col -->
+
+        </div>
+        <!-- end .row -->
+
+    </div>
+    <!-- end #content -->
+    <div class="clearfix"></div>
+
+</div>
+<!-- end #main-content -->
+            </div>
+        <!-- end </row> --> 
+    </div>
+    </div>
+</div>
+
+<div id="cuentaBody" class="container-fluid">
+	<div class="row">
+		<h2>Bienvenido, Administrador.</h2>
+		<br>
+		<?php if ($session -> offsetExists("message")): ?>
+			<div class="alert alert-info fade in">
+				<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+				<?php
+					echo $session -> offsetGet("message");
+					$session -> offsetUnset("message");
+				?>
+			</div>
+		<?php endif; ?>
+		<div class="col-md-2 col-xs-3">
+			<div class="dropdown">
+				<button class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+					Opciones
+					<span class="caret"></span>
+				</button>
+				<ul class="dropdown-menu">
+					<li><a href="<?php echo $this -> basePath(); ?>/application/cuenta/adminusuarios">Usuarios</a></li>
+					<li><a href="<?php echo $this -> basePath(); ?>/application/cuenta/adminlogout">Cerrar Sesión</a></li>
+				</ul>
+			</div>
+			<br>
+			<br>
+			<a href="<?php echo $this -> basePath(); ?>/application/cuenta/adminmain" class="btn btn-warning">Actualizar</a>
+			<br><br>
+			<a href="<?php echo $this -> basePath(); ?>/application/cuenta/adminaceptarpagadas" class="btn btn-success disabled">Aceptar Pagadas</a>
+			<br><br>
+			<a href="<?php echo $this -> basePath(); ?>/application/cuenta/adminrechazarexpiradas" class="btn btn-danger disabled">Rechazar Expiradas</a>
+		</div>
+		<div class="col-md-10 col-xs-9">
+			<div class="panel panel-success">
+				<div class="panel-heading">
+					<strong>Pagos en Efectivo</strong>
+				</div>
+				<div class="panel-body">
+					<div class="table-responsive">
+						<table class="table table-hover">
+							<thead>
+								<tr>
+									<th>Correo del usuario</th>
+									<th>Número de pedido</th>
+									<th>Número de transacción</th>
+									<th>Fecha de expiración</th>
+									<th>Acción</th>
+								</tr>
+							</thead>
+							<tbody>
+								<?php if ($hayPagos): ?>
+									<?php foreach ($pagos as $pago): ?>
+										<tr>
+											<td><?php echo $pago["equipo"]["usuarioEquipo"]["usuario"]["correo"]; ?></td>
+											<td><?php echo $pago["orderId"]; ?></td>
+											<td><?php echo $pago["transaccion"]; ?></td>
+											<td><?php echo $pago["fechaExpiracion"] ?></td>
+											<td>
+												<a href="<?php echo $this -> basePath(); ?>/application/cuenta/adminaceptarpago?idPago=<?php echo $pago["idPago"]; ?>" class="btn btn-success">Aceptar</a>
+												<a href="<?php echo $this -> basePath(); ?>/application/cuenta/adminrechazarpago?idPago=<?php echo $pago["idPago"]; ?>" class="btn btn-danger">Rechazar</a>
+											</td>
+										</tr>
+									<?php endforeach; ?>
+								<?php endif; ?>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<br>
+</div>
+

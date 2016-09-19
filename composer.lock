@@ -148,16 +148,16 @@
         },
         {
             "name": "myclabs/deep-copy",
-            "version": "1.5.2",
+            "version": "1.5.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/myclabs/DeepCopy.git",
-                "reference": "da8529775f14f4fdae33f916eb0cf65f6afbddbc"
+                "reference": "ea74994a3dc7f8d2f65a06009348f2d63c81e61f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/myclabs/DeepCopy/zipball/da8529775f14f4fdae33f916eb0cf65f6afbddbc",
-                "reference": "da8529775f14f4fdae33f916eb0cf65f6afbddbc",
+                "url": "https://api.github.com/repos/myclabs/DeepCopy/zipball/ea74994a3dc7f8d2f65a06009348f2d63c81e61f",
+                "reference": "ea74994a3dc7f8d2f65a06009348f2d63c81e61f",
                 "shasum": ""
             },
             "require": {
@@ -186,7 +186,7 @@
                 "object",
                 "object graph"
             ],
-            "time": "2016-09-06 16:07:05"
+            "time": "2016-09-16 13:37:59"
         },
         {
             "name": "phpdocumentor/reflection-common",
@@ -2498,16 +2498,16 @@
         },
         {
             "name": "zendframework/zend-form",
-            "version": "2.9.0",
+            "version": "2.9.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/zendframework/zend-form.git",
-                "reference": "3abb688fda20989b2e2b444efc1dba173abb2e07"
+                "reference": "a0f0ce0f4c11e1c78939b4e8a212f6ba44559253"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/zendframework/zend-form/zipball/3abb688fda20989b2e2b444efc1dba173abb2e07",
-                "reference": "3abb688fda20989b2e2b444efc1dba173abb2e07",
+                "url": "https://api.github.com/repos/zendframework/zend-form/zipball/a0f0ce0f4c11e1c78939b4e8a212f6ba44559253",
+                "reference": "a0f0ce0f4c11e1c78939b4e8a212f6ba44559253",
                 "shasum": ""
             },
             "require": {
@@ -2522,7 +2522,7 @@
                 "phpunit/phpunit": "^4.8",
                 "zendframework/zend-cache": "^2.6.1",
                 "zendframework/zend-captcha": "^2.5.4",
-                "zendframework/zend-code": "^2.6",
+                "zendframework/zend-code": "^2.6 || ^3.0",
                 "zendframework/zend-escaper": "^2.5",
                 "zendframework/zend-eventmanager": "^2.6.2 || ^3.0",
                 "zendframework/zend-filter": "^2.6",
@@ -2571,7 +2571,7 @@
                 "form",
                 "zf2"
             ],
-            "time": "2016-06-07 18:22:51"
+            "time": "2016-09-14 17:47:35"
         },
         {
             "name": "zendframework/zend-http",
