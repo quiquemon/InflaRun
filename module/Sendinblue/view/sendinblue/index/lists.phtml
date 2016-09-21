@@ -1,32 +1,34 @@
 
 <?php
-
+        $execution_time_limit = 0;
+        set_time_limit($execution_time_limit);
 
 	$session = new \Zend\Session\Container("admin");
 	
-	try {
+	try {   
+            
+                
 		$dao = new \Application\Model\Dao\UsuarioDao();
-		$pagos = $dao -> consultaGenerica("SELECT * FROM Pago WHERE estatus = 0");
-		$hayPagos = !empty($pagos);
+		$pagos = $dao -> consultaGenerica("select  u.aPaterno, u.aMaterno, u.nombre,u.correo ,u.sexo, ue.noCorredor,u.fechaNacimiento, ev.nombre as nombreCarrera  ,dh.horario, DetE.direccion, u.idUsuario, ue.folio,e.nombre as equipo, ue.nocorredor,  DATE_FORMAT(de.fechaRealizacion, '%W ') as dia,DATE_FORMAT(de.fechaRealizacion, ' %M ') as mes, DATE_FORMAT(de.fechaRealizacion, ' %Y') as anio , DATE_FORMAT(de.fechaRealizacion, ' %d') as diaNum
+	from Usuario u, UsuarioEquipo ue, Equipo e, DiaHit dh, DiaEvento de, DetallesEvento DetE, Evento ev, Pago p
+	where ue.folio IS NOT NULL  and u.idusuario = ue.idusuario and ue.idEquipo = e.idEquipo and e.iddiahit = dh.idDiaHit and de.idDiaEvento = dh.idDiaEvento and de.idDetallesEvento= DetE.idDetallesEvento and DetE.idEvento = ev.idEvento and p.idEquipo = e.idEquipo  
+	ORDER BY u.aPaterno LIMIT 0, 38");
 		
-		if ($hayPagos) {
-			$equipos = array();
+		
+		
 			
-			$noPagos = count($pagos);
-			for ($i = 0; $i < $noPagos; $i++) {
-				$pagos[$i]["equipo"] = $dao
-					-> consultaGenerica("SELECT * FROM Equipo WHERE idEquipo = ?", array($pagos[$i]["idEquipo"]))[0];
-				$pagos[$i]["equipo"]["usuarioEquipo"] = $dao
-					-> consultaGenerica("SELECT * FROM UsuarioEquipo WHERE idEquipo = ?", array($pagos[$i]["idEquipo"]))[0];
-				$pagos[$i]["equipo"]["usuarioEquipo"]["usuario"] = $dao
-					-> consultaGenerica("SELECT * FROM Usuario WHERE idUsuario = ?",
-						array($pagos[$i]["equipo"]["usuarioEquipo"]["idUsuario"]))[0];
-			}
-		}
+		
 	} catch (\Exception $ex) {
 		$hayPagos = false;
 	}
+
+
+//Obtiene los folders
+
+require('Mailin.php');
+      $mailin = new Mailin("https://api.sendinblue.com/v2.0","NQGOIrgFEVKYxp51");
       
+   
       
 ?>
 <script>
@@ -38,6 +40,8 @@
 		document.title = "Admin Main - InflaRun";
 	})();
 </script>
+
+
 
 <h2>Saludos : <?php echo $this->texto?></h2>
 <div id="dashboard" class="container-fluid">
@@ -249,25 +253,7 @@
 				?>
 			</div>
 		<?php endif; ?>
-		<div class="col-md-2 col-xs-3">
-			<div class="dropdown">
-				<button class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
-					Opciones
-					<span class="caret"></span>
-				</button>
-				<ul class="dropdown-menu">
-					<li><a href="<?php echo $this -> basePath(); ?>/application/cuenta/adminusuarios">Usuarios</a></li>
-					<li><a href="<?php echo $this -> basePath(); ?>/application/cuenta/adminlogout">Cerrar Sesión</a></li>
-				</ul>
-			</div>
-			<br>
-			<br>
-			<a href="<?php echo $this -> basePath(); ?>/application/cuenta/adminmain" class="btn btn-warning">Actualizar</a>
-			<br><br>
-			<a href="<?php echo $this -> basePath(); ?>/application/cuenta/adminaceptarpagadas" class="btn btn-success disabled">Aceptar Pagadas</a>
-			<br><br>
-			<a href="<?php echo $this -> basePath(); ?>/application/cuenta/adminrechazarexpiradas" class="btn btn-danger disabled">Rechazar Expiradas</a>
-		</div>
+		
 		<div class="col-md-10 col-xs-9">
 			<div class="panel panel-success">
 				<div class="panel-heading">
@@ -286,20 +272,157 @@
 								</tr>
 							</thead>
 							<tbody>
-								<?php if ($hayPagos): ?>
-									<?php foreach ($pagos as $pago): ?>
+                                                                       
+									<?php $contador = 1;foreach ($pagos as $pago):
+                                                                            
+                                                                            
+                                                                       
+                                                                        
+                                                                        
+                                                                        
+                                                                        $to = $pago["correo"];
+                                                                        $subject = "Comprobante de incripcion";
+                                                                        $from = "ti@numeri.mx";
+                                                                        $nombre = $pago["nombre"];    
+                                                                        $paterno = $pago["aPaterno"];    
+                                                                        $materno = $pago["aMaterno"];    
+                                                                        $sexo = $pago["sexo"]; 
+                                                                        $noCorredor = $pago["noCorredor"];       
+                                                                        $carrera = $pago["nombreCarrera"]; 
+                                                                        $hit = $pago["horario"];  
+                                                                        $direccion =  $pago["direccion"];  
+                                                                        $fechaNacimiento =  $pago["fechaNacimiento"];  
+                                                                        $uuid =  $pago["idUsuario"];  
+                                                                        $folio = $pago["folio"];
+                                                                        $equipo = $pago["equipo"];    
+                                                                        $nocorredor = $pago["nocorredor"];    
+                                                                        $diaNum = $pago["diaNum"];    
+                                                                          
+                                                                        $dia = $pago["dia"]; 
+                                                                        $domingo = "Sunday";
+                                                                        
+                                                                        if ( strcmp( $dia  , $domingo )== 1){
+                                                                            $diaChido = "Domingo"; 
+                                                                        }else
+                                                                            
+                                                                            $diaChido = "Sabado"; 
+                                                                            
+                                                                        
+                                                                        $mes = "Septiembre";    
+                                                                        $anio = "2016";    
+                                                                        
+                                                                        ?>
 										<tr>
-											<td><?php echo $pago["equipo"]["usuarioEquipo"]["usuario"]["correo"]; ?></td>
-											<td><?php echo $pago["orderId"]; ?></td>
-											<td><?php echo $pago["transaccion"]; ?></td>
-											<td><?php echo $pago["fechaExpiracion"] ?></td>
-											<td>
-												<a href="<?php echo $this -> basePath(); ?>/application/cuenta/adminaceptarpago?idPago=<?php echo $pago["idPago"]; ?>" class="btn btn-success">Aceptar</a>
-												<a href="<?php echo $this -> basePath(); ?>/application/cuenta/adminrechazarpago?idPago=<?php echo $pago["idPago"]; ?>" class="btn btn-danger">Rechazar</a>
-											</td>
+											
+											<td><?php echo $to ?></td>
+                                                                                        <td><?php echo $subject ; ?></td>
+                                                                                        <td><?php echo $from ; ?></td>
+                                                                                        <td><?php echo $nombre ; ?></td>
+                                                                                        <td><?php echo $paterno; ?></td>
+                                                                                        <td><?php echo $materno ; ?></td>
+                                                                                        <td><?php echo $sexo ; ?></td>
+                                                                                        <td><?php echo $noCorredor ; ?></td>
+                                                                                        <td><?php echo $carrera ; ?></td>
+                                                                                        <td><?php echo $hit ; ?></td>
+                                                                                        <td><?php echo $direccion; ?></td>
+                                                                                        <td><?php echo $fechaNacimiento; ?></td>  
+                                                                                        <td><?php echo $uuid ; ?></td>
+                                                                                        <td><?php echo $folio; ?></td>
+                                                                                        <td><?php echo $equipo; ?></td>  
+                                                                                        <td><?php echo $nocorredor ; ?></td>   
+                                                                                        <td><?php echo $diaNum; ?></td>
+                                                                                        
+											
 										</tr>
-									<?php endforeach; ?>
-								<?php endif; ?>
+                                                                                
+									<?php $contador++; 
+                                                                        
+
+
+
+
+                                                                      
+        $imagedata = file_get_contents( "https://www.inflarun.mx/InflaRun/public/css/Imagenes/banner-inscripcion.png");
+        $base64 = base64_encode($imagedata);
+
+ 
+    $data = array( "to" => array($to =>"to whom!"),
+        "from" => array($from, "from email!"),
+        "subject" => $subject,
+        "html" => "
+       <html>
+	<head>
+		<title>Inscrito en InflaRun</title>
+		<meta charset='UTF-8'>
+		<meta name='viewport' content='width=device-width, initial-scale=1.0'>
+		<style></style>
+	</head>
+	<body>
+		<div class='container' align='center'>
+			<img src=\"{https://www.inflarun.mx/InflaRun/public/css/Imagenes/banner-inscripcion.png}\"alt='image1' border='0'><br/>
+		</div>
+		<br>
+      <div class='container-fluid'>
+      <div class='row'>
+			        <p>Estimado(a):". $nombre." </p>
+			        <p>Agradecemos su inscripción a la carrera <strong>".$carrera."</strong> y anexamos su comprobante de inscripción. </p>
+			        <br>
+			        <h2>INFORMACIÓN PERSONAL</h2>
+			        <p><strong>Nombre:</strong>". $nombre." <p>
+			        <p><strong>Apellido paterno:</strong> ".$paterno."</p>
+			        <p><strong>Apellido materno:</strong> ".$materno."</p>
+			        <p><strong>Sexo:</strong> ".$sexo."</p>
+			        <p><strong>Fecha de nacimiento:</strong> ".$fechaNacimiento."</p>
+			        <br>
+			        <h2>INFORMACIÓN DE LA CARRERA</h2>
+			        <p><strong>Carrera:</strong> ".$carrera."</p>
+			        <p><strong>Fecha:</strong> ".$diaChido ." ".$diaNum ." ". $mes ." ".$anio."</p>
+			        <p><strong>Horario:</strong> ".$hit."</p>
+			        <p><strong>Dirección:</strong> ".$direccion."</p>
+			        <br>
+			        <h2>INFORMACIÓN DE LA INSCRIPCIÓN</h2>
+			        <p><strong>UUID de inscripción:</strong> ".$uuid."</p>
+			        <p><strong>Folio de inscripción:</strong> ".$folio."</p>
+			        <p><strong>Equipo:</strong> ".$equipo."</p>
+			        <p><strong>Número de corredor:</strong> ".$noCorredor."</p>
+			        <br>
+			        <p>Imprime y firma esta forma. Llévala al registro para recoger tu paquete. Recuerda también llevar una
+			        <strong>identificación oficial</strong>.</p>
+			        <h3>FIRMA</h3>
+			        <p>______________________________________________</p>
+			        <br>
+			        <div class='text-justify'>
+			          <h4>Términos y Condiciones</h4>
+			          <p>Admito que al firmar este documento conozco las bases de la convocatoria, que mis datos son verdaderos y
+			          si fueran falsos seré descalificado del evento. Soy el único responsable de mi salud y de cualquier accidente
+			          o deficiencia que pudiera causar alteración a mi salud física e incluso la muerte. Por esta razón libero al
+			          comité organizador, a los patrocinadores, a las autoridades deportivas y a los prestadores de servicios de
+			          cualquier daño que sufra. Así mismo, autorizo al comité organizador para utilizar mi imagen, voz y nombre, ya sea
+			          total o parcialmente en lo relacionado al evento. Estoy conciente de que para participar en esta competencia debo
+			          estar físicamente preparado para el esfuerzo que voy a realizar.</p>
+			          <br>
+			          <h4>Exoneraciones</h4>
+			          <p>El paquete de correrdor se entregará el día del evento una hora antes del horario que seleccione al momento de
+			          inscribirme. En tu paquete recibirás el número de competidor, tu playera y tu kit de participante. Es obligatorio
+			          que el titular de la inscripción se presente a la entrega de paquetes a recoger el mismo llevando consigo una
+			          identificación. No habrá módulo de entrega de grupos y no se le entregará paquete de competidor a ninguna otra persona
+			          que no sea el titular de la inscripción y únicamente mostrando una identificación oficial. El corredor que por cualquier
+			          motivo no recoja su paquete en el lugar y horario indicados perderá todo derecho derivado de su inscripción. Por ningún
+			          motivo habrá cambio de horario ni de datos de competidor ni se permitirá transferir números.</p>
+			        </div>
+			      </div>
+			    </div>
+			  </body>
+			  </html>",
+
+            "headers" => array("Content-Type"=> "text/html; charset=iso-8859-1","X-param1"=> "value1", "X-param2"=> "value2","X-Mailin-custom"=>"my custom value", "X-Mailin-IP"=> "102.102.1.2", "X-Mailin-Tag" => "My tag"),
+            "inline_image" => array("https://www.inflarun.mx/InflaRun/public/css/Imagenes/banner-inscripcion.png" => $base64));
+ 
+    var_dump($mailin->send_email($data));                             
+                                                                        endforeach;
+                                                                        
+                                                                        ?>
+								
 							</tbody>
 						</table>
 					</div>

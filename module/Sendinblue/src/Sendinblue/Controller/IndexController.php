@@ -21,7 +21,7 @@ class IndexController extends AbstractActionController
     }
 
    public function listsAction() {
-        return new ViewModel(array("texto"=>"hola mundo desde Zend, soy C&eacute;sar Cancino<br>id=".$resultado["data"]["folders"][0]["id"]));
+        return new ViewModel();
    }
     
 }
