@@ -679,6 +679,33 @@ class CuentaController extends AbstractActionController {
 		return new ViewModel();
 	}
 	
+	public function adminregistrogetinfoAction() {
+		$folio = $this -> params() -> fromQuery("folio", "");
+		$info = InscripcionHandler::obtenerInfoGrupoRegistroManual($folio);
+		return new JsonModel($info);
+	}
+	
+	public function adminregistromanualcorreoAction() {
+		$correo = $this -> params() -> fromPost("correo", "");
+		$folio = $this -> params() -> fromPost("folio", "");
+		$r = InscripcionHandler::agregarUsuarioAGrupo($correo, $folio);
+		return new JsonModel($r);
+		/*if ($r["estatus"] === 0) {
+			$div = "<div class='alert alert-info fade in'>"
+					. "<a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a>"
+					. "{$r["message"]}"
+				. "</div>";
+		} else {
+			$div = "<div class='alert alert-warning fade in'>"
+					. "<a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a>"
+					. "{$r["message"]}"
+				. "</div>";
+		}
+		
+		(new Container("admin")) -> offsetSet("message", $div);
+		return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/adminregistromanual");*/
+	}
+	
 	public function adminaceptarpagadasAction() {
 		if (!(new Container("admin")) -> offsetExists("admin"))
 			return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/adminlogin");

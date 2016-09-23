@@ -9,12 +9,34 @@
 		$("#navbarCollapse ul").children().last().addClass("active");
 		document.title = "Admin Registro Manual - InflaRun";
 		
+		function rellenarCampos(info) {
+			$("#nombreEquipo").val(info.nombre);
+			$("#codigoCanje").val(info.codigoCanje);
+			$("#noIntegrantes").val(info.noIntegrantes);
+			$("#actualmenteInscritos").val(info.inscritos);
+			$("#fecha").val(info.fecha);
+			$("#bloque").val(info.bloque);
+			$("#formCorreo").append("<button id='"
+				+ info.folio
+				+"' class='btn btn-info btn-agregar-usuario'>Agregar Integrante</button>");
+			
+			info.integrantes.forEach(function(e) {
+				var nombre = "<li class='list-group-item'><strong>Nombre:</strong> " + e.nombre + " " + e.aPaterno;
+				var correo = " | <strong>Correo: </strong> " + e.correo;
+				var noCorredor = " | <strong>No. de corredor:</strong> " + e.noCorredor + "</li>";
+				$("#integrantes").append(nombre + correo + noCorredor);
+			});
+		}
+		
 		$(document).ready(function() {
 			$("#btnBuscar").click(function() {
 				var message;
 				$(".alert").remove();
+				$(".btn-agregar-usuario").remove();
 				$("#integrantes").empty();
 				$("#btnBuscar").prop("disabled", true);
+				$("#formulario input[type='submit']").remove();
+				$("#formCorreo input[type='submit']").remove();
 				$("#bodyPanel").prepend("\
 					<div class='progress'>\n\
 						<div class='progress-bar progress-bar-striped active' aria-valuenow='100' aria-valuemin='0' aria-valuemax='100' style='width: 100%'>\n\
@@ -23,14 +45,66 @@
 					</div>"
 				);
 				
-				/*$.get("<?php echo $this -> basePath(); ?>/application/cuenta/adminregistrogetinfo", {
+				$.get("<?php echo $this -> basePath(); ?>/application/cuenta/adminregistrogetinfo", {
 					folio: $("#folio").val()
 				}, function(response) {
-					
+					if (response.estatus != 0) {
+						message = 
+							"<div class='alert alert-warning fade in'>\n\
+								<a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a>\n\
+								<strong>" + response.message + "</strong>\n\
+							</div>";
+						$("#bodyPanel").prepend(message);
+						$("#bodyPanel input[type='text']").val("");
+						$("#correoNuevo").val("");
+						$("#correoNuevo").prop("disabled", true);
+						$("input[type='hidden']").val("");
+					} else {
+						rellenarCampos(response.info);
+						$("#correoNuevo").prop("disabled", false);
+					}
 					
 					$(".progress").remove();
 					$("#btnBuscar").prop("disabled", false);
-				});*/
+				});
+			});
+			
+			$("#formCorreo").on("click", ".btn-agregar-usuario", function() {
+				$("#agregarIntegranteBody .alert").remove();
+				$("#agregarIntegranteBody").prepend("\
+					<div class='progress'>\n\
+						<div class='progress-bar progress-bar-striped active' aria-valuenow='100' aria-valuemin='0' aria-valuemax='100' style='width: 100%'>\n\
+							Estamos inscribiendo al usuario. ¡Solo un momento!\n\
+						</div>\n\
+					</div>"
+				);
+				var button = $(this);
+				var folio = button.attr("id");
+				var message;
+				
+				$.post("<?php echo $this -> basePath(); ?>/application/cuenta/adminregistromanualcorreo", {
+					correo: $("#correoNuevo").val(),
+					folio: folio
+				}, function(response) {
+					if (response.estatus != 0) {
+						message = 
+							"<div class='alert alert-warning fade in'>\n\
+								<a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a>\n\
+								" + response.message + "\n\
+							</div>";
+						$("integrantesPanel").prepend(message);
+						button.prop("disabled", false);
+					} else {
+						message = 
+							"<div class='alert alert-success fade in'>\n\
+								<a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a>\n\
+								" + response.message + "\n\
+							</div>";
+					}
+					
+					$("#agregarIntegranteBody .progress").remove();
+					$("#agregarIntegranteBody").prepend(message);
+				});
 			});
 		});
 	})();
@@ -39,15 +113,12 @@
 	<div class="row">
 		<h2>Registro Manual</h2>
 		<br>
-		<?php if ($session -> offsetExists("message")): ?>
-			<div class="alert alert-info fade in">
-				<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
-				<?php
-					echo $session -> offsetGet("message");
-					$session -> offsetUnset("message");
-				?>
-			</div>
-		<?php endif; ?>
+		<?php
+			if ($session -> offsetExists("message")) {
+				echo $session -> offsetGet("message");
+				$session -> offsetUnset("message");
+			}
+		?>
 		<div class="col-md-2 col-xs-3">
 			<div class="dropdown">
 				<button class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
@@ -58,6 +129,7 @@
 					<li class="dropdown-header">Usuarios</li>
 					<li><a href="<?php echo $this -> basePath(); ?>/application/cuenta/adminusuarios">Administración de Usuarios</a></li>
 					<li><a href="<?php echo $this -> basePath(); ?>/application/cuenta/adminmoduser">Modificar Info Usuario</a></li>
+					<li><a href="<?php echo $this -> basePath(); ?>/application/cuenta/admincambiarhorario">Cambiar Horario</a></li>
 					<li class="divider"></li>
 					<li class="dropdown-header">Administrador</li>
 					<li><a href="<?php echo $this -> basePath(); ?>/application/cuenta/adminmain">Página Principal</a></li>
@@ -113,11 +185,12 @@
 					<div class="panel-heading">
 						<strong>Agregar Integrante (Existente)</strong>
 					</div>
-					<div class="panel-body">
+					<div id="agregarIntegranteBody" class="panel-body">
 						<div class="col-md-12">
 							<div id="formCorreo" class="form-group">
 								<label>Correo:</label>
-								<input type="text" class="form-control" id="correoNuevo" disabled />
+								<input type="text" class="form-control" id="correoNuevo" name="correoNuevo" disabled />
+								<br>
 							</div>
 						</div>
 					</div>
