@@ -1,0 +1,139 @@
+<?php
+	$session = new \Zend\Session\Container("admin");
+?>
+<script>
+	(function() {
+		$("#navbarCollapse ul li").each(function() {
+			$(this).removeClass("active");
+		});
+		$("#navbarCollapse ul").children().last().addClass("active");
+		document.title = "Admin Registro Manual - InflaRun";
+		
+		$(document).ready(function() {
+			$("#btnBuscar").click(function() {
+				var message;
+				$(".alert").remove();
+				$("#integrantes").empty();
+				$("#btnBuscar").prop("disabled", true);
+				$("#bodyPanel").prepend("\
+					<div class='progress'>\n\
+						<div class='progress-bar progress-bar-striped active' aria-valuenow='100' aria-valuemin='0' aria-valuemax='100' style='width: 100%'>\n\
+							Estamos buscando en el sistema. ¡Solo un momento!\n\
+						</div>\n\
+					</div>"
+				);
+				
+				/*$.get("<?php echo $this -> basePath(); ?>/application/cuenta/adminregistrogetinfo", {
+					folio: $("#folio").val()
+				}, function(response) {
+					
+					
+					$(".progress").remove();
+					$("#btnBuscar").prop("disabled", false);
+				});*/
+			});
+		});
+	})();
+</script>
+<div id="cuentaBody" class="container-fluid">
+	<div class="row">
+		<h2>Registro Manual</h2>
+		<br>
+		<?php if ($session -> offsetExists("message")): ?>
+			<div class="alert alert-info fade in">
+				<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+				<?php
+					echo $session -> offsetGet("message");
+					$session -> offsetUnset("message");
+				?>
+			</div>
+		<?php endif; ?>
+		<div class="col-md-2 col-xs-3">
+			<div class="dropdown">
+				<button class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+					Opciones
+					<span class="caret"></span>
+				</button>
+				<ul class="dropdown-menu">
+					<li class="dropdown-header">Usuarios</li>
+					<li><a href="<?php echo $this -> basePath(); ?>/application/cuenta/adminusuarios">Administración de Usuarios</a></li>
+					<li><a href="<?php echo $this -> basePath(); ?>/application/cuenta/adminmoduser">Modificar Info Usuario</a></li>
+					<li class="divider"></li>
+					<li class="dropdown-header">Administrador</li>
+					<li><a href="<?php echo $this -> basePath(); ?>/application/cuenta/adminmain">Página Principal</a></li>
+					<li><a href="<?php echo $this -> basePath(); ?>/application/cuenta/adminlogout">Cerrar Sesión</a></li>
+				</ul>
+			</div>
+			<br>
+			<br>
+			<div class="form-group">
+				<label>Busca por folio:</label>
+				<input type="text" class="form-control" id="folio" />
+				<br>
+				<button id="btnBuscar" class="btn btn-default btn-block">Buscar</button>
+			</div>
+		</div>
+		<div class="col-md-10 col-xs-9">
+			<div class="panel panel-success">
+				<div class="panel-heading">
+					<strong>Información de Grupo</strong>
+				</div>
+				<div id="bodyPanel" class="panel-body">
+					<div class="col-md-6">
+						<div class="form-group">
+							<label>Nombre:</label>
+							<input type="text" class="form-control" id="nombreEquipo" disabled />
+						</div>
+						<div class="form-group">
+							<label>Código de canje:</label>
+							<input type="text" class="form-control" id="codigoCanje" disabled />
+						</div>
+						<div class="form-group">
+							<label>Número de integrantes:</label>
+							<input type="text" class="form-control" id="noIntegrantes" disabled />
+						</div>
+					</div>
+					<div class="col-md-6">
+						<div class="form-group">
+							<label>Actualmente inscritos:</label>
+							<input type="text" class="form-control" id="actualmenteInscritos" disabled />
+						</div>
+						<div class="form-group">
+							<label>Fecha:</label>
+							<input type="text" class="form-control" id="fecha" disabled />
+						</div>
+						<div class="form-group">
+							<label>Bloque:</label>
+							<input type="text" class="form-control" id="bloque" disabled />
+						</div>
+					</div>
+					<br>
+				</div>
+				<div class="panel panel-danger">
+					<div class="panel-heading">
+						<strong>Agregar Integrante (Existente)</strong>
+					</div>
+					<div class="panel-body">
+						<div class="col-md-12">
+							<div id="formCorreo" class="form-group">
+								<label>Correo:</label>
+								<input type="text" class="form-control" id="correoNuevo" disabled />
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="panel panel-info">
+					<div class="panel-heading">
+						<strong>Integrantes del Equipo</strong>
+					</div>
+					<div id="integrantesPanel" class="panel-body">
+						<div class="col-md-12">
+							<ul id="integrantes" class="list-group"></ul>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<br>
+</div>

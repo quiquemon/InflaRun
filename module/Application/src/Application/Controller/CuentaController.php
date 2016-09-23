@@ -675,6 +675,10 @@ class CuentaController extends AbstractActionController {
 		return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/admincambiarhorario");
 	}
 	
+	public function adminregistromanualAction() {
+		return new ViewModel();
+	}
+	
 	public function adminaceptarpagadasAction() {
 		if (!(new Container("admin")) -> offsetExists("admin"))
 			return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/adminlogin");
@@ -705,6 +709,13 @@ class CuentaController extends AbstractActionController {
 		
 		return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/login");
 	}
+	
+	/**
+	 * *************************************************************************************************
+	 * TERMINAN FUNCIONES DEL ADMINISTRADOR
+	 * *************************************************************************************************
+	 */
+	
 	
 	public function modificarinformacionAction() {
 		if (!(new Container("usuario")) -> offsetExists("usuario"))
