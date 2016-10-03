@@ -106,7 +106,7 @@ class InscripcionHandler {
 				"equipo" => ($modalidad["rdbModalidad"] === "individual")
 					? "Individual"
 					: $modalidad["nombreEquipo"] . " | Número de integrantes: {$modalidad["noIntegrantes"]} | Código de Canje: $codigoCanje"
-			))) -> enviarCorreo($usuario -> getCorreo(), "{$usuario -> getNombre()} {$usuario -> getAPaterno()}");
+			))) -> enviarSendinblue($usuario -> getCorreo(), "{$usuario -> getNombre()} {$usuario -> getAPaterno()}");
 		}
 	}
 	
@@ -165,7 +165,7 @@ class InscripcionHandler {
 			"tipoPago" => "n/a",
 			"precio" => "n/a",
 			"equipo" => $equipo["nombre"]
-		))) -> enviarCorreo($usuario -> getCorreo(), "{$usuario -> getNombre()} {$usuario -> getAPaterno()}");
+		))) -> enviarSendinblue($usuario -> getCorreo(), "{$usuario -> getNombre()} {$usuario -> getAPaterno()}");
 	}
 	
 	/**
@@ -305,7 +305,7 @@ class InscripcionHandler {
 			"equipo" => ($equipo["noIntegrantes"] == 1)
 				? "Individual"
 				: $equipo["nombre"] . " | Número de integrantes: {$equipo["noIntegrantes"]} | Código de Canje: $codigoCanje"
-		))) -> enviarCorreo($usuario["correo"], "{$usuario["nombre"]} {$usuario["aPaterno"]}");
+		))) -> enviarSendinblue($usuario["correo"], "{$usuario["nombre"]} {$usuario["aPaterno"]}");
 	}
 	
 	/**
