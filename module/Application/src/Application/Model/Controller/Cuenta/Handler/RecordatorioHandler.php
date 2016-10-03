@@ -106,7 +106,7 @@ class InscripcionHandler {
 				"equipo" => ($modalidad["rdbModalidad"] === "individual")
 					? "Individual"
 					: $modalidad["nombreEquipo"] . " | Número de integrantes: {$modalidad["noIntegrantes"]} | Código de Canje: $codigoCanje"
-			))) -> enviarCorreo($usuario -> getCorreo(), "{$usuario -> getNombre()} {$usuario -> getAPaterno()}");
+			))) -> enviarSendinblue($usuario -> getCorreo(), "{$usuario -> getNombre()} {$usuario -> getAPaterno()}");
 		}
 	}
 	

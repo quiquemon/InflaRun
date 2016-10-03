@@ -212,7 +212,7 @@ class AdminHandler {
 			"tipoPago" => $inscripcion["tipoPago"],
 			"precio" => $inscripcion["precio"],
 			"equipo" => $inscripcion["equipo"]
-		))) -> enviarCorreo($user["correo"], "{$user["nombre"]} {$user["paterno"]}");
+		))) ->enviarSendinblue($user["correo"], "{$user["nombre"]} {$user["paterno"]}");
 	}
 	
 	/**
