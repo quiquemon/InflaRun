@@ -43,5 +43,5 @@ abstract class Correos extends PHPMailer {
 	 * @return (bool|string) Regresa true si el correo se envió
 	 * de manera exitosa. De lo contrario, regresa el mensaje de error.
 	 */
-	public abstract function enviarCorreo($correo, $nombre = "Destinatario");
+	public abstract function enviarSendinblue($correo, $nombre = "Destinatario");
 }

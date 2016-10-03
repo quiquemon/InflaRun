@@ -12,7 +12,7 @@ class CorreoRegistro extends Correos {
 	}
 	
 	
-	public function enviarCorreo($correo, $nombre = "Destinatario") {
+	public function enviarSendinblue($correo, $nombre = "Destinatario") {
 		try {
 			$this -> mail -> setFrom("noreply@inflarun.com", "InflaRun");
 			$this -> mail -> addAddress($correo, $nombre);
