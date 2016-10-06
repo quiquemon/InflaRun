@@ -1,10 +1,3 @@
-// Carga de Facebook.
-FB.init({
-	appId: "1783216848631932",
-	xfbml: true,
-	version: "v2.6"
-});
-
 $(document).ready(function() {
 	// Opciones del DatePicker
 	$(".datetimepicker").datepicker({
