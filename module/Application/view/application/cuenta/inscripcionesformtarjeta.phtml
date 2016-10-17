@@ -1,0 +1,68 @@
+<?php
+	$session = new \Zend\Session\Container("user");
+	$evento = $session -> offsetGet("user")["evento"];
+?>
+<script>
+	(function() {
+		$("#navbarCollapse ul li").each(function() {
+			$(this).removeClass("active");
+		});
+		$("#navbarCollapse ul").children().last().addClass("active");
+		document.title = "Inscripción a <?php echo $evento["nombre"]; ?> - InflaRun";
+	})();
+		
+	function cancelarInscripcion() {
+		$("#btnCancelar").click(function() {
+			BootstrapDialog.show({
+				title: "Cancelar Inscripción",
+				message: "¿Realmente quiere cancelar su inscripción?",
+				type: BootstrapDialog.TYPE_WARNING,
+				buttons: [{
+					label: "Cancelar mi inscripción",
+					icon: "glyphicon glyphicon-remove-circle",
+					cssClass: "btn-warning",
+					action: function() {
+						window.location = "<?php echo $this -> basePath(); ?>/application/cuenta/cancelarinscripcion";
+					}
+				}, {
+					label: "Continuar con mi inscripción",
+					icon: "glyphicon glyphicon-ok-circle",
+					cssClass: "btn-success",
+					action: function(dialog) {
+						dialog.close();
+					}
+				}]
+			});
+		});
+	}
+	
+	$(document).ready(function() {
+		cancelarInscripcion();
+	});
+</script>
+<div id="cuentaBody" class="container-fluid">
+	<div class="row">
+		<div class="col-sm-12 col-xs-12">
+			<h1>Inscripción a la carrera: <?php echo $evento["nombre"]; ?></h1>
+			<br>
+			<div class="panel panel-info">
+				<div class="panel-heading">
+					<strong>Ingresa tus datos bancarios</strong>
+				</div>
+				<div class="panel-body">
+					
+				</div>
+			</div>
+			<br>
+			<div class="row">
+				<div class="col-sm-6 col-xs-6">
+					<button id="btnCancelar" class="btn btn-danger btn-lg btn-block" style="white-space: normal;">Cancelar Inscripción</button>
+				</div>
+				<div class="col-sm-6 col-xs-6">
+					<button id="btnContinuar" class="btn btn-primary btn-lg btn-block">Continuar</button>
+				</div>
+			</div>
+			<br>
+		</div>	
+	</div>
+</div>

@@ -8,8 +8,10 @@ use Zend\Session\Container;
 use Application\Model\Controller\Cuenta\Handler\DiaHitHandler;
 use Application\Model\Controller\Cuenta\Handler\PagosHandler;
 use Application\Model\Controller\Cuenta\Handler\InscripcionHandler;
+use Application\Model\Controller\Cuenta\Handler\InscripcionesInfoPersonalHandler;
 use Application\Model\Controller\Cuenta\Handler\AdminHandler;
 use Application\Model\Controller\Cuenta\Handler\UsuarioHandler;
+use Application\Model\Dao\ConexionDao;
 use Application\Model\Dao\EquipoDao;
 use Application\Model\Dao\DiaHitDao;
 use Application\Model\Dao\UsuarioDao;
@@ -230,6 +232,114 @@ class CuentaController extends AbstractActionController {
 		)
 	);
 	
+	/***************************************************************
+	 * FUNCIONES DE LA VERSIÓN 1.1 DE INFLARUN
+	 * 
+	 * Estas funciones serán con las que se trabajará en las
+	 * siguientes versiones de la aplicación. Se pondrán en
+	 * funcionamiento a partir de la carrera de León a finales del
+	 * 2016.
+	 ***************************************************************/
+	
+	public function inscripcionesAction() {
+		try {
+			$dao = new ConexionDao();
+			$eventos = $dao -> consultaGenerica("SELECT * FROM DetallesEvento WHERE realizado = 0 ORDER BY idDetallesEvento DESC");
+			for ($i = 0; $i < count($eventos); $i++) {
+				$eventos[$i]["dias"] = $dao -> consultaGenerica("SELECT * FROM DiaEvento WHERE idDetallesEvento = ?",
+					array($eventos[$i]["idDetallesEvento"]));
+				$eventos[$i]["estado"] = $dao -> consultaGenerica("SELECT * FROM Estado WHERE idEstado = ?",
+					array($eventos[$i]["idEstado"]))[0];
+			}
+			
+			return new ViewModel(array("eventos" => $eventos));
+		} catch (\Exception $ex) {
+			$eventos = array();
+			return new ViewModel(array(
+				"Alert" => array(
+					"code" => 1,
+					"message" => $ex -> getMessage()
+				)
+			));
+		}
+	}
+	
+	public function inscripcionesdatosAction() {
+		try {
+			$idDetallesEvento = $this -> params() -> fromQuery("idDetallesEvento", 0);
+			$dao = new ConexionDao();
+			$evento = $dao -> consultaGenerica("SELECT * FROM DetallesEvento WHERE idDetallesEvento = ?",
+				array($idDetallesEvento));
+			
+			if (empty($evento)) {
+				return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/inscripciones");
+			} else {
+				$dias = $dao -> consultaGenerica("SELECT * FROM DiaEvento WHERE idDetallesEvento = ?",
+					array($idDetallesEvento));
+				
+				$numDias = count($dias);
+				for ($i = 0; $i < $numDias; $i++) {
+					$dias[$i]["hits"] = $dao -> consultaGenerica("SELECT * FROM DiaHit WHERE idDiaEvento = ?",
+						array($dias[$i]["idDiaEvento"]));
+				}
+				
+				$evento[0]["dias"] = $dias;
+				
+				$playeras = array();
+				$playeras["tamanyo"] = $dao -> consultaGenerica("SELECT * FROM TamPlayera");
+				$playeras["color"] = $dao -> consultaGenerica("SELECT * FROM ColorPlayera");
+			}
+		} catch (\Exception $ex) {
+			return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/inscripciones");
+		}
+		
+		return new ViewModel(array("evento" => $evento[0], "playeras" => $playeras));
+	}
+	
+	public function inscripcionesdatosinfopersonalAction() {
+		$datos = InscripcionesInfoPersonalHandler::obtenerDatosPost($this -> params());
+		$resultado = InscripcionesInfoPersonalHandler::validarDatos($datos);
+		
+		if ($resultado["code"] === 0) {
+			$session = new Container("user");
+			$session -> getManager() -> getStorage() -> clear();
+			$session -> offsetSet("user", $datos);
+		}
+		
+		return new JsonModel(array(
+			"estatus" => $resultado["code"],
+			"message" => $resultado["message"]
+		));
+	}
+	
+	public function inscripcionesformtarjetaAction() {
+		if (!(new Container("user")) -> offsetExists("user")) {
+			return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/inscripciones");
+		}
+		
+		return new ViewModel();
+	}
+	
+	public function inscripcionesconfirmardatosAction() {
+		if (!(new Container("user")) -> offsetExists("user")) {
+			return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/inscripciones");
+		}
+		
+		return new ViewModel();
+	}
+	
+	public function cancelarinscripcionAction() {
+		(new Container("user")) -> getManager() -> getStorage() -> clear();
+		return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/inscripciones");
+	}
+	
+	
+	/***************************************************************
+	 * FUNCIONES DE LA VERSIÓN 1 DE INFLARUN
+	 * 
+	 * Eventualmente estas funciones serán reemplazadas por las
+	 * que se escribirán arriba de este aviso.
+	 ***************************************************************/
 	public function indexAction() {
 		$session = new Container("usuario");
 		
@@ -524,6 +634,8 @@ class CuentaController extends AbstractActionController {
 		return new ViewModel();
 	}
 	
+	
+	
 	/********************************************************************************
 	 * FUNCIONES DEL ADMINISTRADOR
 	 ********************************************************************************/
@@ -690,20 +802,6 @@ class CuentaController extends AbstractActionController {
 		$folio = $this -> params() -> fromPost("folio", "");
 		$r = InscripcionHandler::agregarUsuarioAGrupo($correo, $folio);
 		return new JsonModel($r);
-		/*if ($r["estatus"] === 0) {
-			$div = "<div class='alert alert-info fade in'>"
-					. "<a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a>"
-					. "{$r["message"]}"
-				. "</div>";
-		} else {
-			$div = "<div class='alert alert-warning fade in'>"
-					. "<a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a>"
-					. "{$r["message"]}"
-				. "</div>";
-		}
-		
-		(new Container("admin")) -> offsetSet("message", $div);
-		return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/adminregistromanual");*/
 	}
 	
 	public function adminaceptarpagadasAction() {
@@ -818,8 +916,10 @@ class CuentaController extends AbstractActionController {
 	/**
 	 * *************************************************************************************
 	 * FUNCIONES DE UTILIDAD
-	 * *************************************************************************************
-	 */
+	 * 
+	 * Eventualmente estas funciones serán reemplazadas por las clases de utilidad
+	 * que se creen para la versión 1.1 de la aplicación.
+	 * *************************************************************************************/
 	
 	
 	/**
