@@ -137,6 +137,9 @@ class InscripcionesInfoPersonalHandler {
 		$sucursal = $params -> fromPost("rdbSucursal", "");
 		
 		$idDetallesEvento = $params -> fromPost("idDetallesEvento", 0);
+		$evento = (new ConexionDao())
+				-> consultaGenerica("SELECT * FROM DetallesEvento WHERE idDetallesEvento = ?",
+					array($idDetallesEvento))[0];
 		
 		return array(
 			"usuario" => array(
@@ -155,23 +158,34 @@ class InscripcionesInfoPersonalHandler {
 				"noIntegrantes" => $noIntegrantes
 			),
 			"diaHit" => array(
-				"dia" => $dia,
+				"dia" => array(
+					"id" => explode("|", $dia)[0],
+					"fecha" => explode("|", $dia)[1]
+				),
 				"hit" => array(
 					"id" => explode("|", $hit)[0],
-					"lugaresRestantes" => explode("|", $hit)[1]
+					"horario" => explode("|", $hit)[1],
+					"lugaresRestantes" => explode("|", $hit)[2]
 				)
 			),
 			"playera" => array(
-				"tamanyo" => $tamanyo,
-				"color" => $color
+				"tamanyo" => array(
+					"id" => explode("|", $tamanyo)[0],
+					"talla" => explode("|", $tamanyo)[1]
+				),
+				"color" => array(
+					"id" => explode("|", $color)[0],
+					"color" => explode("|", $color)[1]
+				)
 			),
 			"metodoPago" => array(
 				"metodo" => $metodoPago,
-				"sucursal" => $sucursal
+				"sucursal" => $sucursal,
+				"precio" => ($modalidad === "individual")
+					? $evento["precio"]
+					: $evento["precio"] * $noIntegrantes
 			),
-			"evento" => (new ConexionDao())
-				-> consultaGenerica("SELECT * FROM DetallesEvento WHERE idDetallesEvento = ?",
-					array($idDetallesEvento))[0]
+			"evento" => $evento
 		);
 	}
 	
@@ -225,9 +239,9 @@ class InscripcionesInfoPersonalHandler {
 			return self::$FILTRO["NUMERO_INTEGRANTES_INVALIDO"];
 		else if (($equipo["modalidad"] === "equipo") && ($equipo["noIntegrantes"] > $diaHit["hit"]["lugaresRestantes"]))
 			return self::$FILTRO["BLOQUE_INSUFICIENTE"];
-		else if (($playera["tamanyo"] < 1) || ($playera["tamanyo"] > 4))
+		else if (($playera["tamanyo"]["id"] < 1) || ($playera["tamanyo"]["id"] > 4))
 			return self::$FILTRO["TALLA_INVALIDA"];
-		else if (($playera["color"] < 1) || ($playera["color"] > 4))
+		else if (($playera["color"]["id"] < 1) || ($playera["color"]["id"] > 4))
 			return self::$FILTRO["COLOR_INVALIDO"];
 		else if (($metodoPago["metodo"] !== "tarjeta") && ($metodoPago["metodo"] !== "efectivo"))
 			return self::$FILTRO["METODO_DESCONOCIDO"];
@@ -246,7 +260,7 @@ class InscripcionesInfoPersonalHandler {
 	 * @return bool TRUE si la fecha es válida. De lo contrario, regresa FALSE.
 	 */
 	private static function validarFecha($fecha) {
-		$arr = explode("/", $fecha);
+		$arr = explode("-", $fecha);
 		
 		if (count($arr) === 3) {
 			if (is_numeric($arr[0]) && is_numeric($arr[1]) && is_numeric($arr[2]) && ((int)$arr[0]) >= 1900)

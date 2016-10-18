@@ -1,10 +1,10 @@
 $(document).ready(function() {
 	// Opciones del DatePicker
 	$(".datetimepicker").datepicker({
-		format: "yyyy/mm/dd",
+		format: "yyyy-mm-dd",
 		todayHighlight: true,
 		autoclose: true,
-		startDate: "1900/01/01",
+		startDate: "1900-01-01",
 		endDate: new Date()
 	});
 	

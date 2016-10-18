@@ -43,12 +43,12 @@
 			$("#bloque").empty();
 
 			var bloqueNuevo = bloques.filter(function(e) {
-				return e.idDiaEvento == id;
+				return e.idDiaEvento == id.split("|")[0];
 			})[0];
 			bloqueNuevo.hits.forEach(function(e) {
 				if (e.lugaresRestantes > 0) {
 					var option = 
-						"<option value='" + e.idDiaHit + "|" + e.lugaresRestantes + "'>\n\
+						"<option value='" + e.idDiaHit + "|" + e.horario + "|" + e.lugaresRestantes + "'>\n\
 							" + e.horario + " (" + e.lugaresRestantes + " lugares restantes)\n\
 						</option>";
 					$("#bloque").append(option);
@@ -351,7 +351,7 @@
 							<label>Día:</label>
 							<select id="dia" class="form-control">
 								<?php foreach($dias as $dia): ?>
-									<option value="<?php echo $dia["idDiaEvento"]; ?>">
+									<option value="<?php echo $dia["idDiaEvento"]; ?>|<?php echo $dia["fechaRealizacion"] ?>">
 										<?php echo $fechaHandler -> traducirFecha($dia["fechaRealizacion"]); ?>
 									</option>
 								<?php endforeach; ?>
@@ -361,7 +361,7 @@
 							<label>Bloque:</label>
 							<select id="bloque" class="form-control">
 								<?php foreach($dias[0]["hits"] as $hit): ?>
-									<option value="<?php echo $hit["idDiaHit"]; ?>|<?php echo $hit["lugaresRestantes"]; ?>">
+									<option value="<?php echo $hit["idDiaHit"]; ?>|<?php echo $hit["horario"]; ?>|<?php echo $hit["lugaresRestantes"]; ?>">
 										<?php echo $hit["horario"]; ?> (<?php echo $hit["lugaresRestantes"]; ?> lugares restantes)
 									</option>
 								<?php endforeach; ?>
@@ -383,7 +383,7 @@
 							<div class="panel-body">
 								<select id="tamanyo" class="form-control">
 									<?php foreach($playeras["tamanyo"] as $tamanyo): ?>
-										<option value="<?php echo $tamanyo["idTamPlayera"]; ?>">
+										<option value="<?php echo $tamanyo["idTamPlayera"]; ?>|<?php echo $tallas[$tamanyo["tamanyo"]]; ?>">
 											<?php echo $tallas[$tamanyo["tamanyo"]]; ?>
 										</option>
 									<?php endforeach; ?>
@@ -399,7 +399,7 @@
 							<div class="panel-body">
 								<select id="color" class="form-control">
 									<?php foreach($playeras["color"] as $color): ?>
-										<option value="<?php echo $color["idColorPlayera"]; ?>">
+										<option value="<?php echo $color["idColorPlayera"]; ?>|<?php echo $color["color"]; ?>">
 											<?php echo $color["color"]; ?>
 										</option>
 									<?php endforeach; ?>

@@ -14,96 +14,11 @@ use Application\Model\Controller\Cuenta\Handler\UsuarioHandler;
 use Application\Model\Dao\ConexionDao;
 use Application\Model\Dao\EquipoDao;
 use Application\Model\Dao\DiaHitDao;
-use Application\Model\Dao\UsuarioDao;
-use Application\Model\Pojo\Usuario;
 use Application\Model\Pojo\DiaHit;
 
 class CuentaController extends AbstractActionController {
 	
-	private $FILTRO = array(
-		"OK" => array(
-			"code" => 0,
-			"message" => "Tu información se ha guardado correctamente."
-		),
-		"NOMBRE_VACIO" => array(
-			"code" => 1,
-			"message" => "El nombre es obligatorio."
-		),
-		"NOMBRE_CON_NUMEROS" => array(
-			"code" => 2,
-			"message" => "El nombre no puede contener números."
-		),
-		"PATERNO_VACIO" => array(
-			"code" => 3,
-			"message" => "El apellido paterno es obligatorio."
-		),
-		"PATERNO_CON_NUMEROS" => array(
-			"code" => 4,
-			"message" => "El apellido paterno no puede contener números."
-		),
-		"MATERNO_CON_NUMEROS" => array(
-			"code" => 5,
-			"message" => "El apellido materno no puede contener números."
-		),
-		"CORREO_VACIO" => array(
-			"code" => 7,
-			"message" => "El correo es obligatorio."
-		),
-		"CORREO_INVALIDO" => array(
-			"code" => 8,
-			"message" => "El formato de correo es inválido."
-		),
-		"PASS_ACTUAL_VACIA" => array(
-			"code" => 9,
-			"message" => "Ingresa tu contraseña actual."
-		),
-		"PASS_ACTUAL_ERRONEA" => array(
-			"code" => 10,
-			"message" => "Tu contraseña actual es errónea. Intenta de nuevo."
-		),
-		"PASS_NUEVA_VACIA" => array(
-			"code" => 11,
-			"message" => "Ingresa tu nueva contraseña."
-		),
-		"PASS_DISTINTAS" => array(
-			"code" => 12,
-			"message" => "La nueva contraseña y su confirmación no coinciden."
-		),
-		"BOLETIN_INVALIDO" => array(
-			"code" => 13,
-			"message" => "El campo de boletín debe ser 1 o 0."
-		),
-		"CORREO_EXISTENTE" => array(
-			"code" => 14,
-			"message" => "Ese correo ya fue registrado. Elige otro."
-		),
-		"ERROR_BD" => array(
-			"code" => 15,
-			"message" => "Lo sentimos, ocurrió un error dentro del sistema. Ya estamos arreglándolo."
-		)
-	);
-	
 	private $FILTRO_MODALIDAD = array(
-		"OK" => array(
-			"code" => 1,
-			"message" => "Ok"
-		),
-		"RADIO_BUTTON_INVALIDO" => array(
-			"code" => 2,
-			"message" => "Elija una opción válida."
-		),
-		"NOMBRE_EQUIPO_VACIO" => array(
-			"code" => 3,
-			"message" => "El nombre de tu equipo es obligatorio."
-		),
-		"NUMERO_INTEGRANTES_VACIO" => array(
-			"code" => 4,
-			"message" => "El número de integrantes es obligatorio."
-		),
-		"NUMERO_INTEGRANTES_INVALIDO" => array(
-			"code" => 5,
-			"message" => "El número de integrantes debe ser un número positivo."
-		),
 		"CODIGO_VACIO" => array(
 			"code" => 6,
 			"message" => "El código de inscripción es obligatorio."
@@ -120,36 +35,6 @@ class CuentaController extends AbstractActionController {
 			"code" => 9,
 			"message" => "Estamos a la espera de la confirmación del pago de tu equipo."
 				. " Cuando la tengamos, te habilitaremos este código."
-		)
-	);
-	
-	private $FILTRO_BLOQUE = array(
-		"OK" => array(
-			"code" => 1,
-			"message" => "Ok"
-		),
-		"BLOQUE_INSUFICIENTE" => array(
-			"code" => 2,
-			"message" => "Lo sentimos, este bloque no tiene los lugares suficientes para alojar a tu equipo."
-		),
-		"LUGARES_AGOTADOS" => array(
-			"code" => 3,
-			"message" => "Lo sentimos, todos los lugares se han acabado."
-		)
-	);
-	
-	private $FILTRO_METODO_PAGO = array(
-		"OK" => array(
-			"code" => 1,
-			"message" => "Ok"
-		),
-		"METODO_DESCONOCIDO" => array(
-			"code" => 2,
-			"message" => "Ese método de pago no está disponible."
-		),
-		"SUCURSAL_DESCONOCIDA" => array(
-			"code" => 3,
-			"message" => "Esa sucursal no está disponible."
 		)
 	);
 	
@@ -328,6 +213,27 @@ class CuentaController extends AbstractActionController {
 		return new ViewModel();
 	}
 	
+	public function inscripcionesfinalizarAction() {
+		if (!(new Container("user")) -> offsetExists("user")) {
+			return new JsonModel(array(
+				"estatus" => 1,
+				"message" => "Tu sesión ha expirado. Por favor, intenta inscribirte de nuevo."
+			));
+		}
+		
+		# TODO
+		# Obtenemos todos los datos de la sesión e inscribimos al usuario. Se regresa un mensaje de AJAX.
+		# Limpiamos la sesión si el proceso fue exitoso.
+		$session = new Container("user");
+		$resultado = "";
+		
+		if ($resultado["code"] === 0) {
+			$session -> getManager() -> getStorage() -> clear();
+		}
+		
+		return new JsonModel($resultado);
+	}
+	
 	public function cancelarinscripcionAction() {
 		(new Container("user")) -> getManager() -> getStorage() -> clear();
 		return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/inscripciones");
@@ -341,53 +247,7 @@ class CuentaController extends AbstractActionController {
 	 * que se escribirán arriba de este aviso.
 	 ***************************************************************/
 	public function indexAction() {
-		$session = new Container("usuario");
-		
-		if (!$session -> offsetExists("usuario"))
-			return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/login");
-		
-		return new ViewModel();
-	}
-	
-	public function loginAction() {
-		if ($this -> getRequest() -> isPost()) {
-			try {
-				$result = $this -> validarLogin();
-				if ($result !== null) {
-					(new Container("usuario")) -> offsetSet("usuario", $result);
-					return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/index");
-				} else
-					return new ViewModel(array(
-						"Error" => "Tu correo o contraseña están equivocados. Intenta de nuevo."
-					));
-			} catch (\Exception $ex) {
-				return new ViewModel(array(
-					"Error" => "Ocurrió un error al iniciar sesión."
-				));
-			}
-		}
-		
-		return new ViewModel();
-	}
-	
-	public function logoutAction() {
-		(new Container("usuario")) -> getManager() -> getStorage() -> clear("usuario");
-		$this -> redirect() -> toUrl("/InflaRun/public/application/index");
-	}
-	
-	public function modinfoAction() {
-		if (!(new Container("usuario")) -> offsetExists("usuario"))
-			return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/login");
-		
-		return new ViewModel();
-	}
-	
-	public function paginaeventoAction() {
-		if (!(new Container("usuario")) -> offsetExists("usuario"))
-			return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/login");
-		
-		$idDetallesEvento = $this -> params() -> fromQuery("id");
-		return new ViewModel(array("idDetallesEvento" => $idDetallesEvento));
+		return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/inscripciones");
 	}
 	
 	public function elegirmodalidadAction() {
@@ -501,28 +361,6 @@ class CuentaController extends AbstractActionController {
 		return new ViewModel();
 	}
 	
-	public function metodopagoAction() {
-		if (!(new Container("usuario")) -> offsetExists("usuario"))
-			return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/login");
-		
-		if ($this -> getRequest() -> isPost()) {
-			$params = $this -> obtenerParametrosMetodoPago();
-			$resultado = $this -> filtrarParametrosMetodoPago($params);
-			
-			if ($resultado["code"] === $this -> FILTRO_METODO_PAGO["OK"]["code"]) {
-				(new Container("usuario")) -> offsetSet("metodoPago", $params);
-				if ($params["rdbMetodoPago"] === "tarjeta")
-					return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/formulariotarjeta");
-				else
-					return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/confirmardatos");
-			}
-			
-			return new ViewModel(array("Error" => $resultado));
-		}
-		
-		return new ViewModel();
-	}
-	
 	public function formulariotarjetaAction() {
 		if (!(new Container("usuario")) -> offsetExists("usuario"))
 			return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/login");
@@ -626,15 +464,6 @@ class CuentaController extends AbstractActionController {
 		
 		return new ViewModel();
 	}
-	
-	public function finalizarinscripcionAction() {
-		if (!(new Container("usuario")) -> offsetExists("usuario"))
-			return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/login");
-		
-		return new ViewModel();
-	}
-	
-	
 	
 	/********************************************************************************
 	 * FUNCIONES DEL ADMINISTRADOR
@@ -804,26 +633,6 @@ class CuentaController extends AbstractActionController {
 		return new JsonModel($r);
 	}
 	
-	public function adminaceptarpagadasAction() {
-		if (!(new Container("admin")) -> offsetExists("admin"))
-			return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/adminlogin");
-		
-		try {
-			AdminHandler::aceptarOrdenesPagadas();
-		} catch (\Exception $ex) {
-			(new Container("admin")) -> offsetSet("message", $this -> FILTRO["ERROR_BD"]["message"]);
-		}
-		
-		return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/adminmain");
-	}
-	
-	public function adminrechazarexpiradasAction() {
-		if (!(new Container("admin")) -> offsetExists("admin"))
-			return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/adminlogin");
-		
-		return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/adminmain");
-	}
-	
 	public function adminlogoutAction() {
 		$session = new Container("admin");
 		
@@ -841,78 +650,6 @@ class CuentaController extends AbstractActionController {
 	 * *************************************************************************************************
 	 */
 	
-	
-	public function modificarinformacionAction() {
-		if (!(new Container("usuario")) -> offsetExists("usuario"))
-			return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/login");
-		
-		$params = $this -> obtenerParametros();
-		$resultado = $this -> filtrarSuscripcion($params);
-		
-		if ($resultado["code"] === $this -> FILTRO["OK"]["code"]) {
-			$sql = "UPDATE Usuario SET nombre = ?, aPaterno = ?, aMaterno = ?, correo = ?, recibeCorreos = ?"
-				. " WHERE idUsuario = ?";
-			$usuario = (new Container("usuario")) -> offsetGet("usuario");
-			$idUsuario = $usuario -> getIdUsuario();
-			$correo = $usuario -> getCorreo();
-			$dao = new UsuarioDao();
-			try {
-				$r = $dao -> consultaGenerica("SELECT * FROM Usuario WHERE correo = ?", array($correo));
-				if ($r[0]["idUsuario"] === $idUsuario) {
-					$dao -> sentenciaGenerica($sql, array(
-						$params["nombre"],
-						$params["paterno"],
-						$params["materno"],
-						$params["correo"],
-						$params["boletin"],
-						$idUsuario
-					));
-					$newUsuario = $dao -> buscar((new Usuario()) -> setIdUsuario($idUsuario));
-					(new Container("usuario")) -> offsetSet("message", $resultado["message"]);
-					(new Container("usuario")) -> offsetSet("usuario", $newUsuario);
-					return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/index");
-				}
-				
-				$resultado = $this -> FILTRO["CORREO_EXISTENTE"];
-			} catch (\Exception $ex) {
-				$resultado = $this -> FILTRO["ERROR_BD"];
-			}
-		}
-		
-		(new Container("usuario")) -> offsetSet("personalMessage", $resultado["message"]);
-		return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/modinfo");
-	}
-	
-	public function modpasswordAction() {
-		if (!(new Container("usuario")) -> offsetExists("usuario"))
-			return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/login");
-		
-		$params = $this -> obtenerParametros();
-		$resultado = $this -> filtrarPassword($params);
-		
-		if ($resultado["code"] === $this -> FILTRO["OK"]["code"]) {
-			$sql = "UPDATE Usuario SET password = ? WHERE idUsuario = ?";
-			$idUsuario = (new Container("usuario")) -> offsetGet("usuario") -> getIdUsuario();
-			$dao = new UsuarioDao();
-			try {
-				$dao -> sentenciaGenerica($sql, array(
-					password_hash($params["pwdNueva"], PASSWORD_DEFAULT),
-					$idUsuario
-				));
-				$newUsuario = $dao -> buscar((new Usuario()) -> setIdUsuario($idUsuario));
-				(new Container("usuario")) -> offsetSet("message", $resultado["message"]);
-				(new Container("usuario")) -> offsetSet("usuario", $newUsuario);
-				return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/index");
-			} catch (\Exception $ex) {
-				$resultado = $this -> FILTRO["ERROR_BD"];
-			}	
-		}
-		
-		(new Container("usuario")) -> offsetSet("passwordMessage", $resultado["message"]);
-		return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/modinfo");
-	}
-	
-	
 	/**
 	 * *************************************************************************************
 	 * FUNCIONES DE UTILIDAD
@@ -920,127 +657,6 @@ class CuentaController extends AbstractActionController {
 	 * Eventualmente estas funciones serán reemplazadas por las clases de utilidad
 	 * que se creen para la versión 1.1 de la aplicación.
 	 * *************************************************************************************/
-	
-	
-	/**
-	 * Valida los parámetros de correo y contraseña al iniciar sesión
-	 * 
-	 * @return (Usuario|null) Si el usuario existe en la base de datos regresa un POJO con sus datos. De lo
-	 * contrario regresa null.
-	 */
-	private function validarLogin() {
-		$email = null !== $this -> params() -> fromPost("emailLogin") ? $this -> params() -> fromPost("emailLogin") : "";
-		$pwd = null !== $this -> params() -> fromPost("pwdLogin") ? $this -> params() -> fromPost("pwdLogin") : "";
-		$dao = new UsuarioDao();
-		$result = $dao -> consultaGenerica("SELECT * FROM Usuario WHERE correo = ?", array($email));
-		
-		if (!empty($result)) {
-			$dbHash = $result[0]["password"];
-			if (password_verify($pwd, $dbHash)) {
-				return (new Usuario())
-					-> setIdUsuario($result[0]["idUsuario"])
-					-> setNombre($result[0]["nombre"])
-					-> setAPaterno($result[0]["aPaterno"])
-					-> setAMaterno($result[0]["aMaterno"])
-					-> setCorreo($result[0]["correo"])
-					-> setPassword($result[0]["password"])
-					-> setSexo($result[0]["sexo"])
-					-> setFechaNacimiento($result[0]["fechaNacimiento"])
-					-> setFechaRegistro($result[0]["fechaRegistro"])
-					-> setRecibeCorreos($result[0]["recibeCorreos"])
-					-> setIdEstado($result[0]["idEstado"]);
-			}
-		}
-		
-		return null;
-	}
-	
-	/**
-	 * Obtiene los parámetros POST del formulario de Modalidad.
-	 * 
-	 * @return Array Un arreglo asociativo con los parámetros POST del formulario.
-	 */
-	private function obtenerParametrosModalidad() {
-		$rdbModalidad = null !== $this -> params() -> fromPost("rdbModalidad") ? $this -> params() -> fromPost("rdbModalidad") : "";
-		$nombreEquipo = null !== $this -> params() -> fromPost("nombreEquipo") ? $this -> params() -> fromPost("nombreEquipo") : "";
-		$noIntegrantes = null !== $this -> params() -> fromPost("noIntegrantes") ? $this -> params() -> fromPost("noIntegrantes") : "";
-		$codigoInscripcion = null !== $this -> params() -> fromPost("codigoInscripcion") ? trim($this -> params() -> fromPost("codigoInscripcion")) : "";
-		
-		return array(
-			"rdbModalidad" => $rdbModalidad,
-			"nombreEquipo" => $nombreEquipo,
-			"noIntegrantes" => $noIntegrantes,
-			"codigoInscripcion" => $codigoInscripcion
-		);
-	}
-	
-	/**
-	 * Filtra los parámetros del formulario de Modalidad.
-	 * 
-	 * @param Array $params Arreglo que incluye los parámetros POST del formulario.
-	 * @return Array Arreglo que contiene el código y el mensaje del resultado validado, de
-	 * acuerdo al arreglo de este Action, $FILTRO_MODALIDAD.
-	 */
-	private function filtrarParametrosModalidad($params) {
-		if (($params["rdbModalidad"] !== "individual") && ($params["rdbModalidad"] !== "equipo") && ($params["rdbModalidad"] !== "codigo"))
-			return $this -> FILTRO_MODALIDAD["RADIO_BUTTON_INVALIDO"];
-		else if (($params["rdbModalidad"] === "equipo") && empty($params["nombreEquipo"]))
-			return $this -> FILTRO_MODALIDAD["NOMBRE_EQUIPO_VACIO"];
-		else if (($params["rdbModalidad"] === "equipo") && empty($params["noIntegrantes"]))
-			return $this -> FILTRO_MODALIDAD["NUMERO_INTEGRANTES_VACIO"];
-		else if (($params["rdbModalidad"] === "equipo") && (!is_numeric($params["noIntegrantes"]) || ((int)$params["noIntegrantes"]) < 1))
-			return $this -> FILTRO_MODALIDAD["NUMERO_INTEGRANTES_INVALIDO"];
-		else if (($params["rdbModalidad"] === "codigo") && empty($params["codigoInscripcion"]))
-			return $this -> FILTRO_MODALIDAD["CODIGO_VACIO"];
-		else
-			return $this -> FILTRO_MODALIDAD["OK"];
-	}
-	
-	/**
-	 * Obtiene los parametros POST del formulario de elegir bloque.
-	 * @return Array Un arreglo asociativo con los parámetros POST del formulario.
-	 */
-	private function obtenerParametrosBloque() {
-		$dia = null !== $this -> params() -> fromPost("dia") ? $this -> params() -> fromPost("dia") : "";
-		$hit = null !== $this -> params() -> fromPost("bloque") ? $this -> params() -> fromPost("bloque") : "";
-		
-		return array(
-			"dia" => $dia,
-			"hit" => $hit
-		);
-	}
-	
-	/**
-	 * Obtiene los parametros POST del formulario de elegir método de pago.
-	 * @return Array Un arreglo asociativo con los parámetros POST del formulario.
-	 */
-	private function obtenerParametrosMetodoPago() {
-		$rdbMetodoPago = null !== $this -> params() -> fromPost("rdbMetodoPago") ? $this -> params() -> fromPost("rdbMetodoPago") : "";
-		$rdbSucursal = null !== $this -> params() -> fromPost("rdbSucursal") ? $this -> params() -> fromPost("rdbSucursal") : "";
-		return array(
-			"rdbMetodoPago" => $rdbMetodoPago,
-			"rdbSucursal" => $rdbSucursal
-		);
-	}
-	
-	/**
-	 * Filtra los parámetros del formulario de Método de Pago
-	 * 
-	 * @param Array $params Arreglo que incluye los parámetros POST del formulario.
-	 * @return Array Arreglo que contiene el código y el mensaje del resultado validado, de
-	 * acuerdo al arreglo de este Action, $FILTRO_METODO_PAGO.
-	 */
-	private function filtrarParametrosMetodoPago($params) {
-		if (($params["rdbMetodoPago"] !== "tarjeta") && ($params["rdbMetodoPago"] !== "efectivo"))
-			return $this -> FILTRO_METODO_PAGO["METODO_DESCONOCIDO"];
-		else if (($params["rdbMetodoPago"] === "efectivo") && ($params["rdbSucursal"] !== "OXXO")
-			&& ($params["rdbSucursal"] !== "SEVEN_ELEVEN") && ($params["rdbSucursal"] !== "EXTRA")
-			&& ($params["rdbSucursal"] !== "CHEDRAUI") && ($params["rdbSucursal"] !== "FARMACIA_BENAVIDES")
-			&& ($params["rdbSucursal"] !== "FARMACIA_ESQUIVAR"))
-			return $this -> FILTRO_METODO_PAGO["SUCURSAL_DESCONOCIDA"];
-		else
-			return $this -> FILTRO_METODO_PAGO["OK"];
-	}
 	
 	/**
 	 * Obtiene los parametros POST del formulario de datos bancarios.
@@ -1129,60 +745,6 @@ class CuentaController extends AbstractActionController {
 			return $this -> FILTRO_DATOS_BANCARIOS["CP_INVALIDO"];
 		else
 			return $this -> FILTRO_DATOS_BANCARIOS["OK"];
-	}
-	
-	/**
-	 * Obtiene los parametros POST del formulario de modificar información.
-	 * @return Array Un arreglo asociativo con los parámetros POST del formulario.
-	 */
-	private function obtenerParametros() {
-		$nombre = null !== $this -> params() -> fromPost("nombreModInfo") ? $this -> params() -> fromPost("nombreModInfo") : "";
-		$paterno = null !== $this -> params() -> fromPost("paternoModInfo") ? $this -> params() -> fromPost("paternoModInfo") : "";
-		$materno = null !== $this -> params() -> fromPost("maternoModInfo") ? $this -> params() -> fromPost("maternoModInfo") : "";
-		$correo = null !== $this -> params() -> fromPost("emailModInfo") ? $this -> params() -> fromPost("emailModInfo") : "";
-		$pwdActual = null !== $this -> params() -> fromPost("pwdActualModInfo") ? $this -> params() -> fromPost("pwdActualModInfo") : "";
-		$pwdNueva = null !== $this -> params() -> fromPost("pwdNuevaModInfo") ? $this -> params() -> fromPost("pwdNuevaModInfo") : "";
-		$pwdNuevaConf = null !== $this -> params() -> fromPost("pwdNuevaConfModInfo") ? $this -> params() -> fromPost("pwdNuevaConfModInfo") : "";
-		$boletin = null !== $this -> params() -> fromPost("boletinModInfo") ? $this -> params() -> fromPost("boletinModInfo") : 1;
-		
-		return array(
-			"nombre" => $nombre,
-			"paterno" => $paterno,
-			"materno" => $materno,
-			"correo" => $correo,
-			"pwdActual" => $pwdActual,
-			"pwdNueva" => $pwdNueva,
-			"pwdNuevaConf" => $pwdNuevaConf,
-			"boletin" => $boletin,
-		);
-	}
-	
-	/**
-	 * Filtra la información sobre el usuario al momento del registro en la base de datos.
-	 * 
-	 * @param Array $params Arreglo que incluye los parámetros POST del formulario.
-	 * @return Array Arreglo que contiene el código y el mensaje del resultado validado, de
-	 * acuerdo al arreglo de este Action, $FILTRO.
-	 */
-	private function filtrarSuscripcion($params) {
-		if (empty($params["nombre"]))
-			return $this -> FILTRO["NOMBRE_VACIO"];
-		else if (strcspn($params["nombre"], '0123456789') != strlen($params["nombre"]))
-			return $this -> FILTRO["NOMBRE_CON_NUMEROS"];
-		else if (empty($params["paterno"]))
-			return $this -> FILTRO["PATERNO_VACIO"];
-		else if (strcspn($params["paterno"], '0123456789') != strlen($params["paterno"]))
-			return $this -> FILTRO["PATERNO_CON_NUMEROS"];
-		else if (strcspn($params["materno"], '0123456789') != strlen($params["materno"]))
-			return $this -> FILTRO["MATERNO_CON_NUMEROS"];
-		else if (empty($params["correo"]))
-			return $this -> FILTRO["CORREO_VACIO"];
-		else if (!filter_var($params["correo"], FILTER_VALIDATE_EMAIL))
-			return $this -> FILTRO["CORREO_INVALIDO"];
-		else if (($params["boletin"] != 1) && ($params["boletin"] != 0))
-			return $this -> FILTRO["BOLETIN_INVALIDO"];
-		else
-			return $this -> FILTRO["OK"];
 	}
 	
 	/**
