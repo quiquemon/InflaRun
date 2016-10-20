@@ -159,7 +159,7 @@
 					setTimeout(function() {
 						var location = (metodo === "tarjeta") ? "inscripcionesformtarjeta" : "inscripcionesconfirmardatos";
 						window.location = "<?php echo $this -> basePath(); ?>/application/cuenta/" + location;
-					}, 2500);
+					}, 2000);
 				}
 			});
 		});
@@ -350,21 +350,31 @@
 						<div class="form-group">
 							<label>Día:</label>
 							<select id="dia" class="form-control">
-								<?php foreach($dias as $dia): ?>
-									<option value="<?php echo $dia["idDiaEvento"]; ?>|<?php echo $dia["fechaRealizacion"] ?>">
-										<?php echo $fechaHandler -> traducirFecha($dia["fechaRealizacion"]); ?>
+								<?php if(!empty($dias)): ?>
+									<option value="<?php echo $dias["idDiaEvento"]; ?>|<?php echo $dias["fechaRealizacion"] ?>">
+										<?php echo $fechaHandler -> traducirFecha($dias["fechaRealizacion"]); ?>
 									</option>
-								<?php endforeach; ?>
+								<?php else: ?>
+									<option value="0|0">
+										Lo sentimos, todos los bloques se han agotado.
+									</option>
+								<?php endif; ?>
 							</select>
 						</div>
 						<div class="form-group">
 							<label>Bloque:</label>
 							<select id="bloque" class="form-control">
-								<?php foreach($dias[0]["hits"] as $hit): ?>
-									<option value="<?php echo $hit["idDiaHit"]; ?>|<?php echo $hit["horario"]; ?>|<?php echo $hit["lugaresRestantes"]; ?>">
-										<?php echo $hit["horario"]; ?> (<?php echo $hit["lugaresRestantes"]; ?> lugares restantes)
+								<?php if (!empty($dias)): ?>
+									<?php foreach($dias["hits"] as $hit): ?>
+										<option value="<?php echo $hit["idDiaHit"]; ?>|<?php echo $hit["horario"]; ?>|<?php echo $hit["lugaresRestantes"]; ?>">
+											<?php echo $hit["horario"]; ?> (<?php echo $hit["lugaresRestantes"]; ?> lugares restantes)
+										</option>
+									<?php endforeach; ?>
+								<?php else: ?>
+									<option value="0|0|0">
+										Lo sentimos, todos los bloques se han agotado.
 									</option>
-								<?php endforeach; ?>
+								<?php endif; ?>
 							</select>
 						</div>
 					</div>
@@ -437,11 +447,19 @@
 											</label>
 											<label class="radio">
 												<input type="radio" name="rdbSucursal" value="SEVEN_ELEVEN" />
-												Seven Eleven <img src="<?php echo $this -> basePath(); ?>/css/Imagenes/tienda_seven.png" height="30" /> (Máx. $15,000)
+												Seven Eleven <img src="<?php echo $this -> basePath(); ?>/css/Imagenes/tienda_seven.png" height="30" /> (Máx. $5,000)
 											</label>
 											<label class="radio">
 												<input type="radio" name="rdbSucursal" value="EXTRA" />
 												Extra <img src="<?php echo $this -> basePath(); ?>/css/Imagenes/tienda_extra.png" height="30" /> (Máx. $5,000)
+											</label>
+											<label class="radio">
+												<input type="radio" name="rdbSucursal" value="ELEKTRA" />
+												Elektra <img src="<?php echo $this -> basePath(); ?>/css/Imagenes/tienda_elektra.png" height="30" /> (Máx. $15,000)
+											</label>
+											<label class="radio">
+												<input type="radio" name="rdbSucursal" value="COPPEL" />
+												Coppel <img src="<?php echo $this -> basePath(); ?>/css/Imagenes/tienda_coppel.png" height="30" /> (Máx. $15,000)
 											</label>
 											<label class="radio">
 												<input type="radio" name="rdbSucursal" value="FARMACIA_BENAVIDES" />
@@ -465,7 +483,13 @@
 					<button id="btnCancelar" class="btn btn-danger btn-lg btn-block" style="white-space: normal;">Cancelar Inscripción</button>
 				</div>
 				<div class="col-sm-6 col-xs-6">
-					<button id="btnContinuar" class="btn btn-primary btn-lg btn-block">Continuar</button>
+					<?php if (!empty($dias)): ?>
+						<button id="btnContinuar" class="btn btn-primary btn-lg btn-block">Continuar</button>
+					<?php else: ?>
+						<div class='alert alert-danger'>
+							Lo sentimos, todos los bloques de esta carrera están agotados.
+						</div>
+					<?php endif; ?>
 				</div>
 			</div>
 			<br>

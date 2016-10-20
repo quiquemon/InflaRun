@@ -247,6 +247,7 @@ class InscripcionesInfoPersonalHandler {
 			return self::$FILTRO["METODO_DESCONOCIDO"];
 		else if (($metodoPago["metodo"] === "efectivo") && ($metodoPago["sucursal"] !== "OXXO")
 			&& ($metodoPago["sucursal"] !== "SEVEN_ELEVEN") && ($metodoPago["sucursal"] !== "EXTRA")
+			&& ($metodoPago["sucursal"] !== "ELEKTRA") && ($metodoPago["sucursal"] !== "COPPEL")
 			&& ($metodoPago["sucursal"] !== "CHEDRAUI") && ($metodoPago["sucursal"] !== "FARMACIA_BENAVIDES")
 			&& ($metodoPago["sucursal"] !== "FARMACIA_ESQUIVAR"))
 			return self::$FILTRO["SUCURSAL_DESCONOCIDA"];

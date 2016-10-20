@@ -8,6 +8,7 @@ use Zend\Session\Container;
 use Application\Model\Controller\Cuenta\Handler\DiaHitHandler;
 use Application\Model\Controller\Cuenta\Handler\PagosHandler;
 use Application\Model\Controller\Cuenta\Handler\InscripcionHandler;
+use Application\Model\Controller\Cuenta\Handler\InscripcionesHandler;
 use Application\Model\Controller\Cuenta\Handler\InscripcionesInfoPersonalHandler;
 use Application\Model\Controller\Cuenta\Handler\AdminHandler;
 use Application\Model\Controller\Cuenta\Handler\UsuarioHandler;
@@ -159,17 +160,18 @@ class CuentaController extends AbstractActionController {
 			if (empty($evento)) {
 				return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/inscripciones");
 			} else {
-				$dias = $dao -> consultaGenerica("SELECT * FROM DiaEvento WHERE idDetallesEvento = ?",
-					array($idDetallesEvento));
+				$sql = "SELECT DISTINCT de.* FROM DiaEvento de, DiaHit dh WHERE de.idDiaEvento = dh.idDiaEvento AND"
+					. " de.idDetallesEvento = ? AND dh.lugaresRestantes > 0";
+				$dias = $dao -> consultaGenerica($sql, array($idDetallesEvento));
 				
-				$numDias = count($dias);
-				for ($i = 0; $i < $numDias; $i++) {
-					$dias[$i]["hits"] = $dao -> consultaGenerica("SELECT * FROM DiaHit WHERE idDiaEvento = ?",
-						array($dias[$i]["idDiaEvento"]));
+				if (!empty($dias)) {
+					$dias = $dias[0];
+					$dias["hits"] = $dao -> consultaGenerica("SELECT * FROM DiaHit WHERE idDiaEvento = ?", array(
+						$dias["idDiaEvento"]
+					));
 				}
 				
 				$evento[0]["dias"] = $dias;
-				
 				$playeras = array();
 				$playeras["tamanyo"] = $dao -> consultaGenerica("SELECT * FROM TamPlayera");
 				$playeras["color"] = $dao -> consultaGenerica("SELECT * FROM ColorPlayera");
@@ -214,20 +216,17 @@ class CuentaController extends AbstractActionController {
 	}
 	
 	public function inscripcionesfinalizarAction() {
-		if (!(new Container("user")) -> offsetExists("user")) {
+		$session = new Container("user");
+		if (!$session -> offsetExists("user")) {
 			return new JsonModel(array(
 				"estatus" => 1,
 				"message" => "Tu sesión ha expirado. Por favor, intenta inscribirte de nuevo."
 			));
 		}
 		
-		# TODO
-		# Obtenemos todos los datos de la sesión e inscribimos al usuario. Se regresa un mensaje de AJAX.
-		# Limpiamos la sesión si el proceso fue exitoso.
-		$session = new Container("user");
-		$resultado = "";
+		$resultado = InscripcionesHandler::inscribirUsuario($session -> offsetGet("user"));
 		
-		if ($resultado["code"] === 0) {
+		if ($resultado["estatus"] === 0) {
 			$session -> getManager() -> getStorage() -> clear();
 		}
 		
@@ -314,53 +313,6 @@ class CuentaController extends AbstractActionController {
 		return new ViewModel();
 	}
 	
-	public function elegirbloqueAction() {
-		if (!(new Container("usuario")) -> offsetExists("usuario"))
-			return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/login");
-		
-		if ($this -> getRequest() -> isPost()) {
-			$params = $this -> obtenerParametrosBloque();
-			
-			if (!empty($params["dia"]) && !empty($params["hit"])) {
-				$session = new Container("usuario");
-				$modalidad = $session -> offsetGet("modalidad");
-				
-				if ($modalidad["rdbModalidad"] === "equipo") {
-					$noIntegrantes = $modalidad["noIntegrantes"];
-					try {
-						$dao = new DiaHitDao();
-						$hit = $dao -> buscar((new DiaHit()) -> setIdDiaHit($params["hit"]));
-						if ($noIntegrantes > $hit -> getLugaresRestantes())
-							return new ViewModel(array("Error" => $this -> FILTRO_BLOQUE["BLOQUE_INSUFICIENTE"]));
-					} catch (\Exception $ex) {
-						return new ViewModel(array("Error" => $this -> FILTRO["ERROR_BD"]));
-					}
-				}
-				
-				try {
-					$dao = new DiaHitDao();
-					$dia = $dao -> consultaGenerica("SELECT * FROM DiaEvento WHERE idDiaEvento = ?", array($params["dia"]))[0];
-					$hit = $dao -> consultaGenerica("SELECT * FROM DiaHit WHERE idDiaHit = ?", array($params["hit"]))[0];
-					$session -> offsetSet("diaHit", array(
-						"dia" => $dia,
-						"hit" => $hit
-					));
-					
-					if ($session -> offsetExists("equipoCodigo"))
-						return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/confirmardatos");
-					
-					return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/metodopago");
-				} catch (\Exception $ex) {
-					return new ViewModel(array("Error" => $this -> FILTRO["ERROR_BD"]));
-				}
-			}
-			
-			return new ViewModel(array("Error" => $this -> FILTRO_BLOQUE["LUGARES_AGOTADOS"]));
-		}
-		
-		return new ViewModel();
-	}
-	
 	public function formulariotarjetaAction() {
 		if (!(new Container("usuario")) -> offsetExists("usuario"))
 			return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/login");
@@ -375,91 +327,6 @@ class CuentaController extends AbstractActionController {
 			}
 			
 			return new ViewModel(array("Error" => $resultado));
-		}
-		
-		return new ViewModel();
-	}
-	
-	public function confirmardatosAction() {
-		if (!(new Container("usuario")) -> offsetExists("usuario"))
-			return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/login");
-		
-		if ($this -> getRequest() -> isPost()) {
-			$session = new Container("usuario");
-			$usuario = $session -> offsetGet("usuario");
-			$modalidad = $session -> offsetGet("modalidad");
-			$inscripcionDetalles = $session -> offsetGet("inscripcionDetalles");
-			$monto = $inscripcionDetalles["detallesEvento"]
-				-> getPrecio() * ($modalidad["rdbModalidad"] === "equipo" ? (int)$modalidad["noIntegrantes"] : 1);
-			$diaHit = $session -> offsetGet("diaHit");
-			
-			if ($session -> offsetExists("ERROR_PAGO"))
-				$session -> offsetUnset("ERROR_PAGO");
-			
-			try {
-				if ($modalidad["rdbModalidad"] !== "codigo") {
-					$numero = ($modalidad["rdbModalidad"] === "individual") ? 1 : $modalidad["noIntegrantes"];
-					DiaHitHandler::decrementarLugaresRestantes($diaHit["hit"]["idDiaHit"], $numero);
-				}
-			} catch (\Exception $ex) {
-				return new ViewModel(array(
-					"Error" => array(
-						"message" => "Lo sentimos, los lugares de este bloque se han agotado."
-					)
-				));
-			}
-			
-			try {
-				if ($modalidad["rdbModalidad"] !== "codigo") {
-					$metodoPago = $session -> offsetGet("metodoPago");
-					
-					if ($metodoPago["rdbMetodoPago"] === "tarjeta") {
-						$datosBancarios = $session -> offsetGet("datosBancarios");
-						$datosBancarios["monto"] = $monto;
-						$resultado = PagosHandler::realizarPagoTarjeta($datosBancarios);
-
-						if ($resultado["WebServices_Transacciones"]["transaccion"]["autorizado"] == 0) {
-							DiaHitHandler::incrementarLugaresRestantes($diaHit["hit"]["idDiaHit"], $numero);
-							$session -> offsetSet("ERROR_PAGO", "Lo sentimos, ocurrió un error al procesar tu pago."
-								. " Asegúrate de haber ingresado correctamente todos tus datos."
-								. " Si tu tarjeta no tiene los fondos suficientes o ha sido bloqueada por tu banco no podrás hacer el pago.");
-						} else {
-							InscripcionHandler::registrarInscripcion($resultado, $metodoPago, $diaHit,
-								$modalidad, $monto, $usuario, $inscripcionDetalles);
-						}
-					} else {
-						$orderId = "" . bin2hex(openssl_random_pseudo_bytes(12));
-						$resultado = PagosHandler::realizarPagoEfectivo(array(
-							"order_id" => $orderId,
-							"product" => "inflarun_inscripcion_efectivo",
-							"amount" => "$monto",
-							"store_code" => "{$metodoPago["rdbSucursal"]}",
-							"customer" => "{$usuario -> getNombre()}",
-							"email" => "{$usuario -> getCorreo()}"
-						));
-
-						if ($resultado["error"] == 1) {
-							DiaHitHandler::incrementarLugaresRestantes($diaHit["hit"]["idDiaHit"], $numero);
-							$session -> offsetSet("ERROR_PAGO", "Lo sentimos, ocurrió un error al procesar tu pago."
-								. " Es posible que la sucursal no esté disponible; puedes elegir otra. Recuerda que todas las sucursales"
-								. " tienen un monto máximo en el pago que aceptan.");
-						} else {
-							InscripcionHandler::registrarInscripcion($resultado, $metodoPago, $diaHit,
-								$modalidad, $monto, $usuario, $inscripcionDetalles, $orderId);
-						}
-					}
-					
-					$session -> offsetSet("resultado", $resultado);
-				} else {
-					InscripcionHandler::registrarCodigoInscripcion($modalidad["codigoInscripcion"],
-						$usuario, $inscripcionDetalles, $diaHit);
-				}
-				
-				$this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/finalizarinscripcion");
-			} catch (\Exception $ex) {
-				$this -> FILTRO["ERROR_BD"]["message"] = $ex -> getMessage();
-				return new ViewModel(array("Error" => $this -> FILTRO["ERROR_BD"]));
-			}
 		}
 		
 		return new ViewModel();

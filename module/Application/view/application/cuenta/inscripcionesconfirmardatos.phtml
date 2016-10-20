@@ -7,9 +7,6 @@
 	$diaHit = $session -> offsetGet("user")["diaHit"];
 	$playera = $session -> offsetGet("user")["playera"];
 	$metodoPago = $session -> offsetGet("user")["metodoPago"];
-	$metodoPago["precio"] = ($equipo["modalidad"] === "individual")
-		? $evento["precio"]
-		: $evento["precio"] * $equipo["noIntegrantes"];
 ?>
 <script>
 	(function() {
@@ -135,13 +132,20 @@
 						<a class='list-group-item'><strong>Correo electrónico:</strong> <?php echo $usuario["correo"]; ?></a>
 						<a class='list-group-item'><strong>Playera:</strong> <?php echo "{$playera["tamanyo"]["talla"]} - {$playera["color"]["color"]}"; ?></a>
 						<a class='list-group-item list-group-item-warning'><strong>Inscripción</strong></a>
-						<a class='list-group-item'>
+						<a class="list-group-item">
 							<strong>Modalidad:</strong>
-							<?php echo ($equipo["modalidad"] === "individual")
-								? "Individual"
-								: "Equipo '{$equipo["nombre"]}' - {$equipo["noIntegrantes"]} integrantes";
-							?>
+							<?php echo ($equipo["modalidad"] === "individual") ? "Individual" : "En Equipo"; ?>
 						</a>
+						<?php if ($equipo["modalidad"] === "equipo"): ?>
+							<a class="list-group-item">
+								<strong>Nombre:</strong>
+								<?php echo $equipo["nombre"]; ?>
+							</a>
+							<a class="list-group-item">
+								<strong>Número de integrantes:</strong>
+								<?php echo $equipo["noIntegrantes"]; ?>
+							</a>
+						<?php endif; ?>
 						<a class='list-group-item'><strong>Día:</strong> <?php echo $fechaHandler -> traducirFecha($diaHit["dia"]["fecha"]); ?></a>
 						<a class='list-group-item'><strong>Bloque:</strong> <?php echo $diaHit["hit"]["horario"] ?></a>
 						<a class='list-group-item list-group-item-danger'><strong>Pago</strong></a>
@@ -157,6 +161,10 @@
 									Seven Eleven <img src="<?php echo $this -> basePath(); ?>/css/Imagenes/tienda_seven.png" height="30" />
 								<?php elseif ($metodoPago["sucursal"] === "EXTRA"): ?>
 									Extra <img src="<?php echo $this -> basePath(); ?>/css/Imagenes/tienda_extra.png" height="30" />
+								<?php elseif ($metodoPago["sucursal"] === "ELEKTRA"): ?>
+									Elektra <img src="<?php echo $this -> basePath(); ?>/css/Imagenes/tienda_elektra.png" height="30" />
+								<?php elseif ($metodoPago["sucursal"] === "COPPEL"): ?>
+									Coppel <img src="<?php echo $this -> basePath(); ?>/css/Imagenes/tienda_coppel.png" height="30" />
 								<?php elseif ($metodoPago["sucursal"] === "CHEDRAUI"): ?>
 									Chedraui <img src="<?php echo $this -> basePath(); ?>/css/Imagenes/tienda_chedraui.png" height="30" />
 								<?php elseif ($metodoPago["sucursal"] === "FARMACIA_BENAVIDES"): ?>
