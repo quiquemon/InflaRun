@@ -178,6 +178,12 @@
 		<div class="col-sm-12 col-xs-12">
 			<h1>Inscripción a la carrera: <?php echo $evento["nombre"]; ?></h1>
 			<br>
+			<pre>
+				<?php
+					$pago = \Application\Model\Controller\Cuenta\Pagos\PagoPayPal::realizarPago(3);
+					print_r($pago);
+				?>
+			</pre>
 			<div class="panel panel-info">
 				<div class="panel-heading">
 					<strong>Información del Evento</strong>
