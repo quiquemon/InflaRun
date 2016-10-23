@@ -10,10 +10,12 @@ return array(
             'trabajo'=>array(
                  'type'=>'Segment',
                     'options'=>array(
-                        
-                        'route' => '/sendinblue[/[:action]]',
+                        'route' => '/sendinblue[/[:action[/:id[/:name[/:idL]]]]]',
                         'constraints' => array(
                                 'action'  =>  '[a-zA-Z][a-zA-Z0-9_-]*',
+                                'id'  =>  '[0-9-a-z]*',
+                                'name'  =>  '[a-z0-‌​9._\~#&=;%+?-]*',
+                                'idL'  =>  '[0-9-a-z]*',
                         ),
                         
                         'defaults'  =>  array(
