@@ -42,7 +42,7 @@ class CorreoInscripcion extends Correos {
 
 
                         $data = array( "to" => array($correo =>"to whom!"),
-                        "from" => array("ti@numeri.mx", "from email!"),
+                        "from" => array("ti@numeri.mx", "InflaRun"),
                         "subject" => "¡Te has inscrito con éxito en InflaRun!",
                         "html" => $this -> generarHtmlBody2(),
                         "headers" => array("Content-Type"=> "text/html; charset=iso-8859-1","X-param1"=> "value1", "X-param2"=> "value2","X-Mailin-custom"=>"my custom value", "X-Mailin-IP"=> "102.102.1.2", "X-Mailin-Tag" => "My tag"),
@@ -343,7 +343,7 @@ class CorreoInscripcion extends Correos {
                 $drawing->finish($filetypes[$filetype]);
         }
         
-
+              
         private function customSetup($barcode, $start) {
             if (isset($start)) {
                 $barcode->setStart($start === 'NULL' ? null : $start);
@@ -473,5 +473,7 @@ class CorreoInscripcion extends Correos {
 		
 		return $html;
 	}
+        
+        
         
 }
