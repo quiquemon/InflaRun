@@ -6,6 +6,7 @@ use Application\Model\Dao\ConexionDao;
 use Application\Model\Controller\Cuenta\Pagos\PagoComproPago;
 use Application\Model\Controller\Cuenta\Pagos\PagoPayPal;
 use Application\Model\Controller\Cuenta\Handler\DiaHitHandler;
+use Sendinblue\Model\Correo\User;
 
 /**
  * Clase que maneja las inscripciones de los usuarios a las carreras.
@@ -96,6 +97,7 @@ class InscripcionesHandler {
 				$usuario["idEstado"],
 				$correo[0]["idCorreo"]
 			));
+                        
 			$idUsuario = $dao -> consultaGenerica("SELECT idUsuario FROM Usuario WHERE idUsuario = LAST_INSERT_ID()")[0]["idUsuario"];
 			
 			if ($equipo["modalidad"] === "individual") {
@@ -157,7 +159,9 @@ class InscripcionesHandler {
 		}
 	}
 	
-	/**
+        
+        
+        /**
 	 * Realiza el pago indicado (tarjeta o efectivo).
 	 * 
 	 * @param Array $metodoPago Arreglo que incluye la información
@@ -200,4 +204,22 @@ class InscripcionesHandler {
 	private static function generarCodigoCanje() {
 		return bin2hex(openssl_random_pseudo_bytes(25));
 	}
+        
+        /**
+	 * Genera un nuevo usuario en sendinblue.
+	 * @return Array  
+	 * @attributes 
+         * Array (
+         *  "NAME"=>"name", 
+         *  "SURNAME"=>"surname"       
+         * )
+	 */
+        public static function createUserSendinblues($email, $attributes, $listid) {
+            $this -> data = array( 
+                "email" => $email,
+                "attributes" => $attributes,
+                "listid" => array($listid)
+            );
+            return $this->mailin-> create_update_user($this->data);
+        }
 }
