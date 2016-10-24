@@ -213,12 +213,13 @@ class InscripcionesHandler {
          *  "NAME"=>"name", 
          *  "SURNAME"=>"surname"       
          * )
+         * @43 idd la lista InflaRun 2016
 	 */
-        public static function createUserSendinblues($email, $attributes, $listid) {
+        public static function createUserSendinblues($email, $attributes) {
             $this -> data = array( 
                 "email" => $email,
                 "attributes" => $attributes,
-                "listid" => array($listid)
+                "listid" => array(43)
             );
             return $this->mailin-> create_update_user($this->data);
         }
