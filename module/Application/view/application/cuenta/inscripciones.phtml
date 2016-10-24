@@ -49,16 +49,26 @@
 														</div>
 														<div class="panel-body">
 															<div class="list-group">
-																<?php foreach($evento["dias"] as $dia): ?>
-																	<a class="list-group-item"><?php echo $fechaHandler -> traducirFecha($dia["fechaRealizacion"]); ?></a>
-																<?php endforeach; ?>
+																<?php if (!empty($evento["dias"])): ?>
+																	<a class="list-group-item">
+																		<?php echo $fechaHandler -> traducirFecha($evento["dias"]["fechaRealizacion"]); ?>
+																	</a>
+																<?php else: ?>
+																	<a class="list-group-item list-group-item-warning">Bloques Agotados</a>
+																<?php endif; ?>
 															</div>
 														</div>
 													</div>
 												</div>
 												<br>
-												<a href="<?php echo $this -> basePath(); ?>/application/cuenta/inscripcionesdatos?idDetallesEvento=<?php echo $evento["idDetallesEvento"]; ?>"
+												<?php if (!empty($evento["dias"])): ?>
+													<a href="<?php echo $this -> basePath(); ?>/application/cuenta/inscripcionesdatos?idDetallesEvento=<?php echo $evento["idDetallesEvento"]; ?>"
 													   class="btn btn-primary btn-lg btn-block">¡Inscribirme!</a>
+												<?php else: ?>
+													<div class="alert alert-danger">
+														Lo sentimos, todos los lugares de esta carrera están agotados.
+													</div>
+												<?php endif; ?>
 											</div>
 										</div>
 									</div>

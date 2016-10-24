@@ -1,7 +1,6 @@
 <?php
 namespace Application\Model\Controller\Cuenta\Handler;
 
-use Zend\Session\Container;
 use Application\Model\Dao\ConexionDao;
 use Application\Model\Controller\Cuenta\Pagos\PagoComproPago;
 use Application\Model\Controller\Cuenta\Pagos\PagoPayPal;
@@ -44,7 +43,7 @@ class InscripcionesHandler {
 	 * a la carrera indicada, además de enviarle sus respectivos comprobantes de inscripción
 	 * a su correo.
 	 * 
-	 * @param \Zend\Session\Container $user El objeto de la sesión con los datos de inscripción del usuario.
+	 * @param Array $user El objeto de la sesión con los datos de inscripción del usuario.
 	 * @return Array Arreglo asociativo que contiene la respuesta de la operación de acuerdo a la
 	 * variable estática de esta clase, $FILTRO.
 	 */
@@ -147,6 +146,12 @@ class InscripcionesHandler {
 			));
 			
 			$dao -> commit();
+			
+			if ($equipo["modalidad"] === "equipo") {
+				#TODO
+				# Enviar también el link para inscribir a sus compañeros de equipo.
+			}
+			
 			return ($metodoPago["metodo"] === "tarjeta")
 				? self::$FILTRO["OK_TARJETA"]
 				: self::$FILTRO["OK_EFECTIVO"];
@@ -190,14 +195,6 @@ class InscripcionesHandler {
 	}
 	
 	/**
-	 * Genera un número de corredor único.
-	 * @return int Un nuevo número de corredor.
-	 */
-	private static function generarNumeroCorredor() {
-		return hexdec(bin2hex(openssl_random_pseudo_bytes(2)));
-	}
-	
-	/**
 	 * Genera un código de canje único.
 	 * @return string Un nuevo código de canje.
 	 */
@@ -215,12 +212,12 @@ class InscripcionesHandler {
          * )
          * @43 idd la lista InflaRun 2016
 	 */
-        public static function createUserSendinblues($email, $attributes) {
-            $this -> data = array( 
-                "email" => $email,
-                "attributes" => $attributes,
-                "listid" => array(43)
-            );
-            return $this->mailin-> create_update_user($this->data);
-        }
+	public static function createUserSendinblues($email, $attributes) {
+		$this -> data = array( 
+			"email" => $email,
+			"attributes" => $attributes,
+			"listid" => array(43)
+		);
+		return $this->mailin-> create_update_user($this->data);
+	}
 }

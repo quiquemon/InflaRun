@@ -130,8 +130,8 @@ class InscripcionesInfoPersonalHandler {
 		$dia = $params -> fromPost("dia", "");
 		$hit = $params -> fromPost("bloque", "");
 		
-		$tamanyo = $params -> fromPost("tamanyo", 1);
-		$color = $params -> fromPost("color", 1);
+		$tamanyo = $params -> fromPost("tamanyo", "1|S");
+		$color = $params -> fromPost("color", "1|Azul");
 		
 		$metodoPago = $params -> fromPost("rdbMetodoPago", "tarjeta");
 		$sucursal = $params -> fromPost("rdbSucursal", "");

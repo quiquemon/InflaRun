@@ -5,17 +5,14 @@ use Zend\Mvc\Controller\AbstractActionController;
 use Zend\View\Model\ViewModel;
 use Zend\View\Model\JsonModel;
 use Zend\Session\Container;
-use Application\Model\Controller\Cuenta\Handler\DiaHitHandler;
-use Application\Model\Controller\Cuenta\Handler\PagosHandler;
 use Application\Model\Controller\Cuenta\Handler\InscripcionHandler;
 use Application\Model\Controller\Cuenta\Handler\InscripcionesHandler;
 use Application\Model\Controller\Cuenta\Handler\InscripcionesInfoPersonalHandler;
+use Application\Model\Controller\Cuenta\Handler\EquiposHandler;
 use Application\Model\Controller\Cuenta\Handler\AdminHandler;
 use Application\Model\Controller\Cuenta\Handler\UsuarioHandler;
 use Application\Model\Dao\ConexionDao;
 use Application\Model\Dao\EquipoDao;
-use Application\Model\Dao\DiaHitDao;
-use Application\Model\Pojo\DiaHit;
 
 class CuentaController extends AbstractActionController {
 	
@@ -132,8 +129,10 @@ class CuentaController extends AbstractActionController {
 			$dao = new ConexionDao();
 			$eventos = $dao -> consultaGenerica("SELECT * FROM DetallesEvento WHERE realizado = 0 ORDER BY idDetallesEvento DESC");
 			for ($i = 0; $i < count($eventos); $i++) {
-				$eventos[$i]["dias"] = $dao -> consultaGenerica("SELECT * FROM DiaEvento WHERE idDetallesEvento = ?",
-					array($eventos[$i]["idDetallesEvento"]));
+				$sql = "SELECT DISTINCT de.* FROM DiaEvento de, DiaHit dh WHERE de.idDiaEvento = dh.idDiaEvento AND"
+					. " de.idDetallesEvento = ? AND dh.lugaresRestantes > 0";
+				$dias = $dao -> consultaGenerica($sql, array($eventos[$i]["idDetallesEvento"]));
+				$eventos[$i]["dias"] = empty($dias) ? array() : $dias[0];
 				$eventos[$i]["estado"] = $dao -> consultaGenerica("SELECT * FROM Estado WHERE idEstado = ?",
 					array($eventos[$i]["idEstado"]))[0];
 			}
@@ -174,7 +173,6 @@ class CuentaController extends AbstractActionController {
 				$evento[0]["dias"] = $dias;
 				$playeras = array();
 				$playeras["tamanyo"] = $dao -> consultaGenerica("SELECT * FROM TamPlayera");
-				$playeras["color"] = $dao -> consultaGenerica("SELECT * FROM ColorPlayera");
 			}
 		} catch (\Exception $ex) {
 			return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/inscripciones");
@@ -231,6 +229,25 @@ class CuentaController extends AbstractActionController {
 		}
 		
 		return new JsonModel($resultado);
+	}
+	
+	public function inscripcionesequiposAction() {
+		$codigoCanje = $this -> params() -> fromQuery("codigoCanje", "");
+		
+		if (empty($codigoCanje))
+			return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/inscripciones");
+		
+		try {
+			$inscripcion = EquiposHandler::obtenerDatosEquipo($codigoCanje);
+			return new ViewModel(array("inscripcion" => $inscripcion));
+		} catch (\Exception $ex) {
+			return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/inscripciones");
+		}
+	}
+	
+	public function inscripcionesequiposfinalizarAction() {
+		
+		return new JsonModel();
 	}
 	
 	public function cancelarinscripcionAction() {
