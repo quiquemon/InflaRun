@@ -1,0 +1,110 @@
+<?php
+	$session = (new \Zend\Session\Container("usuario"));
+	$inscripcionDetalles = $session -> offsetGet("inscripcionDetalles");
+	$dias = $inscripcionDetalles["diasEvento"];
+	
+	if ($session -> offsetExists("diaHit"))
+		$session -> offsetUnset("diaHit");
+	
+	if ($session -> offsetExists("metodoPago"))
+		$session -> offsetExists("metodoPago");
+	
+	if ($session -> offsetExists("datosBancarios"))
+		$session -> offsetUnset("datosBancarios");
+	
+	try {
+		$dao = new \Application\Model\Dao\DetallesEventoDao();
+		$noDias = count($dias);
+		for($i = 0; $i < $noDias; $i++) {
+			$dias[$i]["hits"] = $dao
+				-> consultaGenerica("SELECT * FROM DiaHit WHERE idDiaEvento = ?", array($dias[$i]["idDiaEvento"]));
+		}
+	} catch (\Exception $ex) {
+		header("Location: {$this -> basePath()}/application/cuenta/index");
+		die();
+	}
+?>
+<script>
+	(function() {
+		$("#navbarCollapse ul li").each(function() {
+			$(this).removeClass("active");
+		});
+		$("#navbarCollapse ul").children().last().addClass("active");
+		$("#navbarCollapse ul li a").children().last().html("Inscripciones");
+		$("#navbarCollapse ul li").children().last().attr("href", "<?php echo $this -> basePath(); ?>/application/cuenta/index");
+		document.title = "Bloque - InflaRun";
+		
+		$(document).ready(function() {
+			var bloques = JSON.parse('{"bloques" : <?php echo json_encode($dias); ?>}').bloques;
+			
+			$("#dia").change(function() {
+				var id = $(this).val();
+				$("#bloque").empty();
+				
+				var bloqueNuevo = bloques.filter(function(e) {
+					return e.idDiaEvento == id;
+				})[0];
+				bloqueNuevo.hits.forEach(function(e) {
+					if (e.lugaresRestantes > 0) {
+						var option = 
+							"<option value='" + e.idDiaHit + "'>\n\
+								" + e.horario + " (" + e.lugaresRestantes + " lugares restantes)\n\
+							</option>";
+						$("#bloque").append(option);
+					}
+				});
+			});
+		});
+	})();
+</script>
+<div id="cuentaBody" class="container-fluid">
+	<div class="row">
+		<div class="col-md-7 col-xs-7">
+			<div class="panel panel-success">
+				<div class="panel-heading">
+					<strong>Elige tu día y bloque</strong>
+				</div>
+				<div class="panel-body">
+					<div class="col-md-12">
+						<?php if(isset($this -> Error)): ?>
+							<div class="alert alert-danger fade in">
+								<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+								<?php echo $this -> Error["message"]; ?>
+							</div>
+						<?php endif; ?>
+						<form action="<?php echo $this -> basePath(); ?>/application/cuenta/elegirbloque" method="post">
+							<div class="form-group">
+								<label>Día:</label>
+								<select id="dia" name="dia" class="form-control">
+									<?php foreach($dias as $dia): ?>
+									<option value="<?php echo $this -> escapeHtml($dia["idDiaEvento"]); ?>">
+										<?php echo $this -> escapeHtml(date_format(date_create($dia["fechaRealizacion"]), "d-m-y")); ?>
+									</option>
+									<?php endforeach; ?>
+								</select>
+							</div>
+							<div class="form-group">
+								<label>Bloque:</label>
+								<select id="bloque" name="bloque" class="form-control">
+									<?php foreach($dias[0]["hits"] as $hit): ?>
+										<?php if($hit["lugaresRestantes"] > 0): ?>
+											<option value="<?php echo $this -> escapeHtml($hit["idDiaHit"]); ?>">
+												<?php echo $this -> escapeHtml($hit["horario"]) ?> (<?php echo $this -> escapeHtml($hit["lugaresRestantes"]) ?> lugares restantes)
+											</option>
+										<?php endif; ?>
+									<?php endforeach; ?>
+								</select>
+							</div>
+							<input id="btnElegirBloque" type="submit" value="Continuar" class="btn btn-primary btn-lg" />
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="col-md-5 col-xs-5">
+			<a href="<?php echo $this -> basePath(); ?>/application/cuenta/elegirmodalidad" class="btn btn-warning btn-lg btn-block" style="white-space: normal">Regresar a modalidad de inscripción</a>
+			<br>
+			<a href="<?php echo $this -> basePath(); ?>/application/cuenta/index" class="btn btn-danger btn-lg btn-block">Cancelar</a>	
+		</div>
+	</div>
+</div>

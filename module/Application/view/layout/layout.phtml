@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>InflaRun</title>
+		<link rel="icon" href="<?php echo $this -> basePath(); ?>/css/Imagenes/icono-inflarun.png.ico">
+		<link rel="stylesheet" type="text/css" href="<?php echo $this -> basePath(); ?>/css/bootstrap.min.css">
+		<link rel="stylesheet" type="text/css" href="<?php echo $this -> basePath(); ?>/css/bootstrap-theme.min.css">
+		<link rel="stylesheet" type="text/css" href="<?php echo $this -> basePath(); ?>/css/bootstrap-datepicker.min.css">
+		<link rel="stylesheet" type="text/css" href="<?php echo $this -> basePath(); ?>/css/bootstrap-dialog.min.css">
+		<link rel="stylesheet" type="text/css" href="<?php echo $this -> basePath(); ?>/css/estilo-main.css">
+		<script src="<?php echo $this -> basePath(); ?>/js/jquery.min.js"></script>
+		<script src="<?php echo $this -> basePath(); ?>/js/bootstrap.min.js"></script>
+		<script src="<?php echo $this -> basePath(); ?>/js/bootstrap-datepicker.min.js"></script>
+		<script src="<?php echo $this -> basePath(); ?>/js/bootstrap-dialog.min.js"></script>
+		<script src="<?php echo $this -> basePath(); ?>/js/inflarun.js"></script>
+	</head>
+    <body>
+		<div id="fb-root"></div>
+		<section id="encabezado">
+			<div id="areaTrabajo" class="container-fluid">
+				<div class="row">
+					<div class="col-sm-6">
+						<img id="logoInflarun" src="<?php echo $this -> basePath(); ?>/css/Imagenes/LOGO-INFLARUN.png" />
+					</div>
+					<div id="botonesRedesSociales" class="col-sm-6" align="right">
+						<a href="https://www.facebook.com/inflarun/?fref=ts" target="_blank"><img src="<?php echo $this -> basePath(); ?>/css/Imagenes/logo-facebook.png" /></a>
+						<a href="https://twitter.com/search?q=%23InflaRun&src=typd" target="_blank"><img src="<?php echo $this -> basePath(); ?>/css/Imagenes/logo-twitter.png" /></a>
+						<a href="https://www.instagram.com/inflarun_mx_oficial/" target="_blank"><img src="<?php echo $this -> basePath(); ?>/css/Imagenes/logo-instagram.png" /></a>
+						<a href="https://www.youtube.com/channel/UCuTmDnWYxkhX_p55WUtqiRw" target="_blank"><img src="<?php echo $this -> basePath(); ?>/css/Imagenes/logo-youtube.png" /></a>
+					</div>
+				</div>
+			</div>
+		</section>
+		<header id="barraNavegacion">
+			<div id="nav" class="navbar navbar-default navbar-custom" role="navigation">
+				<div class="navbar-inner navbar-right">
+					<div class="navbar-header">
+						<button type="button" data-target="#navbarCollapse" data-toggle="collapse" class="navbar-toggle">
+							<span class="sr-only">Toggle navigation</span>
+							<span class="icon-bar"></span>
+							<span class="icon-bar"></span>
+							<span class="icon-bar"></span>
+						</button>
+					</div>
+					<div id="navbarCollapse" class="container-fluid collapse navbar-collapse">
+						<ul class="nav navbar-nav">
+							<li class="active"><a href="<?php echo $this -> basePath(); ?>/application/index"><h4>Home</h4></a></li>
+							<li><a href="<?php echo $this -> basePath(); ?>/application/queesinflarun"><h4>¿Qué es InflaRun?</h4></a></li>
+							<li><a href="<?php echo $this -> basePath(); ?>/application/fundacion"><h4>Fundación</h4></a></li>
+							<li><a href="<?php echo $this -> basePath(); ?>/application/convocatoria"><h4>Convocatoria</h4></a></li>
+							<li><a href="<?php echo $this -> basePath(); ?>/application/preguntasfrecuentes"><h4>FAQs</h4></a></li>
+							<?php #echo '<li><a href="/InflaRun/public/application/cuenta/inscripciones"><h4>Inscripciones</h4></a></li>'; ?>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</header>
+		<?php echo $this -> content; ?>
+        <div id="aviso" class="modal fade" role="dialog">
+			<div class="modal-dialog">
+				<div class="modal-contentAviso">
+					<div class="modal-header">
+						<button class="close" data-dismiss="modal">&times;</button>
+						<h1 class="modal-title">Aviso de Privacidad</h1>
+					</div>
+					<div class="modal-body">
+						<p><b>Fecha de &uacute;ltima actualizaci&oacute;n: 12 de Septiembre del 2016</b></p>
+						<div class="sub">GENERAL</div>
+						<p>
+							ESTIMADO CLIENTE, en INFLARUN estamos conscientes de la importancia de proteger
+							correctamente los datos personales de nuestros clientes, es por ello y en congruencia
+							con lo establecido en la Ley Federal de Protección de Datos Personales en Posesión de
+							los Particulares (LFPDPPP), que INFLARUN, con domicilio en Montecito #38 piso 5 oficina
+							31 col. Nápoles delegación Benito Juárez, México D.F. CP 03810, en su calidad de
+							responsable pone a su disposición el siguiente Aviso de Privacidad, a fin de que tenga
+							pleno conocimiento sobre el tratamiento que se le dará a sus datos personales, así como
+							facilitarle el ejercicio de los derechos que la LFPDPPP le otorga.
+						</p>
+						<div class="sub">1.- Datos Personales tratados.</div>
+						<p>
+							Los datos personales que recopilamos de nuestros clientes son: nombre, domicilio, teléfono,
+							género, correo electrónico, y fotografías de los eventos en que participe mismas que se
+							publican vía internet a través de la página www.inflarun.mx. Cabe mencionar que todos los
+							datos personales antes reseñados son indispensables para que INFLARUN pueda brindarle a sus
+							clientes los servicios contratados, por lo que en caso de no aceptar el uso de los mismos
+							para los fines establecidos en el primer párrafo del numeral 2. del presente Aviso de
+							Privacidad, no podrá contratar los servicios ofrecidos por ésta, o en caso de revocación del
+							consentimiento o el ejercicio del derecho de cancelación u oposición para el tratamiento de
+							dichos datos dará lugar a la rescisión del contrato de prestación de servicios que tenga
+							celebrado con Emoción Deportiva sin responsabilidad para este último.
+						</p>
+						<div class="sub">2.- Finalidades del tratamiento</div>
+						<p>
+							Sus datos personales son utilizados (tratados) para las siguientes finalidades: (i)
+							suscripción del contrato de servicios; (ii) identificación y verificación; (iii) contacto;
+							y (iv) Para proporcionarle los resultados de su participación en los eventos deportivos y
+							la(s) imagen (es) de su participación en los eventos deportivos organizados por INFLARUN.
+							Asimismo, sus datos personales serán utilizados para las siguientes finalidades
+							comerciales y de promoción: (i) para enviarle información relativa a nuestros productos o
+							servicios, (ii) Promoción de carreras futuras; (iii) Promoción de sorteos, eventos y trivias
+							organizadas por Emoción Deportiva y las empresas subsidiarias y filiales de INFLARUN. En caso
+							de que usted no desee que sus datos personales sean tratados para las finalidades comerciales
+							y de promoción antes descritas, usted podrá contactarnos en cualquier momento, para limitar
+							dicho tratamiento, a través de nuestro correo electrónico hola@inflarun.mx o directamente
+							en nuestras oficinas ubicadas en Montecito #38 piso 5 oficina 31 col. Nápoles delegación 
+							enito Juárez, México D.F. CP 03810.
+						</p>
+						<div class="sub">3.- Mecanismos de Seguridad</div>
+						<p>
+							Para garantizar el correcto resguardo de sus datos personales y para dar pleno cumplimiento
+							a las obligaciones que la LFPDPPP establece en la materia, se le informa que INFLARUN tiene
+							implementadas las medidas de seguridad administrativas, técnicas y físicas necesarias y
+							suficientes para la correcta protección de los datos.
+						</p>
+						<div class="sub">4.- Revocaci&oacute;n del Consentimiento </div>
+						<p>
+							Usted podrá revocar en cualquier momento su consentimiento para el tratamiento que INFLARUN
+							hace de sus datos personales por medio de un documento que deberá presentar por escrito
+							directamente en nuestras oficinas ubicadas en Montecito #38 piso 5 oficina 31 col. Nápoles
+							delegación Benito Juárez, México D.F. CP 03810 en un horario de lunes a viernes de 9:00 a
+							14:00 horas y de 16:00 a 18:00 horas, o en cualquier momento o a través de nuestro correo
+							electrónico hola@inflarun.mx misma que deberá contener por lo menos: (a) nombre y domicilio
+							u otro medio para comunicarle la respuesta a su solicitud; (b) los documentos que acrediten
+							su identidad o, en su caso, la representación legal; (c) la descripción clara y precisa de
+							los datos personales respecto de los que revoca su consentimiento para el tratamiento, (d)
+							la manifestación expresa para revocar su consentimiento al tratamiento de sus datos
+							personales y por tanto, para que no se suspenda su uso; (d) cualquier otro elemento que
+							facilite la localización de los datos personales.
+						</p>
+						<div class="sub">5.- Ejercicio de derechos ARCO </div>
+						<p>
+							Usted puede ejercer ante INFLARUN, en cualquier momento, sus derechos de acceso,
+							rectificación, cancelación y oposición al tratamiento de sus datos personales mediante
+							solicitud por escrito que deberá ser enviada directamente a nuestras oficinas ubicadas en
+							Montecito #38 piso 5 oficina 31 col. Nápoles delegación Benito Juárez, México D.F. CP 03810
+							y/o al correo electrónico hola@inflarun.mx misma que deberá contener por lo menos: (a)
+							nombre y domicilio u otro medio para comunicarle la respuesta a su solicitud; (b) los
+							documentos que acrediten su identidad o, en su caso, la representación legal; (c) la
+							descripción clara y precisa de los datos personales respecto de los que se solicita ejercer
+							alguno de los derechos ARCO, (d) la manifestación expresa del derecho (acceso, rectificación,
+							cancelación u oposición) que quiere ejercer sobre tratamiento de sus datos personales; (d)
+							cualquier otro elemento que facilite la localización de los datos personales.
+						</p>
+						<div class="sub">6.- Transferencias </div>
+						<p>
+							INFLARUN podrá transferir sus datos personales con sus empresas subsidiarias o filiales del
+							mismo grupo empresarial, en específico INFLARUN para las finalidades comerciales y de
+							promoción descritas en el punto 2 del presente Aviso de Privacidad. En ningún caso INFLARUN
+							transferirá los datos personales de sus clientes a un tercero, diferente a las empresas
+							subsidiarias o filiales descritas en el punto anterior, sin el consentimiento previo de los
+							titulares.
+						</p>
+						<div class="sub">7.- Cambios al Aviso de Privacidad </div>
+						<p>
+							INFLARUN se reserva el derecho de cambiar el contenido del presente Aviso de Privacidad en
+							cualquier momento. En caso de que exista algún cambio en este Aviso de Privacidad, se le
+							comunicará a través de nuestro portal de internet <a href="https://inflarun.mx" target="_blank">
+							https://www.inflarun.mx</a>.
+						</p>
+						<div class="sub">
+							8.- Este sitio tiene instalado el sistema de medici&oacute;n digital Google Analytics.
+						</div>
+						<p>
+							Dicho sistema se basa en cookies, de acuerdo con:
+							http://www.google.com/analytics/learn/privacy.html. Las cookies por medio de las cuales
+							se realiza la medición dentro del sitio www.inflarum.mx no recolectan información personal
+							y son de primera fuente (first-party), lo que significa que no se comparten con otros sitios
+							o sistemas. Éstas no recolectan datos sensibles que permitan identificar a una persona y se
+							utilizan solamente con fines estadísticos.
+						</p>
+						<div class="sub">9.- ACEPTACI&Oacute;N DE LOS T&Eacute;RMINOS</div>
+						<p>
+							Esta declaración de Confidencialidad / Privacidad constituye un acuerdo legal entre el
+							usuario y INFLARUN. Si el usuario utiliza los servicios de este sitio web, significa que ha
+							leído, entendido y consentido los términos antes expuestos. Para resolver cualquier duda en
+							este sentido, nos podrá contactar al correo hola@inflarun.mx.
+						</p>
+						<div class="sub">10.- AUTORIDAD:</div>
+						<p>
+							Si el usuario considera que han sido vulnerados sus derechos respecto de la protección de
+							datos personales tiene el derecho de acudir a la autoridad correspondiente para defender su
+							ejercicio. La autoridad es el Instituto Federal de Acceso a la Información y Protección de
+							Datos (IFAI). Su sitio es: <a href="http://inicio.ifai.org.mx/SitePages/ifai.aspx" target="_blank">www.ifai.mx</a>
+						</p>
+					</div>
+				</div>
+			</div>
+		</div>
+		<footer id="foot" >
+			<p><strong>InflaRun 2016</strong></p>
+			<a href="#" data-toggle="modal" data-target="#aviso" ><h4>Aviso de privacidad</h4></a>
+		</footer>
+		<script>
+			(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+				(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+				m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+			})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+			ga('create', 'UA-85924011-1', 'auto');
+			ga('send', 'pageview');
+		</script>
+	</body> 
+</html>

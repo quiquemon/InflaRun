@@ -1,0 +1,142 @@
+<?php
+	$session = (new \Zend\Session\Container("usuario"));
+	$usuario = $session -> offsetGet("usuario");
+	$nombre = $this -> escapeHtml($usuario -> getNombre());
+	$paterno = $this -> escapeHtml($usuario -> getAPaterno());
+	$materno = $this -> escapeHtml($usuario -> getAMaterno());
+	$email = $this -> escapeHtml($usuario -> getCorreo());
+	$boletin = $usuario -> getRecibeCorreos();
+	$personalMessage = $session -> offsetGet("personalMessage");
+	$passwordMessage = $session -> offsetGet("passwordMessage");
+?>
+<script>
+	(function() {
+		$("#navbarCollapse ul li").each(function() {
+			$(this).removeClass("active");
+		});
+		$("#navbarCollapse ul").children().last().addClass("active");
+		$("#navbarCollapse ul li a").children().last().html("Inscripciones");
+		$("#navbarCollapse ul li").children().last().attr("href", "<?php echo $this -> basePath(); ?>/application/cuenta/index");
+		document.title = "Mi Cuenta - InflaRun";
+	})();
+</script>
+<div id="cuentaBody" class="container-fluid">
+	<div class="row">
+		<div class="col-sm-12">
+			<div class="panel panel-info">
+				<div class="panel-heading">
+					Tu información personal
+				</div>
+				<div class="panel-body">
+					<?php if (isset($personalMessage)): ?>
+						<div class="alert alert-danger fade in">
+							<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+							<?php
+								echo $personalMessage;
+								$session -> offsetUnset("personalMessage");
+							?>
+						</div>
+					<?php endif; ?>
+					<form action="<?php echo $this -> basePath(); ?>/application/cuenta/modificarinformacion" method="post">
+						<div class="row">
+							<div class="col-md-6">
+								<div class="form-group">
+									<label>Nombre:</label>
+									<input type="text" id="nombreModInfo" name="nombreModInfo" class="form-control" value="<?php echo $nombre; ?>" />
+								</div>
+							</div>
+							<div class="col-md-6">
+								<div class="form-group">
+									<label>Apellido paterno:</label>
+									<input type="text" id="paternoModInfo" name="paternoModInfo" class="form-control" value="<?php echo $paterno; ?>" />
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-md-6">
+								<div class="form-group">
+									<label>Apellido materno:</label>
+									<input type="text" id="maternoModInfo" name="maternoModInfo" class="form-control" value="<?php echo $materno; ?>" />
+								</div>
+							</div>
+							<div class="col-md-6">
+								<div class="form-group">
+									<label>E-mail:</label>
+									<input type="text" id="emailModInfo" name="emailModInfo" class="form-control" value="<?php echo $email; ?>" />
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-md-6">
+								<div class="form-group">
+									<label>¿Suscribirse al boletín?</label>
+									<select id="boletinModInfo" name="boletinModInfo" class="form-control">
+										<?php if ($boletin): ?>
+											<option value="1" selected>Sí</option>
+											<option value="0">No</option>
+										<?php else: ?>
+											<option value="1">Sí</option>
+											<option value="0" selected>No</option>
+										<?php endif; ?>
+									</select>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-sm-1 col-xs-3">
+								<input type="submit" value="Modificar" class="btn btn-success" />
+							</div>
+							<div class="col-sm-1 col-xs-3">
+								<a href="<?php echo $this -> basePath(); ?>/application/cuenta/index" class="btn btn-danger">Cancelar</a>
+							</div>
+						</div>
+					</form>
+					
+				</div>
+			</div>
+			<div class="panel panel-warning">
+				<div class="panel-heading">
+					Contraseña
+				</div>
+				<div class="panel-body">
+					<?php if (isset($passwordMessage)): ?>
+						<div class="alert alert-danger fade in">
+							<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+							<?php
+								echo $passwordMessage;
+								$session -> offsetUnset("passwordMessage");
+							?>
+						</div>
+					<?php endif; ?>
+					<form action="<?php echo $this -> basePath(); ?>/application/cuenta/modpassword" method="post">
+						<div class="row">
+							<div class="col-md-12">
+								<div class="form-group">
+									<label>Escribe tu contraseña actual:</label>
+									<input type="password" id="pwdActualModInfo" name="pwdActualModInfo" class="form-control" />
+								</div>
+								<div class="form-group">
+									<label>Escribe la nueva contraseña:</label>
+									<input type="password" id="pwdNuevaModInfo" name="pwdNuevaModInfo" class="form-control" />
+								</div>
+								<div class="form-group">
+									<label>Confirma tu nueva contraseña:</label>
+									<input type="password" id="pwdNuevaConfModInfo" name="pwdNuevaConfModInfo" class="form-control" />
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-sm-1 col-xs-3">
+								<input type="submit" value="Modificar" class="btn btn-success" />
+							</div>
+							<div class="col-sm-1 col-xs-3">
+								<a href="<?php echo $this -> basePath(); ?>/application/cuenta/index" class="btn btn-danger">Cancelar</a>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+	<br>
+</div>

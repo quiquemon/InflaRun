@@ -1,0 +1,92 @@
+<?php
+	$session = (new \Zend\Session\Container("usuario"));
+	$message = $session -> offsetGet("message");
+	$nombreUsuario = $session -> offsetGet("usuario") -> getNombre() . " " . $session -> offsetGet("usuario") -> getAPaterno();
+	
+	if ($session -> offsetExists("inscripcionDetalles"))
+		$session -> offsetUnset("inscripcionDetalles");
+	
+	if ($session -> offsetExists("modalidad"))
+		$session -> offsetUnset("modalidad");
+	
+	if ($session -> offsetExists("diaHit"))
+		$session -> offsetUnset("diaHit");
+	
+	if ($session -> offsetExists("metodoPago"))
+		$session -> offsetUnset("metodoPago");
+	
+	if ($session -> offsetExists("datosBancarios"))
+		$session -> offsetUnset("datosBancarios");
+	
+	if ($session -> offsetExists("equipoCodigo"))
+		$session -> offsetUnset("equipoCodigo");
+	
+	if ($session -> offsetExists("ERROR_PAGO"))
+		$session -> offsetUnset("ERROR_PAGO");
+?>
+<script>
+	(function() {
+		$("#navbarCollapse ul li").each(function() {
+			$(this).removeClass("active");
+		});
+		$("#navbarCollapse ul").children().last().addClass("active");
+		$("#navbarCollapse ul li a").children().last().html("Inscripciones");
+		$("#navbarCollapse ul li").children().last().attr("href", "<?php echo $this -> basePath(); ?>/application/cuenta/index");
+		document.title = "Mi Cuenta - InflaRun";
+	})();
+</script>
+<div id="cuentaBody" class="container-fluid">
+	<div class="row">
+		<h2>Bienvenido, <?php echo $this -> escapeHtml($nombreUsuario); ?>.</h2>
+		<br>
+		<?php if (isset($message)): ?>
+			<div class="alert alert-info fade in">
+				<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+				<?php
+					echo $message;
+					$session -> offsetUnset("message");
+				?>
+			</div>
+		<?php endif; ?>
+		<div class="col-md-3 col-xs-3">
+			<div class="dropdown">
+				<button class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+					Opciones
+					<span class="caret"></span>
+				</button>
+				<ul class="dropdown-menu">
+					<li><a href="<?php echo $this -> basePath(); ?>/application/cuenta/modinfo">Modificar Información</a></li>
+					<li><a href="<?php echo $this -> basePath(); ?>/application/cuenta/logout">Cerrar Sesión</a></li>
+				</ul>
+			</div>
+		</div>
+		<div class="col-md-9 col-xs-9">
+			<div class="panel panel-success">
+				<div class="panel-heading">
+					<strong>Próximos Eventos</strong>
+				</div>
+				<div class="panel-body">
+				<?php
+					$dao = new \Application\Model\Dao\DetallesEventoDao();
+					try {
+						$eventos = $dao -> consultaGenerica("SELECT * FROM DetallesEvento ORDER BY idDetallesEvento DESC");
+					} catch (\Exception $ex) {
+						$eventos = array();
+					}
+				?>
+				<?php foreach($eventos as $evento): ?>
+					<div class="panel panel-default">
+						<div class="panel-heading">
+							<?php echo $this -> escapeHtml($evento["nombre"]); ?>
+						</div>
+						<div class="panel-body">
+							<a href="<?php echo $this -> basePath(); ?>/application/cuenta/paginaevento?id=<?php echo $evento["idDetallesEvento"]; ?>" class="btn btn-default">Más información</a>
+						</div>
+					</div>
+				<?php endforeach; ?>
+				</div>
+			</div>
+		</div>
+	</div>
+	<br>
+</div>

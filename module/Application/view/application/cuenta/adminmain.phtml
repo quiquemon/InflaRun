@@ -1,0 +1,107 @@
+<?php
+	$session = new \Zend\Session\Container("admin");
+	
+	try {
+		$dao = new \Application\Model\Dao\UsuarioDao();
+		$pagos = $dao -> consultaGenerica("SELECT * FROM Pago WHERE estatus = 0");
+		$hayPagos = !empty($pagos);
+		
+		if ($hayPagos) {
+			$equipos = array();
+			
+			$noPagos = count($pagos);
+			for ($i = 0; $i < $noPagos; $i++) {
+				$pagos[$i]["equipo"] = $dao
+					-> consultaGenerica("SELECT * FROM Equipo WHERE idEquipo = ?", array($pagos[$i]["idEquipo"]))[0];
+				$pagos[$i]["equipo"]["usuarioEquipo"] = $dao
+					-> consultaGenerica("SELECT * FROM UsuarioEquipo WHERE idEquipo = ?", array($pagos[$i]["idEquipo"]))[0];
+				$pagos[$i]["equipo"]["usuarioEquipo"]["usuario"] = $dao
+					-> consultaGenerica("SELECT * FROM Usuario WHERE idUsuario = ?",
+						array($pagos[$i]["equipo"]["usuarioEquipo"]["idUsuario"]))[0];
+			}
+		}
+	} catch (\Exception $ex) {
+		$hayPagos = false;
+	}
+?>
+<script>
+	(function() {
+		$("#navbarCollapse ul li").each(function() {
+			$(this).removeClass("active");
+		});
+		$("#navbarCollapse ul").children().last().addClass("active");
+		document.title = "Admin Main - InflaRun";
+	})();
+</script>
+<div id="cuentaBody" class="container-fluid">
+	<div class="row">
+		<h2>Bienvenido, Administrador.</h2>
+		<br>
+		<?php if ($session -> offsetExists("message")): ?>
+			<div class="alert alert-info fade in">
+				<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+				<?php
+					echo $session -> offsetGet("message");
+					$session -> offsetUnset("message");
+				?>
+			</div>
+		<?php endif; ?>
+		<div class="col-md-2 col-xs-3">
+			<div class="dropdown">
+				<button class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+					Opciones
+					<span class="caret"></span>
+				</button>
+				<ul class="dropdown-menu">
+					<li><a href="<?php echo $this -> basePath(); ?>/application/cuenta/adminlogout">Cerrar Sesión</a></li>
+				</ul>
+			</div>
+			<br>
+			<br>
+			<a href="<?php echo $this -> basePath(); ?>/application/cuenta/adminmain" class="btn btn-warning">Actualizar</a>
+			<br><br>
+			<a href="<?php echo $this -> basePath(); ?>/application/cuenta/adminaceptarpagadas" class="btn btn-success">Aceptar Pagadas</a>
+			<br><br>
+			<a href="<?php echo $this -> basePath(); ?>/application/cuenta/adminrechazarexpiradas" class="btn btn-danger">Rechazar Expiradas</a>
+		</div>
+		<div class="col-md-10 col-xs-9">
+			<div class="panel panel-success">
+				<div class="panel-heading">
+					<strong>Pagos en Efectivo</strong>
+				</div>
+				<div class="panel-body">
+					<div class="table-responsive">
+						<table class="table table-hover">
+							<thead>
+								<tr>
+									<th>Correo del usuario</th>
+									<th>Número de pedido</th>
+									<th>Número de transacción</th>
+									<th>Fecha de expiración</th>
+									<th>Acción</th>
+								</tr>
+							</thead>
+							<tbody>
+								<?php if ($hayPagos): ?>
+									<?php foreach ($pagos as $pago): ?>
+										<tr>
+											<td><?php echo $pago["equipo"]["usuarioEquipo"]["usuario"]["correo"]; ?></td>
+											<td><?php echo $pago["orderId"]; ?></td>
+											<td><?php echo $pago["transaccion"]; ?></td>
+											<td><?php echo $pago["fechaExpiracion"] ?></td>
+											<td>
+												<a href="<?php echo $this -> basePath(); ?>/application/cuenta/adminaceptarpago?idPago=<?php echo $pago["idPago"]; ?>" class="btn btn-success">Aceptar</a>
+												<a href="<?php echo $this -> basePath(); ?>/application/cuenta/adminrechazarpago?idPago=<?php echo $pago["idPago"]; ?>" class="btn btn-danger">Rechazar</a>
+											</td>
+										</tr>
+									<?php endforeach; ?>
+								<?php endif; ?>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<br>
+</div>
