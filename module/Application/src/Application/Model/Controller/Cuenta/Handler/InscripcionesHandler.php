@@ -8,6 +8,7 @@ use Application\Model\Controller\Cuenta\Pagos\PagoPayPal;
 use Application\Model\Controller\Cuenta\Handler\DiaHitHandler;
 use Sendinblue\Model\Correo\User;
 
+
 /**
  * Clase que maneja las inscripciones de los usuarios a las carreras.
  *
@@ -147,6 +148,15 @@ class InscripcionesHandler {
 			));
 			
 			$dao -> commit();
+                   // --------- Agregar a Sendinblue -------------
+                        $User = new User();
+                        $User -> IDLista = 43; // <-----  ID lista en sendinblue donde se agregaran los nuevos contactos
+                        $attributes= array(
+                            "NOMBRE"=>    $Usuario['nombre'], 
+                            "SURNAME"=> $Usuario['paterno']
+                         );
+                        $User ->createUser($correo['correo'], $attributes, $User -> IDLista);
+                     // --------- /Agregar a Sendinblue -------------    
 			return ($metodoPago["metodo"] === "tarjeta")
 				? self::$FILTRO["OK_TARJETA"]
 				: self::$FILTRO["OK_EFECTIVO"];
@@ -215,12 +225,5 @@ class InscripcionesHandler {
          * )
          * @43 idd la lista InflaRun 2016
 	 */
-        public static function createUserSendinblues($email, $attributes) {
-            $this -> data = array( 
-                "email" => $email,
-                "attributes" => $attributes,
-                "listid" => array(43)
-            );
-            return $this->mailin-> create_update_user($this->data);
-        }
+        
 }
