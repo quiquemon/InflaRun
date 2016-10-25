@@ -151,12 +151,17 @@ class InscripcionesHandler {
 			));
 			
 			$dao -> commit();
-			
-			if ($equipo["modalidad"] === "equipo") {
-				#TODO
-				# Enviar también el link para inscribir a sus compañeros de equipo.
+			// --------- Agregar a Sendinblue -------------
+			if ($usuario["boletin"]) {
+				$User = new User();
+				$User -> IDLista = 43; // <-----  ID lista en sendinblue donde se agregaran los nuevos contactos
+				$attributes= array(
+					"NOMBRE" => $usuario['nombre'],
+					"SURNAME" => $usuario['paterno']
+				);
+				$User ->createUser($correo['correo'], $attributes, $User -> IDLista);
 			}
-			
+			  // --------- /Agregar a Sendinblue -------------    
 			return ($metodoPago["metodo"] === "tarjeta")
 				? self::$FILTRO["OK_TARJETA"]
 				: self::$FILTRO["OK_EFECTIVO"];
@@ -242,7 +247,7 @@ class InscripcionesHandler {
 		}
 	}    
         
-        /**
+    /**
 	 * Realiza el pago indicado (tarjeta o efectivo).
 	 * 
 	 * @param Array $metodoPago Arreglo que incluye la información
@@ -276,25 +281,6 @@ class InscripcionesHandler {
 	 */
 	private static function generarCodigoCanje() {
 		return bin2hex(openssl_random_pseudo_bytes(25));
-	}
-        
-        /**
-	 * Genera un nuevo usuario en sendinblue.
-	 * @return Array  
-	 * @attributes 
-         * Array (
-         *  "NAME"=>"name", 
-         *  "SURNAME"=>"surname"       
-         * )
-         * @43 idd la lista InflaRun 2016
-	 */
-	public static function createUserSendinblues($email, $attributes) {
-		$this -> data = array( 
-			"email" => $email,
-			"attributes" => $attributes,
-			"listid" => array(43)
-		);
-		return $this->mailin-> create_update_user($this->data);
 	}
 	
 	/**

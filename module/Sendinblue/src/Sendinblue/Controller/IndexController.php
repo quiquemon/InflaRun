@@ -118,8 +118,17 @@ class IndexController extends AbstractActionController
     
     public function usersAction(){
         $List = new Lista();
+        $Folder = new Folder();
         $id =  $this->params()->fromRoute("id", null);
-        return  new ViewModel(array('id'=>$id));
+        $idL =  $this->params()->fromRoute("name", null);
+        $allLists = $List ->getAllLists($idL );
+        $ListAllFolder = $Folder ->getDetails($idL);
+        return  new ViewModel(array(
+            'id'=>$id, 
+            'idL' =>$idL,
+            'ListAllFolder' => $ListAllFolder,
+            'allLists' => $allLists
+        ));
     }
     
     public function displayListUsersAction(){
@@ -127,6 +136,7 @@ class IndexController extends AbstractActionController
         $List = new Lista();
         $User = new User();
         $id =  $this->params()->fromRoute("id", null);
+        
         $pagina = $this -> params() -> fromQuery("pagina", "");
         $correos = $List ->displayListUsers($id,$pagina);
         
@@ -165,13 +175,49 @@ class IndexController extends AbstractActionController
     
      public function createUserAction(){
         $User = new User();
-        $id =  $this->params()->fromRoute("id", null);
+        $User -> IDLista =  $this->params()->fromRoute("id", null);
         $attributes= array(
-                "NAME"=>"Mauricio", 
-                "SURNAME"=>"Cunjama"
-                );
-        $response = $User ->createUser("qnhama@gmail.com", $attributes, $id);
+            "NOMBRE" =>   "Pepe",
+            "SURNAME"=>"Luis"
+        );
+        $response = $User ->createUser("correodel@gmail.com", $attributes, $User -> IDLista);
         return new JsonModel($response);
     }
+    
+     public function getAllUsersAction(){
+        $User = new User();
+        $contactosdb= $User ->sincronizar();
+        $User -> IDLista = $this->params()->fromRoute("id", null);
+        return  new ViewModel(array(
+            'id'=>$User -> IDLista,
+            'contactosdb'=>$contactosdb
+        ));
+    }
+    
+    public function sincronizarAction(){
+        $User = new User();
+        $hola ="Hola mundo";
+        $contactosdb= $User ->sincronizar();
+        $sendinblue = json_decode($this->params()->fromQuery("Sendinblue", "Nada"));
+        //$resultado = array_diff($contactosdb, $sendinblue);
+        $jsondata = array();
+        $jsondata["success"] = true;
+        $jsondata["data"]["message"] = sprintf("Se han encontrado  usuarios");
+        $jsondata["data"]["users"] = array();
+        $jsondata["data"]["users"][0] = "fdfdf";
+        $jsondata["data"]["users"][1] = 8;
+        $jsondata["data"]["users"][2] = $sendinblue;
+        
+       return new JsonModel($jsondata);
+    }
+    
+    
+    public function AttributeAction(){
+       $Atributte = new Attribute();
+       $responce = $Atributte ->listAlAttributes();
+       return new JsonModel($responce);
+    }
+    
+    
     
 }

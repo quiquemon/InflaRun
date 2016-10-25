@@ -18,6 +18,7 @@ use Application\Model\Correos\Mailin;
 class Lista {
     private $data;
     private $mailin;
+    public $IDLista; 
     
     
     public function __construct() {
@@ -59,6 +60,7 @@ class Lista {
     }
     
      public function  updateList($name,$id,$idL){
+        $this-> lista = $idL;
         $this -> data = array( 
             $data = array( "id" => $idL,
                 "list_name" => $name,
@@ -74,7 +76,7 @@ class Lista {
             //"listids" => array($idL),
             "listids" => array($id),
             "page" => $pagina,
-            "page_limit" => 20
+            "page_limit" => 50
 	    )
         );
 	return $this->mailin->display_list_users($data);
