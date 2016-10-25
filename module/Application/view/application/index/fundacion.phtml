@@ -18,15 +18,28 @@
 		document.title = "Fundación - InflaRun";
 	})();
 </script>
-<div id="bodyFundacion">
-	<section id="fotoSuperiorFundacion">
-		<div class="container-fluid">
-			<div class="row" align="center">
-				<img id="fotoSuperiorInnerFundacion" src="<?php echo $this -> basePath(); ?>/css/Imagenes/banner-fundacion.png" />
+<section id="carrera">
+	<div id="carouselCarrera" class="container-fluid">
+		<div class="row" align="center">
+			<div id="carouselCarreraSlide" class="carousel slide" data-ride="carousel" data-interval="4000">
+				<div id="carouselCarreraInterior" class="carousel-inner" role="listbox">
+					<div class="item active">
+						<div class="slider-size">
+							<img src="<?php echo $this -> basePath(); ?>/css/Imagenes/Fundacion2.png" style="height: 100%; width: 100%" />
+						</div>
+					</div>
+					<div class="item">
+						<div class="slider-size">
+							<img src="<?php echo $this -> basePath(); ?>/css/Imagenes/banner-fundacion.png" style="height: 100%; width: 100%" />
+						</div>
+					</div>
+				</div>
 			</div>
 		</div>
-	</section>
-	<br>
+	</div>
+</section>
+<br>
+<div id="bodyFundacion">
 	<section id="introduccionFundacion">
 		<div class="container-fluid">
 			<div class="row">
@@ -60,7 +73,7 @@
 					</div>
 				</div>
 				<div id="foto2ParentFundacion" class="col-md-3" align="left">
-					<img id="chochoAmarilloFundacion" src="<?php echo $this -> basePath(); ?>/css/Imagenes/chocho-amarillo.png" />
+					<img id="chochoAmarilloFundacion" src="<?php echo $this -> basePath(); ?>/css/Imagenes/Fundacion.png" />
 					<img id="foto2Fundacion" src="<?php echo $this -> basePath(); ?>/css/Imagenes/foto2_fundacion.png" />
 					<br>
 					<br>

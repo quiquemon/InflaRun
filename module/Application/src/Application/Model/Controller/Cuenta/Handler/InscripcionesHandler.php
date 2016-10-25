@@ -1,7 +1,6 @@
 <?php
 namespace Application\Model\Controller\Cuenta\Handler;
 
-use Zend\Session\Container;
 use Application\Model\Dao\ConexionDao;
 use Application\Model\Controller\Cuenta\Pagos\PagoComproPago;
 use Application\Model\Controller\Cuenta\Pagos\PagoPayPal;
@@ -45,7 +44,7 @@ class InscripcionesHandler {
 	 * a la carrera indicada, además de enviarle sus respectivos comprobantes de inscripción
 	 * a su correo.
 	 * 
-	 * @param \Zend\Session\Container $user El objeto de la sesión con los datos de inscripción del usuario.
+	 * @param Array $user El objeto de la sesión con los datos de inscripción del usuario.
 	 * @return Array Arreglo asociativo que contiene la respuesta de la operación de acuerdo a la
 	 * variable estática de esta clase, $FILTRO.
 	 */
@@ -197,14 +196,6 @@ class InscripcionesHandler {
 			$orden["error"] = array_key_exists("type", $orden);	
 			return $orden;
 		}
-	}
-	
-	/**
-	 * Genera un número de corredor único.
-	 * @return int Un nuevo número de corredor.
-	 */
-	private static function generarNumeroCorredor() {
-		return hexdec(bin2hex(openssl_random_pseudo_bytes(2)));
 	}
 	
 	/**

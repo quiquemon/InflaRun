@@ -178,12 +178,6 @@
 		<div class="col-sm-12 col-xs-12">
 			<h1>Inscripción a la carrera: <?php echo $evento["nombre"]; ?></h1>
 			<br>
-			<pre>
-				<?php
-					$pago = \Application\Model\Controller\Cuenta\Pagos\PagoPayPal::realizarPago(3);
-					print_r($pago);
-				?>
-			</pre>
 			<div class="panel panel-info">
 				<div class="panel-heading">
 					<strong>Información del Evento</strong>
@@ -310,34 +304,37 @@
 				</div>
 				<div class="panel-body">
 					<div class="col-sm-12">
-						<label class="radio">
-							<input id="rdbIndividual" type="radio" name="rdbModalidad" value="individual" checked />
-							Individual
-						</label>
-						<label class="radio">
-							<input id="rdbEquipo" type="radio" name="rdbModalidad" value="equipo" />
-							Quiero inscribir a mi equipo
-						</label>
-						<div class="panel-group">
-							<div class="panel panel-success">
-								<div id="equipoAccordion" class="panel-collapse collapse">
-									<div class="panel-body">
-										<div class="form-group">
-											<label>Nombre de tu equipo:</label>
-											<div class="input-group">
-												<input type="text" id="nombreEquipo" class="form-control" />
-												<span class="input-group-addon">
-													<span class="glyphicon glyphicon-eye-open"></span>
-												</span>
+						<div class="form-group">
+							<label>
+								<input id="rdbIndividual" type="radio" name="rdbModalidad" value="individual" checked />
+								Individual
+							</label>
+							<br>
+							<label>
+								<input id="rdbEquipo" type="radio" name="rdbModalidad" value="equipo" />
+								Quiero inscribir a mi equipo
+							</label>
+							<div class="panel-group">
+								<div class="panel panel-success">
+									<div id="equipoAccordion" class="panel-collapse collapse">
+										<div class="panel-body">
+											<div class="form-group">
+												<label>Nombre de tu equipo:</label>
+												<div class="input-group">
+													<input type="text" id="nombreEquipo" class="form-control" />
+													<span class="input-group-addon">
+														<span class="glyphicon glyphicon-eye-open"></span>
+													</span>
+												</div>
 											</div>
-										</div>
-										<div class="form-group">
-											<label>Número de integrantes:</label>
-											<div class="input-group">
-												<input type="text" id="noIntegrantes" class="form-control" />
-												<span class="input-group-addon">
-													<span class="glyphicon glyphicon-list-alt"></span>
-												</span>
+											<div class="form-group">
+												<label>Número de integrantes:</label>
+												<div class="input-group">
+													<input type="text" id="noIntegrantes" class="form-control" />
+													<span class="input-group-addon">
+														<span class="glyphicon glyphicon-list-alt"></span>
+													</span>
+												</div>
 											</div>
 										</div>
 									</div>
@@ -391,36 +388,18 @@
 					<strong>Elige tu playera</strong>
 				</div>
 				<div class="panel-body">
-					<div class="col-sm-6">
-						<div class="panel panel-success">
-							<div class="panel-heading">
-								<strong>Tamaño</strong>
-							</div>
-							<div class="panel-body">
-								<select id="tamanyo" class="form-control">
-									<?php foreach($playeras["tamanyo"] as $tamanyo): ?>
-										<option value="<?php echo $tamanyo["idTamPlayera"]; ?>|<?php echo $tallas[$tamanyo["tamanyo"]]; ?>">
-											<?php echo $tallas[$tamanyo["tamanyo"]]; ?>
-										</option>
-									<?php endforeach; ?>
-								</select>
-							</div>
+					<div class="panel panel-success">
+						<div class="panel-heading">
+							<strong>Tamaño</strong>
 						</div>
-					</div>
-					<div class="col-sm-6">
-						<div class="panel panel-danger">
-							<div class="panel-heading">
-								<strong>Color</strong>
-							</div>
-							<div class="panel-body">
-								<select id="color" class="form-control">
-									<?php foreach($playeras["color"] as $color): ?>
-										<option value="<?php echo $color["idColorPlayera"]; ?>|<?php echo $color["color"]; ?>">
-											<?php echo $color["color"]; ?>
-										</option>
-									<?php endforeach; ?>
-								</select>
-							</div>
+						<div class="panel-body">
+							<select id="tamanyo" class="form-control">
+								<?php foreach($playeras["tamanyo"] as $tamanyo): ?>
+									<option value="<?php echo $tamanyo["idTamPlayera"]; ?>|<?php echo $tallas[$tamanyo["tamanyo"]]; ?>">
+										<?php echo $tallas[$tamanyo["tamanyo"]]; ?>
+									</option>
+								<?php endforeach; ?>
+							</select>
 						</div>
 					</div>
 				</div>
@@ -431,50 +410,61 @@
 				</div>
 				<div class="panel-body">
 					<div class="col-sm-12">
-						<label class="radio">
-							<input id="rdbTarjeta" type="radio" name="rdbMetodoPago" value="tarjeta" checked />
-							Tarjeta de crédito o débito <img src="<?php echo $this -> basePath(); ?>/css/Imagenes/tarjetas.jpg" height="30" />
-						</label>
-						<label class="radio">
-							<input id="rdbEfectivo" type="radio" name="rdbMetodoPago" value="efectivo" />
-							Pago en efectivo
-						</label>
-						<div class="panel-group">
-							<div class="panel panel-warning">
-								<div class="panel-heading">
-									<strong>Elige tu sucursal</strong>
-								</div>
-								<div id="sucursalesAccordion" class="panel-collapse collapse">
-									<div class="panel-body">
-										<div class="col-md-12">
-											<label class="radio">
-												<input type="radio" name="rdbSucursal" value="OXXO" checked />
-												Oxxo <img src="<?php echo $this -> basePath(); ?>/css/Imagenes/tienda_oxxo.png" height="30" /> (Máx. $15,000)
-											</label>
-											<label class="radio">
-												<input type="radio" name="rdbSucursal" value="SEVEN_ELEVEN" />
-												Seven Eleven <img src="<?php echo $this -> basePath(); ?>/css/Imagenes/tienda_seven.png" height="30" /> (Máx. $5,000)
-											</label>
-											<label class="radio">
-												<input type="radio" name="rdbSucursal" value="EXTRA" />
-												Extra <img src="<?php echo $this -> basePath(); ?>/css/Imagenes/tienda_extra.png" height="30" /> (Máx. $5,000)
-											</label>
-											<label class="radio">
-												<input type="radio" name="rdbSucursal" value="ELEKTRA" />
-												Elektra <img src="<?php echo $this -> basePath(); ?>/css/Imagenes/tienda_elektra.png" height="30" /> (Máx. $15,000)
-											</label>
-											<label class="radio">
-												<input type="radio" name="rdbSucursal" value="COPPEL" />
-												Coppel <img src="<?php echo $this -> basePath(); ?>/css/Imagenes/tienda_coppel.png" height="30" /> (Máx. $15,000)
-											</label>
-											<label class="radio">
-												<input type="radio" name="rdbSucursal" value="FARMACIA_BENAVIDES" />
-												Farmacias Benavides <img src="<?php echo $this -> basePath(); ?>/css/Imagenes/tienda_benavides.png" height="30" /> (Máx. $5,000)
-											</label>
-											<label class="radio">
-												<input type="radio" name="rdbSucursal" value="FARMACIA_ESQUIVAR" />
-												Farmacias Esquivar <img src="<?php echo $this -> basePath(); ?>/css/Imagenes/tienda_esquivar.png" height="30" /> (Máx. $5,000)
-											</label>
+						<div class="form-group">
+							<label>
+								<input id="rdbTarjeta" type="radio" name="rdbMetodoPago" value="tarjeta" checked />
+								Tarjeta de crédito o débito <img src="<?php echo $this -> basePath(); ?>/css/Imagenes/tarjetas.jpg" height="30" />
+							</label>
+							<br>
+							<label>
+								<input id="rdbEfectivo" type="radio" name="rdbMetodoPago" value="efectivo" />
+								Pago en efectivo
+							</label>
+							<div class="panel-group">
+								<div class="panel panel-warning">
+									<div class="panel-heading">
+										<strong>Elige tu sucursal</strong>
+									</div>
+									<div id="sucursalesAccordion" class="panel-collapse collapse">
+										<div class="panel-body">
+											<div class="col-md-12">
+												<div class="form-group">
+													<label>
+														<input type="radio" name="rdbSucursal" value="OXXO" checked />
+														Oxxo <img src="<?php echo $this -> basePath(); ?>/css/Imagenes/tienda_oxxo.png" height="30" /> (Máx. $15,000)
+													</label>
+													<br>
+													<label>
+														<input type="radio" name="rdbSucursal" value="SEVEN_ELEVEN" />
+														Seven Eleven <img src="<?php echo $this -> basePath(); ?>/css/Imagenes/tienda_seven.png" height="30" /> (Máx. $5,000)
+													</label>
+													<br>
+													<label>
+														<input type="radio" name="rdbSucursal" value="EXTRA" />
+														Extra <img src="<?php echo $this -> basePath(); ?>/css/Imagenes/tienda_extra.png" height="30" /> (Máx. $5,000)
+													</label>
+													<br>
+													<label>
+														<input type="radio" name="rdbSucursal" value="ELEKTRA" />
+														Elektra <img src="<?php echo $this -> basePath(); ?>/css/Imagenes/tienda_elektra.png" height="30" /> (Máx. $15,000)
+													</label>
+													<br>
+													<label>
+														<input type="radio" name="rdbSucursal" value="COPPEL" />
+														Coppel <img src="<?php echo $this -> basePath(); ?>/css/Imagenes/tienda_coppel.png" height="30" /> (Máx. $15,000)
+													</label>
+													<br>
+													<label>
+														<input type="radio" name="rdbSucursal" value="FARMACIA_BENAVIDES" />
+														Farmacias Benavides <img src="<?php echo $this -> basePath(); ?>/css/Imagenes/tienda_benavides.png" height="30" /> (Máx. $5,000)
+													</label>
+													<br>
+													<label>
+														<input type="radio" name="rdbSucursal" value="FARMACIA_ESQUIVAR" />
+														Farmacias Esquivar <img src="<?php echo $this -> basePath(); ?>/css/Imagenes/tienda_esquivar.png" height="30" /> (Máx. $5,000)
+													</label>
+												</div>
+											</div>
 										</div>
 									</div>
 								</div>

@@ -25,9 +25,6 @@ class Attribute {
     }
     
     public function listAlAttributes() {
-	$this -> data = array( 
-            "email" => $email
-        );
 	return $this->mailin-> get_attributes();
     }
 }
