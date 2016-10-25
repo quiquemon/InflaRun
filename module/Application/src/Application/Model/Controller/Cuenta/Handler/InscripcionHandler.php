@@ -106,7 +106,7 @@ class InscripcionHandler {
 				"equipo" => ($modalidad["rdbModalidad"] === "individual")
 					? "Individual"
 					: $modalidad["nombreEquipo"] . " | Número de integrantes: {$modalidad["noIntegrantes"]} | Código de Canje: $codigoCanje"
-			))) -> enviarCorreo($usuario -> getCorreo(), "{$usuario -> getNombre()} {$usuario -> getAPaterno()}");
+			))) -> enviarSendinblue($usuario -> getCorreo(), "{$usuario -> getNombre()} {$usuario -> getAPaterno()}");
 		}
 	}
 	
@@ -165,7 +165,89 @@ class InscripcionHandler {
 			"tipoPago" => "n/a",
 			"precio" => "n/a",
 			"equipo" => $equipo["nombre"]
-		))) -> enviarCorreo($usuario -> getCorreo(), "{$usuario -> getNombre()} {$usuario -> getAPaterno()}");
+		))) -> enviarSendinblue($usuario -> getCorreo(), "{$usuario -> getNombre()} {$usuario -> getAPaterno()}");
+	}
+	
+	/**
+	 * Regresa un arreglo con la información del grupo al cual se va a agregar
+	 * un nuevo usuario
+	 * 
+	 * @param string $folio El folio de algún integrante del equipo.
+	 * @return Array Arreglo asociativo con la información del grupo.
+	 */
+	public static function obtenerInfoGrupoRegistroManual($folio) {
+		try {
+			$info = self::obtenerInfoGrupo($folio);
+			return $info;
+		} catch (\Exception $ex) {
+			return array(
+				"estatus" => 3,
+				"message" => $ex -> getMessage()
+			);
+		}
+	}
+	
+	/**
+	 * Agrega al usuario al grupo indicado.
+	 * 
+	 * @param string $correo El correo del usuario a agregar.
+	 * @param string $folio El folio de algún integrante del equipo.
+	 * @return Array Arreglo asociativo con el resultado de la operación.
+	 */
+	public static function agregarUsuarioAGrupo($correo, $folio) {
+		$dao = new EquipoDao();
+		
+		try {
+			$dao -> beginTransaction();
+			
+			$usuario = $dao -> consultaGenerica("SELECT * FROM Usuario WHERE correo = ?", array($correo));
+			if (empty($usuario)) {
+				return array(
+					"estatus" => 1,
+					"message" => "El usuario con el correo '$correo' no está registrado."
+				);
+			}
+			
+			$usuario = $usuario[0];
+			$numerosFolio = explode("-", $folio);
+			$equipo = $dao -> consultaGenerica("SELECT e.* FROM Equipo e, UsuarioEquipo ue WHERE e.idEquipo = ue.idEquipo"
+				. " AND ue.folio like ?", array("%-{$numerosFolio[1]}-{$numerosFolio[2]}"));
+
+			if (empty($equipo)) {
+				return array(
+					"estatus" => 2,
+					"message" => "No se ha encontrado ningún grupo con este número de folio."
+				);
+			}
+			
+			$equipo = $equipo[0];
+			$inscritos = $dao -> consultaGenerica("SELECT COUNT(ue.idEquipo) AS inscritos FROM Equipo e, UsuarioEquipo ue"
+				. " WHERE e.idEquipo = ue.idEquipo AND e.idEquipo = ? GROUP BY e.idEquipo", array($equipo["idEquipo"]))[0]["inscritos"];
+			if ($inscritos >= $equipo["noIntegrantes"]) {
+				return array(
+					"estatus" => 3,
+					"message" => "Este equipo ya está completo."
+				);
+			}
+			
+			$dao -> sentenciaGenerica("INSERT INTO UsuarioEquipo VALUES (?, ?, ?, ?)", array(
+				$usuario["idUsuario"],
+				$equipo["idEquipo"],
+				self::generarNumeroCorredor(),
+				"{$usuario["idUsuario"]}-{$equipo["idEquipo"]}-{$numerosFolio[2]}"
+			));
+			$dao -> commit();
+			return array(
+				"estatus" => 0,
+				"message" => "El usuario se ha agregado con éxito al grupo."
+			);
+		} catch (\Exception $ex) {
+			$dao -> rollback();
+			return array(
+				"estatus" => 4,
+				"message" => $ex -> getMessage()
+			);
+		}
 	}
 	
 	/**
@@ -223,7 +305,7 @@ class InscripcionHandler {
 			"equipo" => ($equipo["noIntegrantes"] == 1)
 				? "Individual"
 				: $equipo["nombre"] . " | Número de integrantes: {$equipo["noIntegrantes"]} | Código de Canje: $codigoCanje"
-		))) -> enviarCorreo($usuario["correo"], "{$usuario["nombre"]} {$usuario["aPaterno"]}");
+		))) -> enviarSendinblue($usuario["correo"], "{$usuario["nombre"]} {$usuario["aPaterno"]}");
 	}
 	
 	/**
@@ -246,6 +328,58 @@ class InscripcionHandler {
 			$dao -> rollback();
 			throw new \Exception($ex -> getMessage());
 		}
+	}
+	
+	/**
+	 * Regresa un arreglo con la información del grupo al cual se va a agregar
+	 * un nuevo usuario
+	 * 
+	 * @param string $folio El folio de algún integrante del equipo.
+	 * @return Array Arreglo asociativo con la información del grupo.
+	 * @throws Exception
+	 */
+	private static function obtenerInfoGrupo($folio) {
+		$dao = new EquipoDao();
+		
+		if (!preg_match("/^[0-9]+-[0-9]+-[0-9]+$/", $folio)) {
+			return array(
+				"estatus" => 1,
+				"message" => "El folio debe tener tres números separados por guiones (ej. 12-34-56)."
+			);
+		}
+		
+		$numerosFolio = explode("-", $folio);
+		$equipo = $dao -> consultaGenerica("SELECT e.* FROM Equipo e, UsuarioEquipo ue WHERE e.idEquipo = ue.idEquipo"
+			. " AND ue.folio like ?", array("%-{$numerosFolio[1]}-{$numerosFolio[2]}"));
+		
+		if (empty($equipo)) {
+			return array(
+				"estatus" => 2,
+				"message" => "No se ha encontrado ningún grupo con este número de folio."
+			);
+		}
+		
+		$equipo = $equipo[0];
+		$inscritos = $dao -> consultaGenerica("SELECT COUNT(ue.idEquipo) AS inscritos FROM Equipo e, UsuarioEquipo ue"
+			. " WHERE e.idEquipo = ue.idEquipo AND e.idEquipo = ? GROUP BY e.idEquipo", array($equipo["idEquipo"]))[0];
+		$horario = $dao -> consultaGenerica("SELECT de.fechaRealizacion, dh.horario FROM DiaEvento de, DiaHit dh"
+			. " WHERE de.idDiaEvento = dh.idDiaEvento AND dh.idDiaHit = ?", array($equipo["idDiaHit"]))[0];
+		$integrantes = $dao -> consultaGenerica("SELECT u.*, ue.noCorredor FROM Usuario u, UsuarioEquipo ue"
+			. " WHERE u.idUsuario = ue.idUsuario AND ue.idEquipo = ?", array($equipo["idEquipo"]));
+		
+		return array(
+			"estatus" => 0,
+			"info" => array(
+				"folio" => $folio,
+				"nombre" => $equipo["nombre"],
+				"codigoCanje" => $equipo["codigoCanje"],
+				"noIntegrantes" => $equipo["noIntegrantes"],
+				"inscritos" => $inscritos["inscritos"],
+				"fecha" => $horario["fechaRealizacion"],
+				"bloque" => $horario["horario"],
+				"integrantes" => $integrantes
+			)
+		);
 	}
 	
 	/**

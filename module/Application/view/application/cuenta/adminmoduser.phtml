@@ -1,0 +1,218 @@
+<?php
+	$session = new \Zend\Session\Container("admin");
+?>
+<script>
+	(function() {
+		$("#navbarCollapse ul li").each(function() {
+			$(this).removeClass("active");
+		});
+		$("#navbarCollapse ul").children().last().addClass("active");
+		document.title = "Admin Modificar Usuario - InflaRun";
+	})();
+	
+	$(document).ready(function() {
+		$("#btnBuscar").click(function() {
+			var message;	
+			$(".alert").remove();
+			$("#formulario input[type='submit']").remove();
+			$("#formPass input[type='submit']").remove();
+			$("#btnBuscar").prop("disabled", true);
+			$("#bodyPanel").prepend("\
+				<div class='progress'>\n\
+					<div class='progress-bar progress-bar-striped active' aria-valuenow='100' aria-valuemin='0' aria-valuemax='100' style='width: 100%'>\n\
+						Estamos buscando en el sistema. ¡Solo un momento!\n\
+					</div>\n\
+				</div>"
+			);
+			
+			$.get("<?php echo $this -> basePath(); ?>/application/cuenta/adminmodusergetinfo", {
+				correo: $("#correo").val()
+			}, function(response) {
+				if (response.estatus != 0) {
+					message = 
+						"<div class='alert alert-warning fade in'>\n\
+							<a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a>\n\
+							<strong>" + response.message + "</strong>\n\
+						</div>";
+					$("#bodyPanel").prepend(message);
+					$("input[type='text']").val("");
+					$("input[type='hidden']").val("");
+					$("#bodyPanel input[type='text']").prop("disabled", true);
+					$("#formPass input[type='text']").prop("disabled", true);
+					$("select").prop("disabled", true);
+				} else {
+					var usuario = response.info;
+					$("#idUsuario").val(usuario.idUsuario);
+					$("#idUsuarioPass").val(usuario.idUsuario);
+					$("#nombre").val(usuario.nombre);
+					$("#paterno").val(usuario.aPaterno);
+					$("#materno").val(usuario.aMaterno);
+					$("#sexo").val(usuario.sexo);
+					$("#fechaNacPicker").datepicker("update", usuario.fechaNacimiento);
+					$("#email").val(usuario.correo);
+					$("#estado").val(usuario.idEstado);
+					$("#boletin").val(usuario.recibeCorreos);
+					
+					$("input[type='text']").prop("disabled", false);
+					$("select").prop("disabled", false);
+					$("#formulario").append("<input type='submit' value='Modificar Info Personal' class='btn btn-info' />");
+					$("#formPass").append("<input type='submit' value='Modificar Contraseña' class='btn btn-danger' />");
+				}
+				
+				$(".progress").remove();
+				$("#btnBuscar").prop("disabled", false);
+			});
+		});
+	});
+</script>
+<div id="cuentaBody" class="container-fluid">
+	<div class="row">
+		<h2>Modificar Información de Usuarios.</h2>
+		<br>
+		<?php if ($session -> offsetExists("message")): ?>
+			<div class="alert alert-info fade in">
+				<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+				<?php
+					echo $session -> offsetGet("message");
+					$session -> offsetUnset("message");
+				?>
+			</div>
+		<?php endif; ?>
+		<div class="col-md-2 col-xs-3">
+			<div class="dropdown">
+				<button class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+					Opciones
+					<span class="caret"></span>
+				</button>
+				<ul class="dropdown-menu">
+					<li class="dropdown-header">Usuarios</li>
+					<li><a href="<?php echo $this -> basePath(); ?>/application/cuenta/adminusuarios">Administración de Usuarios</a></li>
+					<li><a href="<?php echo $this -> basePath(); ?>/application/cuenta/admincambiarhorario">Cambiar Horario</a></li>
+					<li class="divider"></li>
+					<li class="dropdown-header">Administrador</li>
+					<li><a href="<?php echo $this -> basePath(); ?>/application/cuenta/adminmain">Página Principal</a></li>
+					<li><a href="<?php echo $this -> basePath(); ?>/application/cuenta/adminregistromanual">Registro Manual</a></li>
+					<li><a href="<?php echo $this -> basePath(); ?>/application/cuenta/adminlogout">Cerrar Sesión</a></li>
+				</ul>
+			</div>
+			<br>
+			<br>
+			<div class="form-group">
+				<label>Busca por correo:</label>
+				<input type="text" class="form-control" id="correo" />
+				<br>
+				<button id="btnBuscar" class="btn btn-default btn-block">Buscar</button>
+			</div>
+		</div>
+		<div class="col-md-10 col-xs-9">
+			<div class="panel panel-success">
+				<div class="panel-heading">
+					<strong>Información Personal</strong>
+				</div>
+				<div id="bodyPanel" class="panel-body">
+					<form id="formulario" action="<?php echo $this -> basePath(); ?>/application/cuenta/adminmodinfo" method="post">
+						<input type="hidden" id="idUsuario" name="idUsuario" />
+						<div class="col-md-6">
+							<div class="form-group">
+								<label>Nombre:</label>
+								<input type="text" class="form-control" id="nombre" name="nombre" required disabled />
+							</div>
+							<div class="form-group">
+								<label>Apellido paterno:</label>
+								<input type="text" class="form-control" id="paterno" name="paterno" required disabled />
+							</div>
+							<div class="form-group">
+								<label>Apellido materno:</label>
+								<input type="text" class="form-control" id="materno" name="materno" disabled />
+							</div>
+							<div class="form-group">
+								<label>Sexo:</label>
+								<select class="form-control" id="sexo" name="sexo" disabled>
+									<option value="H">Hombre</option>
+									<option value="M">Mujer</option>
+								</select>
+							</div>
+						</div>
+						<div class="col-md-6">
+							<div class="form-group">
+								<label>Fecha de Nacimiento</label>
+								<div id="fechaNacPicker" class="input-group date datetimepicker">
+									<input type="text" id="fechaNac" name="fechaNac" class="form-control" required disabled />
+									<span class="input-group-addon">
+										<span class="glyphicon glyphicon-calendar"></span>
+									</span>
+								</div>
+							</div>
+							<div class="form-group">
+								<label>E-mail:</label>
+								<input type="text" class="form-control" id="email" name="email" required disabled />
+							</div>
+							<div class="form-group">
+								<label>Estado:</label>
+								<select class="form-control" id="estado" name="estado" disabled>
+									<option value="1">Aguascalientes</option>
+									<option value="2">Baja California</option>
+									<option value="3">Baja California Sur</option>
+									<option value="4">Campeche</option>
+									<option value="5">Chiapas</option>
+									<option value="6">Chihuahua</option>
+									<option value="7">Ciudad de México</option>
+									<option value="8">Coahuila de Zaragoza</option>
+									<option value="9">Colima</option>
+									<option value="10">Durango</option>
+									<option value="11">Estado de México</option>
+									<option value="12">Guanajuato</option>
+									<option value="13">Guerrero</option>
+									<option value="14">Hidalgo</option>
+									<option value="15">Jalisco</option>
+									<option value="16">Michoacán de Ocampo</option>
+									<option value="17">Morelos</option>
+									<option value="18">Nayarit</option>
+									<option value="19">Nuevo León</option>
+									<option value="20">Oaxaca</option>
+									<option value="21">Puebla</option>
+									<option value="22">Querétaro</option>
+									<option value="23">Quintana Roo</option>
+									<option value="24">San Luis Potosí</option>
+									<option value="25">Sinaloa</option>
+									<option value="26">Sonora</option>
+									<option value="27">Tabasco</option>
+									<option value="28">Tamaulipas</option>
+									<option value="29">Tlaxcala</option>
+									<option value="30">Veracruz de Ignacio de la Llave</option>
+									<option value="31">Yucatán</option>
+									<option value="32">Zacatecas</option>
+								</select>
+							</div>
+							<div class="form-group">
+								<label>¿Suscribirse al boletín?</label>
+								<select id="boletin" name="boletin" class="form-control" disabled>
+									<option value="1">Sí</option>
+									<option value="0">No</option>
+								</select>
+							</div>
+						</div>
+						<br>
+					</form>
+				</div>
+				<div class="panel panel-danger">
+					<div class="panel-heading">
+						<strong>Contraseña</strong>
+					</div>
+					<div class="panel-body">
+						<div class="col-md-12">
+							<form id="formPass" action="<?php echo $this -> basePath(); ?>/application/cuenta/adminmodpass" method="post">
+								<input type="hidden" id="idUsuarioPass" name="idUsuarioPass" />
+								<div class="form-group">
+									<label>Contraseña:</label>
+									<input type="text" class="form-control" id="password" name="password" required disabled />
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<br>
+</div>

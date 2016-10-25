@@ -1,0 +1,494 @@
+<?php
+	$fechaHandler = new \Application\Model\Controller\Cuenta\Handler\FechasHandler();
+	$evento = $this -> evento;
+	$dias = $evento["dias"];
+	$playeras = $this -> playeras;
+	$tallas = array(
+		"S" => "Chica",
+		"M" => "Mediana",
+		"L" => "Grande",
+		"XL" => "Extra Grande"
+	);
+?>
+<script>
+	(function() {
+		$("#navbarCollapse ul li").each(function() {
+			$(this).removeClass("active");
+		});
+		$("#navbarCollapse ul").children().last().addClass("active");
+		document.title = "Inscripción a <?php echo $evento["nombre"]; ?> - InflaRun";
+	})();
+	
+	// Maneja el formulario de Elegir Modalidad
+	function inicializarModalidades() {
+		$("#rdbIndividual").click(function() {
+			$("#equipoAccordion,#codigoAccordion").removeClass("in");
+			$("#equipoAccordion,#codigoAccordion").addClass("collapse");
+		});
+		$("#rdbEquipo").click(function() {
+			$("#equipoAccordion").removeClass("collapse");
+			$("#equipoAccordion").addClass("in");
+			$("#codigoAccordion").removeClass("in");
+			$("#codigoAccordion").addClass("collapse");
+			$("#nombreEquipo").focus();
+		});
+	}
+	
+	// Maneja las fechas y horarios de Elegir Bloque.
+	function inicializarBloques() {
+		var bloques = JSON.parse('{"bloques" : <?php echo json_encode($dias); ?>}').bloques;
+			
+		$("#dia").change(function() {
+			var id = $(this).val();
+			$("#bloque").empty();
+
+			var bloqueNuevo = bloques.filter(function(e) {
+				return e.idDiaEvento == id.split("|")[0];
+			})[0];
+			bloqueNuevo.hits.forEach(function(e) {
+				if (e.lugaresRestantes > 0) {
+					var option = 
+						"<option value='" + e.idDiaHit + "|" + e.horario + "|" + e.lugaresRestantes + "'>\n\
+							" + e.horario + " (" + e.lugaresRestantes + " lugares restantes)\n\
+						</option>";
+					$("#bloque").append(option);
+				}
+			});
+		});
+	}
+	
+	// Maneja las opciones de pago.
+	function inicializarMetodosPago() {
+		$("#rdbTarjeta").click(function() {
+			$("#sucursalesAccordion").removeClass("in");
+			$("#sucursalesAccordion").addClass("collapse");
+		});
+		$("#rdbEfectivo").click(function() {
+			$("#sucursalesAccordion").removeClass("collapse");
+			$("#sucursalesAccordion").addClass("in");
+		});
+	}
+	
+	function cancelarInscripcion() {
+		$("#btnCancelar").click(function() {
+			BootstrapDialog.show({
+				title: "Cancelar Inscripción",
+				message: "¿Realmente quiere cancelar su inscripción?",
+				type: BootstrapDialog.TYPE_WARNING,
+				buttons: [{
+					label: "Cancelar mi inscripción",
+					icon: "glyphicon glyphicon-remove-circle",
+					cssClass: "btn-warning",
+					action: function() {
+						window.location = "<?php echo $this -> basePath(); ?>/application/cuenta/cancelarinscripcion";
+					}
+				}, {
+					label: "Continuar con mi inscripción",
+					icon: "glyphicon glyphicon-ok-circle",
+					cssClass: "btn-success",
+					action: function(dialog) {
+						dialog.close();
+					}
+				}]
+			});
+		});
+	}
+	
+	// Maneja el evento de continuar la inscripción.
+	function continuarInscripcion() {
+		var progressBar = "<div class='progress'>"
+			+	"<div class='progress-bar progress-bar-striped active' style='width:100%'>"
+			+		"Estamos validando tus datos. ¡Solo un momento!"
+			+	"</div>"
+			+ "</div>";
+		
+		$("#btnContinuar").click(function() {
+			function habilitarDialogError(dialog, message) {
+				dialog.setTitle("Error en los Campos de Entrada");
+				dialog.setMessage("<strong>Recuerda:</strong> " + message);
+				dialog.setType(BootstrapDialog.TYPE_DANGER);
+				dialog.setClosable(true);
+				dialog.setButtons([{
+					label: "Cerrar",
+					icon: "glyphicon glyphicon-remove",
+					cssClass: "btn-danger",
+					action: function(dialog) {
+						dialog.close();
+					}
+				}]);
+			}
+			
+			function habilitarDialogCorrecto(dialog, message) {
+				dialog.setTitle("Datos Correctos");
+				dialog.setMessage(message);
+				dialog.setType(BootstrapDialog.TYPE_INFO);
+			}
+			
+			var dialog = BootstrapDialog.show({
+				title: "Validando...",
+				message: progressBar,
+				type: BootstrapDialog.TYPE_PRIMARY,
+				closable: false
+			});
+			
+			$.post("<?php echo $this -> basePath(); ?>/application/cuenta/inscripcionesdatosinfopersonal", {
+				nombre: $("#nombre").val(),
+				paterno: $("#paterno").val(),
+				materno: $("#materno").val(),
+				sexo: $("#sexo").val(),
+				fechaNac: $("#fechaNac").val(),
+				correo: $("#correo").val(),
+				estado: $("#estado").val(),
+				boletin: $("#boletin").val(),
+				rdbModalidad: $("input[name='rdbModalidad']:checked").val(),
+				nombreEquipo: $("#nombreEquipo").val(),
+				noIntegrantes: $("#noIntegrantes").val(),
+				dia: $("#dia").val(),
+				bloque: $("#bloque").val(),
+				tamanyo: $("#tamanyo").val(),
+				color: $("#color").val(),
+				rdbMetodoPago: $("input[name='rdbMetodoPago']:checked").val(),
+				rdbSucursal: $("input[name='rdbSucursal']:checked").val(),
+				idDetallesEvento: <?php echo $evento["idDetallesEvento"]; ?>
+			}, function(response) {
+				if (response.estatus !== 0) {
+					habilitarDialogError(dialog, response.message);
+				} else {
+					habilitarDialogCorrecto(dialog, response.message);
+					var metodo = $("input[name='rdbMetodoPago']:checked").val();
+					setTimeout(function() {
+						var location = (metodo === "tarjeta") ? "inscripcionesformtarjeta" : "inscripcionesconfirmardatos";
+						window.location = "<?php echo $this -> basePath(); ?>/application/cuenta/" + location;
+					}, 2000);
+				}
+			});
+		});
+	}
+	
+	$(document).ready(function() {
+		inicializarModalidades();
+		inicializarBloques();
+		inicializarMetodosPago();
+		continuarInscripcion();
+		cancelarInscripcion();
+	});
+</script>
+<div id="cuentaBody" class="container-fluid">
+	<div class="row">
+		<div class="col-sm-12 col-xs-12">
+			<h1>Inscripción a la carrera: <?php echo $evento["nombre"]; ?></h1>
+			<br>
+			<div class="panel panel-info">
+				<div class="panel-heading">
+					<strong>Información del Evento</strong>
+				</div>
+				<div class="panel-body">
+					<div class="list-group">
+						<a class="list-group-item"><strong>Evento: </strong><?php echo $evento["nombre"]; ?></a>
+						<a class="list-group-item"><strong>Dirección: </strong><?php echo $evento["direccion"]; ?></a>
+						<a class="list-group-item"><strong>Precio: </strong><?php echo ($evento["realizado"]) ? "n/a" : "\$" . $evento["precio"]; ?></a>
+						<a class="list-group-item"><strong>Contacto: </strong><?php echo $evento["correoContacto"]; ?></a>
+					</div>
+				</div>
+			</div>
+			<div class="panel panel-info">
+				<div class="panel-heading">
+					<strong>Información Personal</strong>
+				</div>
+				<div class="panel-body">
+					<div class="col-sm-6">
+						<div class="form-group">
+							<label>Nombre:</label>
+							<div class="input-group">
+								<input type="text" class="form-control" id="nombre" />
+								<span class="input-group-addon">
+									<span class="glyphicon glyphicon-pencil"></span>
+								</span>
+							</div>
+						</div>
+						<div class="form-group">
+							<label>Apellido paterno:</label>
+							<div class="input-group">
+								<input type="text" class="form-control" id="paterno" />
+								<span class="input-group-addon">
+									<span class="glyphicon glyphicon-pencil"></span>
+								</span>
+							</div>
+						</div>
+						<div class="form-group">
+							<label>Apellido materno:</label>
+							<div class="input-group">
+								<input type="text" class="form-control" id="materno" />
+								<span class="input-group-addon">
+									<span class="glyphicon glyphicon-pencil"></span>
+								</span>
+							</div>
+						</div>
+						<div class="form-group">
+							<label>Sexo:</label>
+							<select class="form-control" id="sexo">
+								<option value="H">Hombre</option>
+								<option value="M">Mujer</option>
+							</select>
+						</div>
+					</div>
+					<div class="col-sm-6">
+						<div class="form-group">
+							<label>Fecha de Nacimiento</label>
+							<div id="fechaNacPicker" class="input-group date datetimepicker">
+								<input type="text" id="fechaNac" class="form-control" />
+								<span class="input-group-addon">
+									<span class="glyphicon glyphicon-calendar" style="cursor: pointer;"></span>
+								</span>
+							</div>
+						</div>
+						<div class="form-group">
+							<label>Correo electrónico:</label>
+							<div class="input-group">
+								<input type="text" class="form-control" id="correo" />
+								<span class="input-group-addon">
+									<span class="glyphicon glyphicon-envelope"></span>
+								</span>
+							</div>
+						</div>
+						<div class="form-group">
+							<label>Estado:</label>
+							<select class="form-control" id="estado">
+								<option value="1">Aguascalientes</option>
+								<option value="2">Baja California</option>
+								<option value="3">Baja California Sur</option>
+								<option value="4">Campeche</option>
+								<option value="5">Chiapas</option>
+								<option value="6">Chihuahua</option>
+								<option value="7">Ciudad de México</option>
+								<option value="8">Coahuila de Zaragoza</option>
+								<option value="9">Colima</option>
+								<option value="10">Durango</option>
+								<option value="11">Estado de México</option>
+								<option value="12">Guanajuato</option>
+								<option value="13">Guerrero</option>
+								<option value="14">Hidalgo</option>
+								<option value="15">Jalisco</option>
+								<option value="16">Michoacán de Ocampo</option>
+								<option value="17">Morelos</option>
+								<option value="18">Nayarit</option>
+								<option value="19">Nuevo León</option>
+								<option value="20">Oaxaca</option>
+								<option value="21">Puebla</option>
+								<option value="22">Querétaro</option>
+								<option value="23">Quintana Roo</option>
+								<option value="24">San Luis Potosí</option>
+								<option value="25">Sinaloa</option>
+								<option value="26">Sonora</option>
+								<option value="27">Tabasco</option>
+								<option value="28">Tamaulipas</option>
+								<option value="29">Tlaxcala</option>
+								<option value="30">Veracruz de Ignacio de la Llave</option>
+								<option value="31">Yucatán</option>
+								<option value="32">Zacatecas</option>
+							</select>
+						</div>
+						<div class="form-group">
+							<label>¿Suscribirse al boletín?</label>
+							<select id="boletin" class="form-control">
+								<option value="1">Sí</option>
+								<option value="0">No</option>
+							</select>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="panel panel-info">
+				<div class="panel-heading">
+					<strong>Elige tu modalidad</strong>
+				</div>
+				<div class="panel-body">
+					<div class="col-sm-12">
+						<div class="form-group">
+							<label>
+								<input id="rdbIndividual" type="radio" name="rdbModalidad" value="individual" checked />
+								Individual
+							</label>
+							<br>
+							<label>
+								<input id="rdbEquipo" type="radio" name="rdbModalidad" value="equipo" />
+								Quiero inscribir a mi equipo
+							</label>
+							<div class="panel-group">
+								<div class="panel panel-success">
+									<div id="equipoAccordion" class="panel-collapse collapse">
+										<div class="panel-body">
+											<div class="form-group">
+												<label>Nombre de tu equipo:</label>
+												<div class="input-group">
+													<input type="text" id="nombreEquipo" class="form-control" />
+													<span class="input-group-addon">
+														<span class="glyphicon glyphicon-eye-open"></span>
+													</span>
+												</div>
+											</div>
+											<div class="form-group">
+												<label>Número de integrantes:</label>
+												<div class="input-group">
+													<input type="text" id="noIntegrantes" class="form-control" />
+													<span class="input-group-addon">
+														<span class="glyphicon glyphicon-list-alt"></span>
+													</span>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="panel panel-info">
+				<div class="panel-heading">
+					<strong>Elige tu día y bloque</strong>
+				</div>
+				<div class="panel-body">
+					<div class="col-sm-12">
+						<div class="form-group">
+							<label>Día:</label>
+							<select id="dia" class="form-control">
+								<?php if(!empty($dias)): ?>
+									<option value="<?php echo $dias["idDiaEvento"]; ?>|<?php echo $dias["fechaRealizacion"] ?>">
+										<?php echo $fechaHandler -> traducirFecha($dias["fechaRealizacion"]); ?>
+									</option>
+								<?php else: ?>
+									<option value="0|0">
+										Lo sentimos, todos los bloques se han agotado.
+									</option>
+								<?php endif; ?>
+							</select>
+						</div>
+						<div class="form-group">
+							<label>Bloque:</label>
+							<select id="bloque" class="form-control">
+								<?php if (!empty($dias)): ?>
+									<?php foreach($dias["hits"] as $hit): ?>
+										<option value="<?php echo $hit["idDiaHit"]; ?>|<?php echo $hit["horario"]; ?>|<?php echo $hit["lugaresRestantes"]; ?>">
+											<?php echo $hit["horario"]; ?> (<?php echo $hit["lugaresRestantes"]; ?> lugares restantes)
+										</option>
+									<?php endforeach; ?>
+								<?php else: ?>
+									<option value="0|0|0">
+										Lo sentimos, todos los bloques se han agotado.
+									</option>
+								<?php endif; ?>
+							</select>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="panel panel-info">
+				<div class="panel-heading">
+					<strong>Elige tu playera</strong>
+				</div>
+				<div class="panel-body">
+					<div class="panel panel-success">
+						<div class="panel-heading">
+							<strong>Tamaño</strong>
+						</div>
+						<div class="panel-body">
+							<select id="tamanyo" class="form-control">
+								<?php foreach($playeras["tamanyo"] as $tamanyo): ?>
+									<option value="<?php echo $tamanyo["idTamPlayera"]; ?>|<?php echo $tallas[$tamanyo["tamanyo"]]; ?>">
+										<?php echo $tallas[$tamanyo["tamanyo"]]; ?>
+									</option>
+								<?php endforeach; ?>
+							</select>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="panel panel-info">
+				<div class="panel-heading">
+					<strong>Elige tu método de pago</strong>
+				</div>
+				<div class="panel-body">
+					<div class="col-sm-12">
+						<div class="form-group">
+							<label>
+								<input id="rdbTarjeta" type="radio" name="rdbMetodoPago" value="tarjeta" checked />
+								Tarjeta de crédito o débito <img src="<?php echo $this -> basePath(); ?>/css/Imagenes/tarjetas.jpg" height="30" />
+							</label>
+							<br>
+							<label>
+								<input id="rdbEfectivo" type="radio" name="rdbMetodoPago" value="efectivo" />
+								Pago en efectivo
+							</label>
+							<div class="panel-group">
+								<div class="panel panel-warning">
+									<div class="panel-heading">
+										<strong>Elige tu sucursal</strong>
+									</div>
+									<div id="sucursalesAccordion" class="panel-collapse collapse">
+										<div class="panel-body">
+											<div class="col-md-12">
+												<div class="form-group">
+													<label>
+														<input type="radio" name="rdbSucursal" value="OXXO" checked />
+														Oxxo <img src="<?php echo $this -> basePath(); ?>/css/Imagenes/tienda_oxxo.png" height="30" /> (Máx. $15,000)
+													</label>
+													<br>
+													<label>
+														<input type="radio" name="rdbSucursal" value="SEVEN_ELEVEN" />
+														Seven Eleven <img src="<?php echo $this -> basePath(); ?>/css/Imagenes/tienda_seven.png" height="30" /> (Máx. $5,000)
+													</label>
+													<br>
+													<label>
+														<input type="radio" name="rdbSucursal" value="EXTRA" />
+														Extra <img src="<?php echo $this -> basePath(); ?>/css/Imagenes/tienda_extra.png" height="30" /> (Máx. $5,000)
+													</label>
+													<br>
+													<label>
+														<input type="radio" name="rdbSucursal" value="ELEKTRA" />
+														Elektra <img src="<?php echo $this -> basePath(); ?>/css/Imagenes/tienda_elektra.png" height="30" /> (Máx. $15,000)
+													</label>
+													<br>
+													<label>
+														<input type="radio" name="rdbSucursal" value="COPPEL" />
+														Coppel <img src="<?php echo $this -> basePath(); ?>/css/Imagenes/tienda_coppel.png" height="30" /> (Máx. $15,000)
+													</label>
+													<br>
+													<label>
+														<input type="radio" name="rdbSucursal" value="FARMACIA_BENAVIDES" />
+														Farmacias Benavides <img src="<?php echo $this -> basePath(); ?>/css/Imagenes/tienda_benavides.png" height="30" /> (Máx. $5,000)
+													</label>
+													<br>
+													<label>
+														<input type="radio" name="rdbSucursal" value="FARMACIA_ESQUIVAR" />
+														Farmacias Esquivar <img src="<?php echo $this -> basePath(); ?>/css/Imagenes/tienda_esquivar.png" height="30" /> (Máx. $5,000)
+													</label>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<br>
+			<div class="row">
+				<div class="col-sm-6 col-xs-6">
+					<button id="btnCancelar" class="btn btn-danger btn-lg btn-block" style="white-space: normal;">Cancelar Inscripción</button>
+				</div>
+				<div class="col-sm-6 col-xs-6">
+					<?php if (!empty($dias)): ?>
+						<button id="btnContinuar" class="btn btn-primary btn-lg btn-block">Continuar</button>
+					<?php else: ?>
+						<div class='alert alert-danger'>
+							Lo sentimos, todos los bloques de esta carrera están agotados.
+						</div>
+					<?php endif; ?>
+				</div>
+			</div>
+			<br>
+		</div>
+	</div>
+</div>

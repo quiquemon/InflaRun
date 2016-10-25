@@ -7,10 +7,23 @@
 		document.title = "Preguntas Frecuentes - InflaRun";
 	})();
 </script>
-<section id="fotoSuperiorPreguntas">
-	<div class="container-fluid">
+<section id="carrera">
+	<div id="carouselCarrera" class="container-fluid">
 		<div class="row" align="center">
-			<img id="fotoSuperiorInnerPreguntas" src="<?php echo $this -> basePath(); ?>/css/Imagenes/queesinflarunbanner.png" />
+			<div id="carouselCarreraSlide" class="carousel slide" data-ride="carousel" data-interval="4000">
+				<div id="carouselCarreraInterior" class="carousel-inner" role="listbox">
+					<div class="item active">
+						<div class="slider-size">
+							<img src="<?php echo $this -> basePath(); ?>/css/Imagenes/Preguntas.png" style="height: 100%; width: 100%" />
+						</div>
+					</div>
+					<div class="item">
+						<div class="slider-size">
+							<img src="<?php echo $this -> basePath(); ?>/css/Imagenes/PreguntasFrec.png" style="height: 100%; width: 100%" />
+						</div>
+					</div>
+				</div>
+			</div>
 		</div>
 	</div>
 </section>

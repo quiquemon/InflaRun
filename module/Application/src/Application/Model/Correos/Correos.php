@@ -7,8 +7,8 @@ abstract class Correos extends PHPMailer {
 	protected $host = "vm20.digitalserver.org";
 	protected $port = 465;
 	protected $security = "ssl";
-	protected $user = "lenrique@numeri.mx";
-	protected $pass = "@Numeri_2016";
+	protected $user = "admin@inflarun.mx";
+	protected $pass = "@InflaRun2016_Admin";
 	
 	public function __construct($exceptions = null) {
 		parent::__construct($exceptions);
@@ -43,5 +43,5 @@ abstract class Correos extends PHPMailer {
 	 * @return (bool|string) Regresa true si el correo se envió
 	 * de manera exitosa. De lo contrario, regresa el mensaje de error.
 	 */
-	public abstract function enviarCorreo($correo, $nombre = "Destinatario");
+	public abstract function enviarSendinblue($correo, $nombre = "Destinatario");
 }

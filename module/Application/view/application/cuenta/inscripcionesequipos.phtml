@@ -1,0 +1,343 @@
+<?php
+	$fechaHandler = new \Application\Model\Controller\Cuenta\Handler\FechasHandler();
+	$equipo = $this -> inscripcion["equipo"];
+	$usuarios = $this -> inscripcion["usuarios"];
+	$diaHit = $this -> inscripcion["diaHit"];
+	$evento = $this -> inscripcion["evento"];
+	$playeras = $this -> inscripcion["playeras"];
+	$tallas = array(
+		"S" => "Chica",
+		"M" => "Mediana",
+		"L" => "Grande",
+		"XL" => "Extra Grande"
+	);
+?>
+<script>
+	(function() {
+		$("#navbarCollapse ul li").each(function() {
+			$(this).removeClass("active");
+		});
+		$("#navbarCollapse ul").children().last().addClass("active");
+		document.title = "Equipos - Inscripción a <?php echo $evento["nombre"]; ?> - InflaRun";
+	})();
+	
+	function habilitarDialogExito(dialog, message) {
+		dialog.setTitle("¡Te has inscrito con éxito a InflaRun!");
+		dialog.setMessage(message);
+		dialog.setType(BootstrapDialog.TYPE_SUCCESS);
+		dialog.setButtons([{
+			label: "Finalizar",
+			icon: "glyphicon glyphicon-ok",
+			cssClass: "btn-success",
+			action: function() {
+				window.location = "<?php echo $this -> basePath(); ?>/application";
+			}
+		}]);
+	}
+	
+	function habilitarDialogError(dialog, message) {
+		dialog.setTitle("Error en inscripción");
+		dialog.setMessage("<strong>Lo sentimos, ocurrió un error al procesar tu inscripción:</strong> " + message);
+		dialog.setType(BootstrapDialog.TYPE_DANGER);
+		dialog.setClosable(true);
+		dialog.setButtons([{
+			label: "Regresar a Inscripciones",
+			icon: "glyphicon glyphicon-remove",
+			cssClass: "btn-danger",
+			action: function() {
+				window.location = "<?php echo $this -> basePath(); ?>/application/cuenta/cancelarinscripcion";
+			}
+		}]);
+	}
+	
+	function cancelarInscripcion() {
+		$("#btnCancelar").click(function() {
+			BootstrapDialog.show({
+				title: "Cancelar Inscripción",
+				message: "¿Realmente quiere cancelar su inscripción?",
+				type: BootstrapDialog.TYPE_WARNING,
+				buttons: [{
+					label: "Cancelar mi inscripción",
+					icon: "glyphicon glyphicon-remove-circle",
+					cssClass: "btn-warning",
+					action: function() {
+						window.location = "<?php echo $this -> basePath(); ?>/application/cuenta/cancelarinscripcion";
+					}
+				}, {
+					label: "Continuar con mi inscripción",
+					icon: "glyphicon glyphicon-ok-circle",
+					cssClass: "btn-success",
+					action: function(dialog) {
+						dialog.close();
+					}
+				}]
+			});
+		});
+	}
+	
+	function finalizarInscripcion() {
+		var progressBar = "<div class='progress'>"
+			+	"<div class='progress-bar progress-bar-striped active' style='width:100%'>"
+			+		"Estamos generando tu inscripción. ¡Solo un momento!"
+			+	"</div>"
+			+ "</div>";
+
+		$("#btnContinuar").click(function() {
+			var dialog = BootstrapDialog.show({
+				title: "Inscripción en progreso...",
+				message: progressBar,
+				type: BootstrapDialog.TYPE_PRIMARY,
+				closable: false
+			});
+			
+			$.get("<?php echo $this -> basePath(); ?>/application/cuenta/inscripcionesequiposfinalizar", function(response) {
+				if (response.estatus === 0) {
+					habilitarDialogExito(dialog, response.message);
+				} else {
+					habilitarDialogError(dialog, response.message);
+				}
+			});
+		});
+	}
+	
+	$(document).ready(function() {
+		cancelarInscripcion();
+		finalizarInscripcion();
+	});
+</script>
+<div id="cuentaBody" class="container-fluid">
+	<div class="row">
+		<div class="col-sm-12 col-xs-12">
+			<h1>Inscripción a la carrera: <?php echo $evento["nombre"]; ?> - Equipos</h1>
+			<br>
+			<div class="panel panel-primary">
+				<div class="panel-heading">
+					<strong>Estos son los datos de inscripción de tu equipo</strong>
+				</div>
+				<div class="panel-body">
+					<div class="list-group">
+						<a class='list-group-item list-group-item-info'><strong>Evento</strong></a>
+						<a class="list-group-item"><strong>Evento:</strong> <?php echo $evento["nombre"]; ?></a>
+						<a class="list-group-item"><strong>Dirección:</strong> <?php echo $evento["direccion"]; ?></a>
+						<a class='list-group-item'><strong>Precio: $</strong><?php echo $evento["precio"]; ?></a>
+						<a class="list-group-item"><strong>Contacto:</strong> <?php echo $evento["correoContacto"]; ?></a>
+						<a class='list-group-item list-group-item-success'><strong>Inscripción</strong></a>
+						<a class="list-group-item">
+							<strong>Equipo:</strong>
+							<?php echo $equipo["nombre"]; ?>
+						</a>
+						<a class="list-group-item"><strong>Número de integrantes:</strong> <?php echo $equipo["noIntegrantes"]; ?></a>
+						<a class="list-group-item"><strong>Actualmente inscritos:</strong> <?php echo count($usuarios); ?></a>
+						<a class='list-group-item'><strong>Día:</strong> <?php echo $fechaHandler -> traducirFecha($diaHit["dia"]["fechaRealizacion"]); ?></a>
+						<a class='list-group-item'><strong>Bloque:</strong> <?php echo $diaHit["hit"]["horario"] ?></a>
+						<a class="list-group-item list-group-item-warning"><strong>Corredores</strong></a>
+						<?php foreach ($usuarios as $usuario): ?>
+							<a class="list-group-item">
+								<p>
+									<strong>Nombre:</strong>
+									<?php echo "{$usuario["nombre"]} {$usuario["aPaterno"]} {$usuario["aMaterno"]}"; ?>
+								</p>
+								<p><strong> Correo: </strong><?php echo $usuario["correo"]; ?></p>
+								<p>
+									<strong>Fecha de nacimiento:</strong>
+									<?php echo $fechaHandler -> traducirFecha($usuario["fechaNacimiento"]) ?>
+								</p>
+								<p><strong> Sexo: </strong> <?php echo ($usuario["sexo"] === "H") ? "Hombre" : "Mujer"; ?></p>
+								<p><strong>Folio:</strong> <?php echo $usuario["folio"]; ?></p>
+								<p><strong>Número de corredor:</strong> <?php echo $usuario["idNumeroCorredor"]; ?></p>
+							</a>
+						<?php endforeach; ?>
+					</div>
+				</div>
+			</div>
+			<div class="panel panel-primary">
+				<div class="panel-heading">
+					<strong>Ingresa tu información personal</strong>
+				</div>
+				<div class="panel-body">
+					<div class="col-sm-6">
+						<div class="form-group">
+							<label>Nombre:</label>
+							<div class="input-group">
+								<input type="text" class="form-control" id="nombre" />
+								<span class="input-group-addon">
+									<span class="glyphicon glyphicon-pencil"></span>
+								</span>
+							</div>
+						</div>
+						<div class="form-group">
+							<label>Apellido paterno:</label>
+							<div class="input-group">
+								<input type="text" class="form-control" id="paterno" />
+								<span class="input-group-addon">
+									<span class="glyphicon glyphicon-pencil"></span>
+								</span>
+							</div>
+						</div>
+						<div class="form-group">
+							<label>Apellido materno:</label>
+							<div class="input-group">
+								<input type="text" class="form-control" id="materno" />
+								<span class="input-group-addon">
+									<span class="glyphicon glyphicon-pencil"></span>
+								</span>
+							</div>
+						</div>
+						<div class="form-group">
+							<label>Sexo:</label>
+							<select class="form-control" id="sexo">
+								<option value="H">Hombre</option>
+								<option value="M">Mujer</option>
+							</select>
+						</div>
+					</div>
+					<div class="col-sm-6">
+						<div class="form-group">
+							<label>Fecha de Nacimiento</label>
+							<div id="fechaNacPicker" class="input-group date datetimepicker">
+								<input type="text" id="fechaNac" class="form-control" />
+								<span class="input-group-addon">
+									<span class="glyphicon glyphicon-calendar" style="cursor: pointer;"></span>
+								</span>
+							</div>
+						</div>
+						<div class="form-group">
+							<label>Correo electrónico:</label>
+							<div class="input-group">
+								<input type="text" class="form-control" id="correo" />
+								<span class="input-group-addon">
+									<span class="glyphicon glyphicon-envelope"></span>
+								</span>
+							</div>
+						</div>
+						<div class="form-group">
+							<label>Estado:</label>
+							<select class="form-control" id="estado">
+								<option value="1">Aguascalientes</option>
+								<option value="2">Baja California</option>
+								<option value="3">Baja California Sur</option>
+								<option value="4">Campeche</option>
+								<option value="5">Chiapas</option>
+								<option value="6">Chihuahua</option>
+								<option value="7">Ciudad de México</option>
+								<option value="8">Coahuila de Zaragoza</option>
+								<option value="9">Colima</option>
+								<option value="10">Durango</option>
+								<option value="11">Estado de México</option>
+								<option value="12">Guanajuato</option>
+								<option value="13">Guerrero</option>
+								<option value="14">Hidalgo</option>
+								<option value="15">Jalisco</option>
+								<option value="16">Michoacán de Ocampo</option>
+								<option value="17">Morelos</option>
+								<option value="18">Nayarit</option>
+								<option value="19">Nuevo León</option>
+								<option value="20">Oaxaca</option>
+								<option value="21">Puebla</option>
+								<option value="22">Querétaro</option>
+								<option value="23">Quintana Roo</option>
+								<option value="24">San Luis Potosí</option>
+								<option value="25">Sinaloa</option>
+								<option value="26">Sonora</option>
+								<option value="27">Tabasco</option>
+								<option value="28">Tamaulipas</option>
+								<option value="29">Tlaxcala</option>
+								<option value="30">Veracruz de Ignacio de la Llave</option>
+								<option value="31">Yucatán</option>
+								<option value="32">Zacatecas</option>
+							</select>
+						</div>
+						<div class="form-group">
+							<label>¿Suscribirse al boletín?</label>
+							<select id="boletin" class="form-control">
+								<option value="1">Sí</option>
+								<option value="0">No</option>
+							</select>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="panel panel-primary">
+				<div class="panel-heading">
+					<strong>Elige tu playera</strong>
+				</div>
+				<div class="panel-body">
+					<div class="panel panel-success">
+						<div class="panel-heading">
+							<strong>Tamaño</strong>
+						</div>
+						<div class="panel-body">
+							<select id="tamanyo" class="form-control">
+								<?php foreach($playeras["tamanyo"] as $tamanyo): ?>
+									<option value="<?php echo $tamanyo["idTamPlayera"]; ?>">
+										<?php echo $tallas[$tamanyo["tamanyo"]]; ?>
+									</option>
+								<?php endforeach; ?>
+							</select>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div id="terminosCondiciones" class="modal fade" role="dialog">
+				<div class="modal-dialog">
+					<div class="modal-contentAviso">
+						<div class="modal-header">
+							<button class="close" data-dismiss="modal">&times;</button>
+							<h1 class="modal-title">Términos y Condiciones</h1>
+						</div>
+						<div class="modal-body">
+							<div class="sub">Términos y Condiciones</div>
+							<p>
+								Admito que al inscribirme a InflaRun conozco las bases de la convocatoria, que mis datos son verdaderos y
+								si fueran falsos seré descalificado del evento. Soy el único responsable de mi salud y de cualquier accidente
+								o deficiencia que pudiera causar alteración a mi salud física e incluso la muerte. Por esta razón libero al
+								comité organizador, a los patrocinadores, a las autoridades deportivas y a los prestadores de servicios de
+								cualquier daño que sufra. Así mismo, autorizo al comité organizador para utilizar mi imagen, voz y nombre, ya sea
+								total o parcialmente en lo relacionado al evento. Estoy conciente de que para participar en esta competencia debo
+								estar físicamente preparado para el esfuerzo que voy a realizar.
+							</p>
+							<div class="sub">Exoneraciones</div>
+							<p>
+								El paquete de corredor se entregará el día del evento una hora antes del horario que seleccione al momento de
+								inscribirme. En tu paquete recibirás el número de competidor, tu playera y tu kit de participante. Es obligatorio
+								que el titular de la inscripción se presente a la entrega de paquetes a recoger el mismo llevando consigo una
+								identificación. No habrá módulo de entrega de grupos y no se le entregará paquete de competidor a ninguna otra persona
+								que no sea el titular de la inscripción y únicamente mostrando una identificación oficial. El corredor que por cualquier
+								motivo no recoja su paquete en el lugar y horario indicados perderá todo derecho derivado de su inscripción. Por ningún
+								motivo habrá cambio de horario ni de datos de competidor ni se permitirá transferir números.
+							</p>
+						</div>
+					</div>
+				</div>
+			</div>
+			<?php if (count($usuarios) != $equipo["noIntegrantes"]): ?>
+				<p>
+					Al hacer clic en el botón <strong>Finalizar Inscripción</strong> estás aceptando los 
+					<a href="#" data-toggle="modal" data-target="#terminosCondiciones">Términos y Condiciones</a> y el
+					<a href="#" data-toggle="modal" data-target="#aviso">Aviso de Privacidad</a>.
+				</p>
+			<?php endif; ?>
+			<br>
+			<div class="row">
+				<?php if (count($usuarios) == $equipo["noIntegrantes"]): ?>
+					<div class="col-sm-12">
+						<div class="alert alert-danger">
+							Este equipo ya está completo. No es posible aceptar más integrantes.
+						</div>
+						<a href="<?php echo $this -> basePath(); ?>/application" class="btn btn-success btn-lg btn-block" style="white-space: normal">
+							Regresar a Página Principal
+						</a>
+					</div>
+				<?php else: ?>
+					<div class="col-sm-6 col-xs-6">
+						<button id="btnCancelar" class="btn btn-danger btn-lg btn-block" style="white-space: normal;">Cancelar Inscripción</button>
+					</div>
+					<div class="col-sm-6 col-xs-6">
+						<button id="btnContinuar" class="btn btn-primary btn-lg btn-block" style="white-space: normal;">Finalizar Inscripción</button>
+					</div>
+				<?php endif; ?>
+			</div>
+			<br>
+		</div>	
+	</div>
+</div>

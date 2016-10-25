@@ -3,7 +3,7 @@ namespace Application\Model\Dao;
 
 use Zend\Db\Adapter\Adapter;
 
-abstract class ConexionDao {
+class ConexionDao {
 	protected $db;
 	private $driver = "Pdo_Mysql";
 	private $database = "numerico_inflarundb";
@@ -93,7 +93,7 @@ abstract class ConexionDao {
 	 * @return InflaRunDB Un objeto POJO. Si la consulta no obtuvo un resultado regresa null.
 	 * @throws Exception
 	 */
-	public abstract function buscar($obj);
+	public function buscar($obj) {}
 	
 	/**
 	 * Regresa todos los registros de la tabla en específico.
@@ -101,14 +101,14 @@ abstract class ConexionDao {
 	 *  resultado regresa una lista vacía.
 	 * @throws Exception
 	 */
-	public abstract function buscarTodos();
+	public function buscarTodos() {}
 	
 	/**
 	 * Inserta un nuevo registro en la base de datos.
 	 * @param POJO $obj Objeto POJO a insertar.
 	 * @throws Exception
 	 */
-	public abstract function insertar($obj);
+	public function insertar($obj) {}
 	
 	/**
 	 * Actualiza un registro en la base de datos.
@@ -116,12 +116,12 @@ abstract class ConexionDao {
 	 * @param POJO $nuevo Objeto POJO que contiene los nuevo datos a insertar.
 	 * @throws Exception
 	 */
-	public abstract function actualizar($obj, $nuevo);
+	public function actualizar($obj, $nuevo) {}
 	
 	/**
 	 * Elimina un registro de la base de datos.
 	 * @param POJO $obj Objeto POJO. Solo es necesario que tenga la(s) llave(s) primaria(s) del registro a eliminar.
 	 * @throws Exception
 	 */
-	public abstract function eliminar($obj);
+	public function eliminar($obj) {}
 }

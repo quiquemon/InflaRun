@@ -1,0 +1,83 @@
+<?php
+	$fechaHandler = new \Application\Model\Controller\Cuenta\Handler\FechasHandler();
+?>
+<script>
+	(function() {
+		$("#navbarCollapse ul li").each(function() {
+			$(this).removeClass("active");
+		});
+		$("#navbarCollapse ul").children().last().addClass("active");
+		document.title = "Inscripciones - InflaRun";
+	})();
+</script>
+<div id="cuentaBody" class="container-fluid">
+	<div class="row">
+		<div class="col-sm-12">
+			<h1>Inscripciones</h1>
+			<br>
+			<div class="panel panel-info">
+				<div class="panel-heading">
+					<strong>Próximos Eventos</strong>
+				</div>
+				<div class="panel-body">
+					<div class="col-sm-12">
+						<?php if (isset($this -> Alert)): ?>
+							<div class="alert <?php echo ($this -> Alert["code"] === 0 ? "alert-success" : "alert-danger"); ?> fade in">
+								<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+								<?php echo $this -> Alert["message"]; ?>
+							</div>
+						<?php else: ?>
+							<?php foreach ($this -> eventos as $evento): ?>
+								<div class="panel-group">
+									<div class="panel panel-success">
+										<div class="panel-heading">
+											<a data-toggle="collapse" href="#collapse<?php echo $evento["idDetallesEvento"]; ?>">
+												<?php echo $evento["nombre"]; ?>
+											</a>
+										</div>
+										<div class="panel-collapse collapse" id="collapse<?php echo $evento["idDetallesEvento"]; ?>">
+											<div class="panel-body">
+												<div class="list-group">
+													<a class="list-group-item"><strong>Estado: </strong><?php echo $evento["estado"]["nombre"]; ?></a>
+													<a class="list-group-item"><strong>Dirección: </strong><?php echo $evento["direccion"]; ?></a>
+													<a class="list-group-item"><strong>Precio: </strong><?php echo ($evento["realizado"]) ? "n/a" : "\$" . $evento["precio"]; ?></a>
+													<a class="list-group-item"><strong>Contacto: </strong><?php echo $evento["correoContacto"]; ?></a>
+													<br>
+													<div class="panel panel-default">
+														<div class="panel-heading">
+															<strong>Días del Evento</strong>
+														</div>
+														<div class="panel-body">
+															<div class="list-group">
+																<?php if (!empty($evento["dias"])): ?>
+																	<a class="list-group-item">
+																		<?php echo $fechaHandler -> traducirFecha($evento["dias"]["fechaRealizacion"]); ?>
+																	</a>
+																<?php else: ?>
+																	<a class="list-group-item list-group-item-warning">Bloques Agotados</a>
+																<?php endif; ?>
+															</div>
+														</div>
+													</div>
+												</div>
+												<br>
+												<?php if (!empty($evento["dias"])): ?>
+													<a href="<?php echo $this -> basePath(); ?>/application/cuenta/inscripcionesdatos?idDetallesEvento=<?php echo $evento["idDetallesEvento"]; ?>"
+													   class="btn btn-primary btn-lg btn-block">¡Inscribirme!</a>
+												<?php else: ?>
+													<div class="alert alert-danger">
+														Lo sentimos, todos los lugares de esta carrera están agotados.
+													</div>
+												<?php endif; ?>
+											</div>
+										</div>
+									</div>
+								</div>
+							<?php endforeach; ?>
+						<?php endif; ?>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

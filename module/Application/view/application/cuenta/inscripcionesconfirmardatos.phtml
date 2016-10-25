@@ -1,0 +1,230 @@
+<?php
+	$fechaHandler = new \Application\Model\Controller\Cuenta\Handler\FechasHandler();
+	$session = new \Zend\Session\Container("user");
+	$evento = $session -> offsetGet("user")["evento"];
+	$usuario = $session -> offsetGet("user")["usuario"];
+	$equipo = $session -> offsetGet("user")["equipo"];
+	$diaHit = $session -> offsetGet("user")["diaHit"];
+	$playera = $session -> offsetGet("user")["playera"];
+	$metodoPago = $session -> offsetGet("user")["metodoPago"];
+?>
+<script>
+	(function() {
+		$("#navbarCollapse ul li").each(function() {
+			$(this).removeClass("active");
+		});
+		$("#navbarCollapse ul").children().last().addClass("active");
+		document.title = "Inscripción a <?php echo $evento["nombre"]; ?> - InflaRun";
+	})();
+	
+	function habilitarDialogExito(dialog, message) {
+		dialog.setTitle("¡Te has inscrito con éxito a InflaRun!");
+		dialog.setMessage(message);
+		dialog.setType(BootstrapDialog.TYPE_SUCCESS);
+		dialog.setButtons([{
+			label: "Finalizar",
+			icon: "glyphicon glyphicon-ok",
+			cssClass: "btn-success",
+			action: function() {
+				window.location = "<?php echo $this -> basePath(); ?>/application";
+			}
+		}]);
+	}
+	
+	function habilitarDialogError(dialog, message) {
+		dialog.setTitle("Error en inscripción");
+		dialog.setMessage("<strong>Lo sentimos, ocurrió un error al procesar tu inscripción:</strong> " + message);
+		dialog.setType(BootstrapDialog.TYPE_DANGER);
+		dialog.setClosable(true);
+		dialog.setButtons([{
+			label: "Regresar a Inscripciones",
+			icon: "glyphicon glyphicon-remove",
+			cssClass: "btn-danger",
+			action: function() {
+				window.location = "<?php echo $this -> basePath(); ?>/application/cuenta/cancelarinscripcion";
+			}
+		}]);
+	}
+	
+	function cancelarInscripcion() {
+		$("#btnCancelar").click(function() {
+			BootstrapDialog.show({
+				title: "Cancelar Inscripción",
+				message: "¿Realmente quiere cancelar su inscripción?",
+				type: BootstrapDialog.TYPE_WARNING,
+				buttons: [{
+					label: "Cancelar mi inscripción",
+					icon: "glyphicon glyphicon-remove-circle",
+					cssClass: "btn-warning",
+					action: function() {
+						window.location = "<?php echo $this -> basePath(); ?>/application/cuenta/cancelarinscripcion";
+					}
+				}, {
+					label: "Continuar con mi inscripción",
+					icon: "glyphicon glyphicon-ok-circle",
+					cssClass: "btn-success",
+					action: function(dialog) {
+						dialog.close();
+					}
+				}]
+			});
+		});
+	}
+	
+	function finalizarInscripcion() {
+		var progressBar = "<div class='progress'>"
+			+	"<div class='progress-bar progress-bar-striped active' style='width:100%'>"
+			+		"Estamos generando tu inscripción. ¡Solo un momento!"
+			+	"</div>"
+			+ "</div>";
+
+		$("#btnContinuar").click(function() {
+			var dialog = BootstrapDialog.show({
+				title: "Inscripción en progreso...",
+				message: progressBar,
+				type: BootstrapDialog.TYPE_PRIMARY,
+				closable: false
+			});
+			
+			$.get("<?php echo $this -> basePath(); ?>/application/cuenta/inscripcionesfinalizar", function(response) {
+				if (response.estatus === 0) {
+					habilitarDialogExito(dialog, response.message);
+				} else {
+					habilitarDialogError(dialog, response.message);
+				}
+			});
+		});
+	}
+	
+	$(document).ready(function() {
+		cancelarInscripcion();
+		finalizarInscripcion();
+	});
+</script>
+<div id="cuentaBody" class="container-fluid">
+	<div class="row">
+		<div class="col-sm-12 col-xs-12">
+			<h1>Inscripción a la carrera: <?php echo $evento["nombre"]; ?></h1>
+			<br>
+			<div class="panel panel-primary">
+				<div class="panel-heading">
+					<strong>Confirma los datos de tu inscripción</strong>
+				</div>
+				<div class="panel-body">
+					<div class="list-group">
+						<a class='list-group-item list-group-item-info'><strong>Evento</strong></a>
+						<a class="list-group-item"><strong>Evento:</strong> <?php echo $evento["nombre"]; ?></a>
+						<a class="list-group-item"><strong>Dirección:</strong> <?php echo $evento["direccion"]; ?></a>
+						<a class='list-group-item'><strong>Precio: $</strong><?php echo $evento["precio"]; ?></a>
+						<a class="list-group-item"><strong>Contacto:</strong> <?php echo $evento["correoContacto"]; ?></a>
+						<a class="list-group-item list-group-item-success"><strong>Información Personal</strong></a>
+						<a class="list-group-item">
+							<strong>Corredor:</strong>
+							<?php echo "{$usuario["nombre"]} {$usuario["paterno"]} {$usuario["materno"]}"; ?>
+						</a>
+						<a class="list-group-item">
+							<strong>Sexo:</strong> <?php echo ($usuario["sexo"] === "H") ? "Hombre" : "Mujer"; ?>
+						</a>
+						<a class='list-group-item'>
+							<strong>Fecha de Nacimiento:</strong>
+							<?php echo $fechaHandler -> traducirFecha($usuario["fechaNacimiento"]); ?>
+						</a>
+						<a class='list-group-item'><strong>Correo electrónico:</strong> <?php echo $usuario["correo"]; ?></a>
+						<a class='list-group-item'><strong>Playera:</strong> <?php echo "{$playera["tamanyo"]["talla"]}"; ?></a>
+						<a class='list-group-item list-group-item-warning'><strong>Inscripción</strong></a>
+						<a class="list-group-item">
+							<strong>Modalidad:</strong>
+							<?php echo ($equipo["modalidad"] === "individual") ? "Individual" : "En Equipo"; ?>
+						</a>
+						<?php if ($equipo["modalidad"] === "equipo"): ?>
+							<a class="list-group-item">
+								<strong>Nombre:</strong>
+								<?php echo $equipo["nombre"]; ?>
+							</a>
+							<a class="list-group-item">
+								<strong>Número de integrantes:</strong>
+								<?php echo $equipo["noIntegrantes"]; ?>
+							</a>
+						<?php endif; ?>
+						<a class='list-group-item'><strong>Día:</strong> <?php echo $fechaHandler -> traducirFecha($diaHit["dia"]["fecha"]); ?></a>
+						<a class='list-group-item'><strong>Bloque:</strong> <?php echo $diaHit["hit"]["horario"] ?></a>
+						<a class='list-group-item list-group-item-danger'><strong>Pago</strong></a>
+						<a class='list-group-item'>
+							<strong>Método de Pago:</strong>
+							<?php if($metodoPago["metodo"] === "tarjeta"): ?>
+								Tarjeta de crédito o débito <img src="<?php echo $this -> basePath(); ?>/css/Imagenes/tarjetas.jpg" height="30" />
+							<?php else: ?>
+								Efectivo - Sucursal
+								<?php if ($metodoPago["sucursal"] === "OXXO"): ?>
+									Oxxo <img src="<?php echo $this -> basePath(); ?>/css/Imagenes/tienda_oxxo.png" height="30" />
+								<?php elseif ($metodoPago["sucursal"] === "SEVEN_ELEVEN"): ?>
+									Seven Eleven <img src="<?php echo $this -> basePath(); ?>/css/Imagenes/tienda_seven.png" height="30" />
+								<?php elseif ($metodoPago["sucursal"] === "EXTRA"): ?>
+									Extra <img src="<?php echo $this -> basePath(); ?>/css/Imagenes/tienda_extra.png" height="30" />
+								<?php elseif ($metodoPago["sucursal"] === "ELEKTRA"): ?>
+									Elektra <img src="<?php echo $this -> basePath(); ?>/css/Imagenes/tienda_elektra.png" height="30" />
+								<?php elseif ($metodoPago["sucursal"] === "COPPEL"): ?>
+									Coppel <img src="<?php echo $this -> basePath(); ?>/css/Imagenes/tienda_coppel.png" height="30" />
+								<?php elseif ($metodoPago["sucursal"] === "CHEDRAUI"): ?>
+									Chedraui <img src="<?php echo $this -> basePath(); ?>/css/Imagenes/tienda_chedraui.png" height="30" />
+								<?php elseif ($metodoPago["sucursal"] === "FARMACIA_BENAVIDES"): ?>
+									Farmacias Benavides <img src="<?php echo $this -> basePath(); ?>/css/Imagenes/tienda_benavides.png" height="30" />
+								<?php elseif ($metodoPago["sucursal"] === "FARMACIA_ESQUIVAR"): ?>
+									Farmacias Esquivar <img src="<?php echo $this -> basePath(); ?>/css/Imagenes/tienda_esquivar.png" height="30" />
+								<?php endif; ?>
+							<?php endif; ?>
+						</a>
+						<a class='list-group-item'><strong>Precio Total: $</strong><?php echo $metodoPago["precio"]; ?></a>
+					</div>
+				</div>
+			</div>
+			<div id="terminosCondiciones" class="modal fade" role="dialog">
+				<div class="modal-dialog">
+					<div class="modal-contentAviso">
+						<div class="modal-header">
+							<button class="close" data-dismiss="modal">&times;</button>
+							<h1 class="modal-title">Términos y Condiciones</h1>
+						</div>
+						<div class="modal-body">
+							<div class="sub">Términos y Condiciones</div>
+							<p>
+								Admito que al inscribirme a InflaRun conozco las bases de la convocatoria, que mis datos son verdaderos y
+								si fueran falsos seré descalificado del evento. Soy el único responsable de mi salud y de cualquier accidente
+								o deficiencia que pudiera causar alteración a mi salud física e incluso la muerte. Por esta razón libero al
+								comité organizador, a los patrocinadores, a las autoridades deportivas y a los prestadores de servicios de
+								cualquier daño que sufra. Así mismo, autorizo al comité organizador para utilizar mi imagen, voz y nombre, ya sea
+								total o parcialmente en lo relacionado al evento. Estoy conciente de que para participar en esta competencia debo
+								estar físicamente preparado para el esfuerzo que voy a realizar.
+							</p>
+							<div class="sub">Exoneraciones</div>
+							<p>
+								El paquete de corredor se entregará el día del evento una hora antes del horario que seleccione al momento de
+								inscribirme. En tu paquete recibirás el número de competidor, tu playera y tu kit de participante. Es obligatorio
+								que el titular de la inscripción se presente a la entrega de paquetes a recoger el mismo llevando consigo una
+								identificación. No habrá módulo de entrega de grupos y no se le entregará paquete de competidor a ninguna otra persona
+								que no sea el titular de la inscripción y únicamente mostrando una identificación oficial. El corredor que por cualquier
+								motivo no recoja su paquete en el lugar y horario indicados perderá todo derecho derivado de su inscripción. Por ningún
+								motivo habrá cambio de horario ni de datos de competidor ni se permitirá transferir números.
+							</p>
+						</div>
+					</div>
+				</div>
+			</div>
+			<p>
+				Al hacer clic en el botón <strong>Finalizar Inscripción</strong> estás aceptando los 
+				<a href="#" data-toggle="modal" data-target="#terminosCondiciones">Términos y Condiciones</a> y el
+				<a href="#" data-toggle="modal" data-target="#aviso">Aviso de Privacidad</a>.
+			</p>
+			<br>
+			<div class="row">
+				<div class="col-sm-6 col-xs-6">
+					<button id="btnCancelar" class="btn btn-danger btn-lg btn-block" style="white-space: normal;">Cancelar Inscripción</button>
+				</div>
+				<div class="col-sm-6 col-xs-6">
+					<button id="btnContinuar" class="btn btn-primary btn-lg btn-block" style="white-space: normal;">Finalizar Inscripción</button>
+				</div>
+			</div>
+			<br>
+		</div>	
+	</div>
+</div>

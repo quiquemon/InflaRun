@@ -1,0 +1,138 @@
+<?php
+	$session = new \Zend\Session\Container("admin");
+	
+	try {
+		$dao = new \Application\Model\Dao\EquipoDao();
+		$eventos = $dao -> consultaGenerica("SELECT * FROM DetallesEvento");
+	} catch (Exception $ex) {
+		$eventos = array();
+	}
+?>
+<script>
+	(function() {
+		$("#navbarCollapse ul li").each(function() {
+			$(this).removeClass("active");
+		});
+		$("#navbarCollapse ul").children().last().addClass("active");
+		document.title = "Admin Usuarios - InflaRun";
+	})();
+	
+	$(document).ready(function() {
+		$("#btnBuscar").click(function() {
+			var message;
+			$("#bodyPanel").empty();
+			$("#btnBuscar").prop("disabled", true);
+			$("#bodyPanel").prepend("\
+				<div class='progress'>\n\
+					<div class='progress-bar progress-bar-striped active' aria-valuenow='100' aria-valuemin='0' aria-valuemax='100' style='width: 100%'>\n\
+						Estamos buscando en el sistema. ¡Solo un momento!\n\
+					</div>\n\
+				</div>"
+			);
+			$.get("<?php echo $this -> basePath(); ?>/application/cuenta/adminusuariosgetusuarioinfo", {
+				correo: $("#correo").val(),
+				idDetallesEvento: $("#idDetallesEvento").val()
+			}, function(response) {
+				if (response.estatus != 0) {
+					message = "<strong>" + response.message + "</strong>";
+				} else {
+					$("#bodyPanel").empty();
+					var idDetallesEvento = $("#idDetallesEvento").val();
+					var usuario = response.info.usuario;
+					var carrera = response.info.carrera;
+					var inscripcion = response.info.inscripcion;
+					message = "\n\
+						<h2>INFORMACIÓN PERSONAL</h2>\n\
+						<p><strong>Nombre:</strong> " + usuario.nombre + "</p>\n\
+						<p><strong>Apellido paterno:</strong> " + usuario.paterno + "</p>\n\
+						<p><strong>Apellido materno:</strong> " + (usuario.materno || "") + "</p>\n\
+						<p><strong>Sexo:</strong> " + usuario.sexo + "</p>\n\
+						<p><strong>Fecha de nacimiento:</strong> " + usuario.fechaNacimiento + "</p>\n\
+						<p><strong>Correo:</strong> " + usuario.correo + "</p>\n\
+						<br>\n\
+						<h2>INFORMACIÓN DE LA CARRERA</h2>\n\
+						<p><strong>Carrera:</strong> " + carrera.nombre + "</p>\n\
+						<p><strong>Fecha:</strong> " + carrera.fecha + "</p>\n\
+						<p><strong>Horario:</strong> " + carrera.horario + "</p>\n\
+						<p><strong>Dirección:</strong> " + carrera.direccion + "</p>\n\
+						<br>\n\
+						<h2>INFORMACIÓN DE LA INSCRIPCIÓN</h2>\n\
+						<p><strong>UUID de inscripción:</strong> " + inscripcion.uuid + "</p>\n\
+						<p><strong>Folio de inscripción:</strong> " + inscripcion.folio + "</p>\n\
+						<p><strong>Tipo de pago:</strong> " + inscripcion.tipoPago + "</p>\n\
+						<p><strong>Precio:</strong> " + inscripcion.precio + "</p>\n\
+						<p><strong>Equipo:</strong> " + inscripcion.equipo + "</p>\n\
+						<p><strong>Número de corredor:</strong> " + inscripcion.noCorredor + "</p>\n\
+						<br>\n\
+						<a href='<?php echo $this -> basePath(); ?>/application/cuenta/adminusuariosreenviarcorreo?correo="
+							+ usuario.correo + "&idDetallesEvento="
+							+ idDetallesEvento + "' class='btn btn-success'>Reenviar Correo</a>\n\
+					";
+				}
+				
+				$(".progress").remove();
+				$("#bodyPanel").html(message);
+				$("#btnBuscar").prop("disabled", false);
+			});
+		});
+	});
+</script>
+<div id="cuentaBody" class="container-fluid">
+	<div class="row">
+		<h2>Administración de Usuarios.</h2>
+		<br>
+		<?php if ($session -> offsetExists("message")): ?>
+			<div class="alert alert-info fade in">
+				<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+				<?php
+					echo $session -> offsetGet("message");
+					$session -> offsetUnset("message");
+				?>
+			</div>
+		<?php endif; ?>
+		<div class="col-md-2 col-xs-3">
+			<div class="dropdown">
+				<button class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+					Opciones
+					<span class="caret"></span>
+				</button>
+				<ul class="dropdown-menu">
+					<li class="dropdown-header">Usuarios</li>
+					<li><a href="<?php echo $this -> basePath(); ?>/application/cuenta/adminmoduser">Modificar Info Usuario</a></li>
+					<li><a href="<?php echo $this -> basePath(); ?>/application/cuenta/admincambiarhorario">Cambiar Horario</a></li>
+					<li class="divider"></li>
+					<li class="dropdown-header">Administrador</li>
+					<li><a href="<?php echo $this -> basePath(); ?>/application/cuenta/adminmain">Página Principal</a></li>
+					<li><a href="<?php echo $this -> basePath(); ?>/application/cuenta/adminregistromanual">Registro Manual</a></li>
+					<li><a href="<?php echo $this -> basePath(); ?>/application/cuenta/adminlogout">Cerrar Sesión</a></li>
+				</ul>
+			</div>
+			<br>
+			<br>
+			<div class="form-group">
+				<label>Busca por correo:</label>
+				<input type="text" class="form-control" id="correo" />
+				<br>
+				<label>Evento</label>
+				<select id="idDetallesEvento" class="form-control">
+					<?php foreach($eventos as $evento): ?>
+						<option value="<?php echo $evento["idDetallesEvento"]; ?>">
+							<?php echo $evento["nombre"]; ?>
+						</option>
+					<?php endforeach; ?>
+				</select>
+				<br>
+				<button id="btnBuscar" class="btn btn-default btn-block">Buscar</button>
+			</div>
+		</div>
+		<div class="col-md-10 col-xs-9">
+			<div class="panel panel-success">
+				<div class="panel-heading">
+					<strong>Usuarios</strong>
+				</div>
+				<div id="bodyPanel" class="panel-body"></div>
+			</div>
+		</div>
+	</div>
+	<br>
+</div>

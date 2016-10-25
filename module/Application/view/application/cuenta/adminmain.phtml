@@ -53,6 +53,8 @@
 					<span class="caret"></span>
 				</button>
 				<ul class="dropdown-menu">
+					<li><a href="<?php echo $this -> basePath(); ?>/application/cuenta/adminusuarios">Usuarios</a></li>
+					<li><a href="<?php echo $this -> basePath(); ?>/application/cuenta/adminregistromanual">Registro Manual</a></li>
 					<li><a href="<?php echo $this -> basePath(); ?>/application/cuenta/adminlogout">Cerrar Sesión</a></li>
 				</ul>
 			</div>
@@ -60,9 +62,9 @@
 			<br>
 			<a href="<?php echo $this -> basePath(); ?>/application/cuenta/adminmain" class="btn btn-warning">Actualizar</a>
 			<br><br>
-			<a href="<?php echo $this -> basePath(); ?>/application/cuenta/adminaceptarpagadas" class="btn btn-success">Aceptar Pagadas</a>
+			<a href="<?php echo $this -> basePath(); ?>/application/cuenta/adminaceptarpagadas" class="btn btn-success disabled">Aceptar Pagadas</a>
 			<br><br>
-			<a href="<?php echo $this -> basePath(); ?>/application/cuenta/adminrechazarexpiradas" class="btn btn-danger">Rechazar Expiradas</a>
+			<a href="<?php echo $this -> basePath(); ?>/application/cuenta/adminrechazarexpiradas" class="btn btn-danger disabled">Rechazar Expiradas</a>
 		</div>
 		<div class="col-md-10 col-xs-9">
 			<div class="panel panel-success">
