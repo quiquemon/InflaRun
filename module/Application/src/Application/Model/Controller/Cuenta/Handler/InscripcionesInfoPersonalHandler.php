@@ -16,6 +16,10 @@ class InscripcionesInfoPersonalHandler {
 			"code" => 0,
 			"message" => "¡Datos validados correctamente!  Redirigiendo..."
 		),
+		"OK_EQUIPO" => array(
+			"code" => 0,
+			"message" => ""
+		),
 		"NOMBRE_VACIO" => array(
 			"code" => 1,
 			"message" => "Tu nombre es obligatorio."
@@ -118,7 +122,7 @@ class InscripcionesInfoPersonalHandler {
 		$paterno = $params -> fromPost("paterno", "");
 		$materno = $params -> fromPost("materno", "");
 		$sexo = $params -> fromPost("sexo", "H");
-		$fechaNacimiento = $params -> fromPost("fechaNac", "1980-01-01");
+		$fechaNacimiento = $params -> fromPost("fechaNac", "");
 		$correo = $params -> fromPost("correo", "");
 		$idEstado = $params -> fromPost("estado", 7);
 		$boletin = $params -> fromPost("boletin", 0);
@@ -190,6 +194,43 @@ class InscripcionesInfoPersonalHandler {
 	}
 	
 	/**
+	 * Recibe los parámetros POST de la página de InscripcionesEquipos y los agrega a un arreglo
+	 * asociativo.
+	 * 
+	 * @param \Zend\Mvc\Controller\Plugin\Params $params Los parámetros POST.
+	 * @return Array Arreglo asociativo con los parámetros POST del cliente.
+	 */
+	public static function obtenerDatosEquipoPost($params) {
+		$nombre = $params -> fromPost("nombre", "");
+		$paterno = $params -> fromPost("paterno", "");
+		$materno = $params -> fromPost("materno", "");
+		$sexo = $params -> fromPost("sexo", "H");
+		$fechaNacimiento = $params -> fromPost("fechaNacimiento", "");
+		$correo = $params -> fromPost("correo", "");
+		$idEstado = $params -> fromPost("estado", 7);
+		$boletin = $params -> fromPost("boletin", 0);
+		$idEquipo = $params -> fromPost("idEquipo", 0);
+		$idDetallesEvento = $params -> fromPost("idDetallesEvento", 0);
+		$tamanyo = $params -> fromPost("tamanyo", 1);
+		
+		return array(
+			"usuario" => array(
+				"nombre" => trim($nombre),
+				"paterno" => trim($paterno),
+				"materno" => trim($materno),
+				"sexo" => $sexo,
+				"fechaNacimiento" => $fechaNacimiento,
+				"correo" => trim($correo),
+				"idEstado" => $idEstado,
+				"boletin" => $boletin,
+				"idEquipo" => $idEquipo,
+				"idDetallesEvento" => $idDetallesEvento,
+				"tamanyo" => $tamanyo
+			)
+		);
+	}
+	
+	/**
 	 * Valida los datos personales del usuario.
 	 * 
 	 * @param Array $params Los datos obtenidos por medio de POST del usuario.
@@ -253,6 +294,48 @@ class InscripcionesInfoPersonalHandler {
 			return self::$FILTRO["SUCURSAL_DESCONOCIDA"];
 		else
 			return self::$FILTRO["OK"];
+	}
+	
+	/**
+	 * Valida los datos personales del usuario en la página InscripcionesEquipos.
+	 * 
+	 * @param Array $params Los datos obtenidos por medio de POST del usuario.
+	 * @return Array Arreglo asociativo de acuerdo al resultado del filtro estático
+	 * de esta clase, $FILTRO.
+	 */
+	public static function validarDatosEquipo($params) {
+		$usuario = $params["usuario"];
+		
+		if (empty($usuario["nombre"]))
+			return self::$FILTRO["NOMBRE_VACIO"];
+		else if (strcspn($usuario["nombre"], '0123456789') != strlen($usuario["nombre"]))
+			return self::$FILTRO["NOMBRE_CON_NUMEROS"];
+		else if (empty($usuario["paterno"]))
+			return self::$FILTRO["PATERNO_VACIO"];
+		else if (strcspn($usuario["paterno"], '0123456789') != strlen($usuario["paterno"]))
+			return self::$FILTRO["PATERNO_CON_NUMEROS"];
+		else if (strcspn($usuario["materno"], '0123456789') != strlen($usuario["materno"]))
+			return self::$FILTRO["MATERNO_CON_NUMEROS"];
+		else if (($usuario["sexo"] != "H") && ($usuario["sexo"] != "M"))
+			return self::$FILTRO["SEXO_INVALIDO"];
+		else if (empty($usuario["fechaNacimiento"]))
+			return self::$FILTRO["FECHA_NACIMIENTO_VACIA"];
+		else if (!self::validarFecha($usuario["fechaNacimiento"]))
+			return self::$FILTRO["FECHA_NACIMIENTO_INVALIDA"];
+		else if (time() < strtotime("+18 years", strtotime($usuario["fechaNacimiento"])))
+			return self::$FILTRO["FECHA_NACIMIENTO_MENOR"];
+		else if (empty($usuario["correo"]))
+			return self::$FILTRO["CORREO_VACIO"];
+		else if (!filter_var($usuario["correo"], FILTER_VALIDATE_EMAIL))
+			return self::$FILTRO["CORREO_INVALIDO"];
+		else if (($usuario["boletin"] != 1) && ($usuario["boletin"] != 0))
+			return self::$FILTRO["BOLETIN_INVALIDO"];
+		else if (($usuario["idEstado"] < 1) || ($usuario["idEstado"] > 32))
+			return self::$FILTRO["ESTADO_INVALIDO"];
+		else if (($usuario["tamanyo"] < 1) || ($usuario["tamanyo"] > 4))
+			return self::$FILTRO["TALLA_INVALIDA"];
+		else
+			return self::$FILTRO["OK_EQUIPO"];
 	}
 	
 	/**

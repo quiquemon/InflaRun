@@ -246,8 +246,18 @@ class CuentaController extends AbstractActionController {
 	}
 	
 	public function inscripcionesequiposfinalizarAction() {
+		$datos = InscripcionesInfoPersonalHandler::obtenerDatosEquipoPost($this -> params());
+		$resultado = InscripcionesInfoPersonalHandler::validarDatosEquipo($datos);
 		
-		return new JsonModel();
+		if ($resultado["code"] === 0) {
+			$r = InscripcionesHandler::integrarUsuarioAEquipo($datos["usuario"]);
+			return new JsonModel($r);
+		}
+		
+		return new JsonModel(array(
+			"estatus" => $resultado["code"],
+			"message" => $resultado["message"]
+		));
 	}
 	
 	public function cancelarinscripcionAction() {

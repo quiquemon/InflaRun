@@ -3,8 +3,9 @@ namespace Application\Model\Controller\Cuenta\Handler;
 
 use Application\Model\Dao\ConexionDao;
 use Application\Model\Controller\Cuenta\Pagos\PagoComproPago;
-use Application\Model\Controller\Cuenta\Pagos\PagoPayPal;
 use Application\Model\Controller\Cuenta\Handler\DiaHitHandler;
+use Application\Model\Controller\Cuenta\Handler\FechasHandler;
+use Application\Model\Correos\CorreoInscripcion;
 use Sendinblue\Model\Correo\User;
 
 /**
@@ -35,6 +36,10 @@ class InscripcionesHandler {
 		"MONTO_MAXIMO_SUPERADO" => array(
 			"estatus" => 3,
 			"message" => "El monto a pagar supera el máximo permitido por este establecimiento."
+		),
+		"EQUIPO_COMPLETO" => array(
+			"estatus" => 4,
+			"message" => "Este equipo ya está completo. No se pueden aceptar más integrantes."
 		)
 	);
 	
@@ -47,7 +52,7 @@ class InscripcionesHandler {
 	 * @return Array Arreglo asociativo que contiene la respuesta de la operación de acuerdo a la
 	 * variable estática de esta clase, $FILTRO.
 	 */
-	public static function inscribirUsuario($user) {	
+	public static function inscribirUsuario($user) {
 		$usuario = $user["usuario"];
 		$equipo = $user["equipo"];
 		$diaHit = $user["diaHit"];
@@ -164,7 +169,78 @@ class InscripcionesHandler {
 		}
 	}
 	
-        
+	/**
+	 * Inscribe al usuario dado al equipo indicado y le envía su comprobante de inscripción
+	 * a su correo.
+	 * 
+	 * @param Array $usuario Contiene los datos personales del usuario y el ID de su equipo.
+	 * @return Array Arreglo asociativo que contiene la respuesta de la operación de acuerdo a la
+	 * variable estática de esta clase, $FILTRO.
+	 */
+    public static function integrarUsuarioAEquipo($usuario) {
+		$dao = new ConexionDao();
+		
+		try {
+			$dao -> beginTransaction();
+			
+			$correo = $dao -> consultaGenerica("SELECT * FROM Correo WHERE correo = ?", array($usuario["correo"]));
+			if (empty($correo)) {
+				$dao -> sentenciaGenerica("INSERT INTO Correo(correo) VALUES (?)", array($usuario["correo"]));
+				$correo = $dao -> consultaGenerica("SELECT * FROM Correo WHERE idCorreo = LAST_INSERT_ID()");
+			}
+			
+			$dao -> sentenciaGenerica("INSERT INTO Usuario(nombre, aPaterno, aMaterno, sexo, fechaNacimiento, fechaRegistro,"
+					. " recibeCorreos, idEstado, idCorreo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", array(
+				$usuario["nombre"],
+				$usuario["paterno"],
+				$usuario["materno"],
+				$usuario["sexo"],
+				$usuario["fechaNacimiento"],
+				date("Y-m-d"),
+				$usuario["boletin"],
+				$usuario["idEstado"],
+				$correo[0]["idCorreo"]
+			));
+                        
+			$idUsuario = $dao -> consultaGenerica("SELECT idUsuario FROM Usuario WHERE idUsuario = LAST_INSERT_ID()")[0]["idUsuario"];
+			$folio = "$idUsuario-{$usuario["idEquipo"]}-{$usuario["idDetallesEvento"]}";
+			
+			$dao -> sentenciaGenerica("INSERT INTO NumeroCorredor VALUES ()");
+			$noCorredor = $dao
+				-> consultaGenerica("SELECT * FROM NumeroCorredor WHERE idNumeroCorredor = LAST_INSERT_ID()")[0]["idNumeroCorredor"];
+			
+			$integrantes = $dao -> consultaGenerica("SELECT COUNT(*) AS numero FROM UsuarioEquipo WHERE idEquipo = ?",
+				array($usuario["idEquipo"]))[0]["numero"];
+			$noInt = $dao -> consultaGenerica("SELECT noIntegrantes FROM Equipo WHERE idEquipo = ?",
+				array($usuario["idEquipo"]))[0]["noIntegrantes"];
+			
+			if ($integrantes === $noInt) {
+				$dao -> rollback();
+				return self::$FILTRO["EQUIPO_COMPLETO"];
+			}
+			
+			$dao -> sentenciaGenerica("INSERT INTO UsuarioEquipo VALUES (?, ?, ?, ?, ?, ?, ?, ?)", array(
+				$idUsuario,
+				$usuario["idEquipo"],
+				0,
+				0,
+				$folio,
+				$noCorredor,
+				$usuario["tamanyo"],
+				1
+			));
+			
+			$dao -> commit();
+			self::enviarComprobanteInscripcion($idUsuario);
+			return self::$FILTRO["OK_TARJETA"];
+		} catch (\Exception $ex) {
+			$dao -> rollback();
+			return array(
+				"estatus" => 10,
+				"message" => $ex -> getMessage()
+			);
+		}
+	}    
         
         /**
 	 * Realiza el pago indicado (tarjeta o efectivo).
@@ -219,5 +295,44 @@ class InscripcionesHandler {
 			"listid" => array(43)
 		);
 		return $this->mailin-> create_update_user($this->data);
+	}
+	
+	/**
+	 * Envía el comprobante de inscripción al usuario dado.
+	 * 
+	 * @param string $idUsuario El ID del usuario.
+	 */
+	private static function enviarComprobanteInscripcion($idUsuario) {
+		$sql = "SELECT u.idUsuario, u.nombre, u.aPaterno AS paterno, u.aMaterno AS materno,"
+			. " u.sexo, u.fechaNacimiento, c.correo, ue.folio, ue.idNumeroCorredor, e.nombre AS equipo,"
+			. " e.noIntegrantes, p.sucursal, p.monto, dh.horario, de.fechaRealizacion, det.direccion,"
+			. " det.nombre AS detallesNombre, ev.nombre AS evento FROM Usuario u, Correo c, UsuarioEquipo ue,"
+			. " Equipo e, Pago p, DiaHit dh, DiaEvento de, DetallesEvento det, Evento ev WHERE"
+			. " u.idUsuario = ue.idUsuario AND u.idCorreo = c.idCorreo AND ue.idEquipo = e.idEquipo"
+			. " AND e.idEquipo = p.idEquipo AND e.idDiaHit = dh.idDiaHit AND dh.idDiaEvento = de.idDiaEvento AND"
+			. " de.idDetallesEvento = det.idDetallesEvento AND det.idEvento = ev.idEvento AND u.idUsuario = ?";
+		$dao = new ConexionDao();
+		
+		$user = $dao -> consultaGenerica($sql, array($idUsuario))[0];
+		$correo = new CorreoInscripcion(array(
+			"nombre" => $user["nombre"],
+			"paterno" => $user["paterno"],
+			"materno" => $user["materno"],
+			"sexo" => ($user["sexo"] === "H" ? "Hombre" : "Mujer"),
+			"fechaNacimiento" => (new FechasHandler()) -> traducirFecha($user["fechaNacimiento"]),
+			"noCorredor" => $user["idNumeroCorredor"],
+			"carrera" => "{$user["evento"]} - {$user["detallesNombre"]}",
+			"fecha" => (new FechasHandler()) -> traducirFecha($user["fechaRealizacion"]),
+			"hit" => $user["horario"],
+			"direccion" => $user["direccion"],
+			"uuid" => $user["idUsuario"],
+			"folio" => $user["folio"],
+			"tipoPago" => (isset($user["sucursal"]) ? "Efectivo" : "Tarjeta de crédito o débito"),
+			"precio" => $user["monto"],
+			"equipo" => ($user["noIntegrantes"] === 1
+				? "Individual"
+				: "{$user["equipo"]} | Número de integrantes: {$user["noIntegrantes"]}")
+		));
+		$correo -> enviarSendinblue($user["correo"], "{$user["nombre"]} {$user["paterno"]}");
 	}
 }

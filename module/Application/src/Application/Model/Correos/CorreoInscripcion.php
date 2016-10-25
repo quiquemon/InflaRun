@@ -51,7 +51,7 @@ class CorreoInscripcion extends Correos {
                             __DIR__ . "/images/barcode.png" => $base65
                          ));
 
-                        var_dump($mailin->send_email($data)); 
+                        $mailin->send_email($data);
 			return true;
 		} catch (\Exception $e) {
 			return $e -> errorMessage();
@@ -121,7 +121,7 @@ class CorreoInscripcion extends Correos {
                                                   <table border='0' cellpadding='0' cellspacing='0' width='100%'>
                                                     <tr>
                                                       <td style='color: #153643; font-family: Arial, sans-serif; font-size: 24px;'>
-                                                        <b>Estimado(a):". $nombre."</b>
+                                                        <b>Estimado(a): ". $nombre."</b>
                                                       </td>
                                                     </tr>
                                                     <tr>
@@ -147,7 +147,7 @@ class CorreoInscripcion extends Correos {
                                                                                 . "        <p><strong>UUID de inscripción:</strong> $uuid</p>"
                                                                                 . "        <p><strong>Folio de inscripción:</strong> $folio</p>"
                                                                                 . "        <p><strong>Tipo de pago:</strong> $tipoPago</p>"
-                                                                                . "        <p><strong>Precio:</strong> $precio</p>"
+                                                                                . "        <p><strong>Precio:</strong> \$$precio</p>"
                                                                                 . "        <p><strong>Equipo:</strong> $equipo</p>"
                                                                                 . "        <p><strong>Número de corredor:</strong> $noCorredor</p>"
                                                                                 . "
