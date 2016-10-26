@@ -26,11 +26,18 @@
 		dialog.setMessage(message);
 		dialog.setType(BootstrapDialog.TYPE_SUCCESS);
 		dialog.setButtons([{
-			label: "Finalizar",
+			label: "Volver a Página Principal",
 			icon: "glyphicon glyphicon-ok",
 			cssClass: "btn-success",
 			action: function() {
 				window.location = "<?php echo $this -> basePath(); ?>/application";
+			}
+		}, {
+			label: "Inscribir a otro integrante",
+			icon: "glyphicon glyphicon-user",
+			cssClass: "btn-info",
+			action: function() {
+				window.location = window.location.href;
 			}
 		}]);
 	}

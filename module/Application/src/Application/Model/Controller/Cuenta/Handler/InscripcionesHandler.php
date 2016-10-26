@@ -58,6 +58,7 @@ class InscripcionesHandler {
 		$diaHit = $user["diaHit"];
 		$playera = $user["playera"];
 		$metodoPago = $user["metodoPago"];
+		$evento = $user["evento"];
 		$dao = new ConexionDao();
 		
 		try {
@@ -71,7 +72,7 @@ class InscripcionesHandler {
 		if ($orden["error"]) {
 			DiaHitHandler::incrementarLugaresRestantes($diaHit["hit"]["id"], $numero);
 			if ($metodoPago["metodo"] === "tarjeta") {
-				# Implementar PayPal
+				# TODO: implementar pagos con tarjeta
 				return array("estatus" => 1, "message" => "Aún no implementado");
 			} else {
 				return ($orden["code"] == 5003)
@@ -89,6 +90,7 @@ class InscripcionesHandler {
 				$correo = $dao -> consultaGenerica("SELECT * FROM Correo WHERE idCorreo = LAST_INSERT_ID()");
 			}
 			
+			$correo = $correo[0];
 			$dao -> sentenciaGenerica("INSERT INTO Usuario(nombre, aPaterno, aMaterno, sexo, fechaNacimiento, fechaRegistro,"
 					. " recibeCorreos, idEstado, idCorreo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", array(
 				$usuario["nombre"],
@@ -99,7 +101,7 @@ class InscripcionesHandler {
 				date("Y-m-d"),
 				$usuario["boletin"],
 				$usuario["idEstado"],
-				$correo[0]["idCorreo"]
+				$correo["idCorreo"]
 			));
                         
 			$idUsuario = $dao -> consultaGenerica("SELECT idUsuario FROM Usuario WHERE idUsuario = LAST_INSERT_ID()")[0]["idUsuario"];
@@ -119,8 +121,8 @@ class InscripcionesHandler {
 			$idEquipo = $dao -> consultaGenerica("SELECT idEquipo FROM Equipo WHERE idEquipo = LAST_INSERT_ID()")[0]["idEquipo"];
 			
 			if ($metodoPago["metodo"] === "tarjeta") {
-				# Implementar PayPal
-				$folio = 23;
+				# TODO: Implementar pagos con tarjeta
+				$folio = "$idUsuario-$idEquipo-{$evento["idDetallesEvento"]}";
 			} else {
 				$dao -> sentenciaGenerica("INSERT INTO Pago(monto, estatus, transaccion, orderId, sucursal, fechaExpiracion, idEquipo)"
 						. " VALUES (?, ?, ?, ?, ?, ?, ?)", array(
@@ -151,6 +153,15 @@ class InscripcionesHandler {
 			));
 			
 			$dao -> commit();
+			
+			if ($metodoPago["metodo"] === "tarjeta") {
+				self::enviarComprobanteInscripcion($idUsuario);
+				
+				if ($equipo["modalidad"] === "equipo") {
+					self::enviarCorreoEquipos($idUsuario, $idEquipo);
+				}
+			}
+			
 			// --------- Agregar a Sendinblue -------------
 			if ($usuario["boletin"]) {
 				$User = new User();
@@ -161,7 +172,8 @@ class InscripcionesHandler {
 				);
 				$User ->createUser($correo['correo'], $attributes, $User -> IDLista);
 			}
-			  // --------- /Agregar a Sendinblue -------------    
+			// --------- /Agregar a Sendinblue -------------
+			
 			return ($metodoPago["metodo"] === "tarjeta")
 				? self::$FILTRO["OK_TARJETA"]
 				: self::$FILTRO["OK_EFECTIVO"];
@@ -194,6 +206,7 @@ class InscripcionesHandler {
 				$correo = $dao -> consultaGenerica("SELECT * FROM Correo WHERE idCorreo = LAST_INSERT_ID()");
 			}
 			
+			$correo = $correo[0];
 			$dao -> sentenciaGenerica("INSERT INTO Usuario(nombre, aPaterno, aMaterno, sexo, fechaNacimiento, fechaRegistro,"
 					. " recibeCorreos, idEstado, idCorreo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", array(
 				$usuario["nombre"],
@@ -204,7 +217,7 @@ class InscripcionesHandler {
 				date("Y-m-d"),
 				$usuario["boletin"],
 				$usuario["idEstado"],
-				$correo[0]["idCorreo"]
+				$correo["idCorreo"]
 			));
                         
 			$idUsuario = $dao -> consultaGenerica("SELECT idUsuario FROM Usuario WHERE idUsuario = LAST_INSERT_ID()")[0]["idUsuario"];
@@ -237,6 +250,19 @@ class InscripcionesHandler {
 			
 			$dao -> commit();
 			self::enviarComprobanteInscripcion($idUsuario);
+			
+			// --------- Agregar a Sendinblue -------------
+			if ($usuario["boletin"]) {
+				$User = new User();
+				$User -> IDLista = 43; // <-----  ID lista en sendinblue donde se agregaran los nuevos contactos
+				$attributes= array(
+					"NOMBRE" => $usuario['nombre'],
+					"SURNAME" => $usuario['paterno']
+				);
+				$User ->createUser($correo['correo'], $attributes, $User -> IDLista);
+			}
+			// --------- /Agregar a Sendinblue -------------
+			
 			return self::$FILTRO["OK_TARJETA"];
 		} catch (\Exception $ex) {
 			$dao -> rollback();
@@ -245,7 +271,97 @@ class InscripcionesHandler {
 				"message" => $ex -> getMessage()
 			);
 		}
-	}    
+	}
+	
+	/**
+	 * Obtiene los pagos en efectivo que aún no se han aceptado ni
+	 * rechazado.
+	 * 
+	 * @return Array Arreglo asociativo con los pagos pendientes. Si
+	 * no hay ningún pago pendiente, regresa un arreglo vacío.
+	 */
+	public static function obtenerPagosPendientes() {
+		try {
+			$dao = new ConexionDao();
+			$sql = "SELECT p.*, CONCAT(u.nombre, ' ', u.aPaterno, ' ', u.aMaterno) AS nombre, c.correo"
+				. " FROM Usuario u, Correo c, UsuarioEquipo ue, Equipo e, Pago p WHERE u.idCorreo = c.idCorreo"
+				. " AND u.idUsuario = ue.idUsuario AND ue.idEquipo = e.idEquipo AND e.idEquipo = p.idEquipo"
+				. " AND p.estatus = 0";
+			
+			$pagos = $dao -> consultaGenerica($sql);
+			return $pagos;
+		} catch (\Exception $ex) {
+			echo "<div class='alert alert-danger fade in'>"
+				. "  <a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a>"
+				. "  Error de sistema: {$ex -> getMessage()}"
+				. "</div>";
+			return array();
+		}
+	}
+	
+	/**
+	 * Realiza los cambios correspondientes en la base de datos y envía
+	 * un correo al usuario con los datos de su inscripción.
+	 * 
+	 * @param int $idPago El ID del pago a confirmar.
+	 * @throws Exception
+	 */
+	public static function aceptarPagoEfectivo($idPago) {
+		$dao = new ConexionDao();
+		try {
+			$dao -> beginTransaction();
+			
+			$sql = "SELECT CONCAT(u.idUsuario, '-', e.idEquipo, '-', det.idDetallesEvento) AS folio, e.idEquipo, u.idUsuario, e.noIntegrantes"
+				. " FROM Pago p, Equipo e, UsuarioEquipo ue, Usuario u, DiaHit dh, DiaEvento de, DetallesEvento det"
+				. " WHERE p.idEquipo = e.idEquipo AND e.idEquipo = ue.idEquipo AND ue.idUsuario = u.idUsuario AND"
+				. " e.idDiaHit = dh.idDiaHit AND dh.idDiaEvento = de.idDiaEvento AND de.idDetallesEvento = det.idDetallesEvento"
+				. " AND p.idPago = ?";
+			$result = $dao -> consultaGenerica($sql, array($idPago))[0];			
+			$codigoCanje = ($result["noIntegrantes"] > 1) ? self::generarCodigoCanje() : null;
+			
+			$dao -> sentenciaGenerica("UPDATE Pago SET estatus = 1 WHERE idPago = ?", array($idPago));
+			$dao -> sentenciaGenerica("UPDATE Equipo SET codigoCanje = ? WHERE idEquipo = ?", array(
+				$codigoCanje, $result["idEquipo"]
+			));
+			$dao -> sentenciaGenerica("UPDATE UsuarioEquipo SET folio = ? WHERE idEquipo = ?", array(
+				$result["folio"], $result["idEquipo"]
+			));
+			
+			$dao -> commit();
+			self::enviarComprobanteInscripcion($result["idUsuario"]);
+			
+			if ($result["noIntegrantes"] > 1) {
+				self::enviarCorreoEquipos($idPago, $result["idEquipo"]);
+			}
+		} catch (\Exception $ex) {
+			$dao -> rollback();
+			throw new \Exception($ex -> getMessage());
+		}
+	}
+	
+	/**
+	 * Realiza los cambios correspondientes en la base de datos para
+	 * rechazar el pago realizado.
+	 * 
+	 * @param int $idPago El ID del pago a rechazar.
+	 */
+	public static function rechazarPagoEfectivo($idPago) {
+		$dao = new ConexionDao();
+		try {
+			$dao -> beginTransaction();
+			$sql = "SELECT dh.idDiaHit, e.idEquipo, e.noIntegrantes FROM Pago p, Equipo e, DiaHit dh"
+				. " WHERE p.idEquipo = e.idEquipo AND e.idDiaHit = dh.idDiaHit AND p.idPago = ?";
+			
+			$resultado = $dao -> consultaGenerica($sql, array($idPago))[0];
+			$dao -> sentenciaGenerica("DELETE FROM Equipo WHERE idEquipo = ?", array($resultado["idEquipo"]));
+			DiaHitHandler::incrementarLugaresRestantes($resultado["idDiaHit"], $resultado["noIntegrantes"]);
+			
+			$dao -> commit();
+		} catch (\Exception $ex) {
+			$dao -> rollback();
+			throw new \Exception($ex -> getMessage());
+		}
+	}
         
     /**
 	 * Realiza el pago indicado (tarjeta o efectivo).
@@ -319,6 +435,17 @@ class InscripcionesHandler {
 				? "Individual"
 				: "{$user["equipo"]} | Número de integrantes: {$user["noIntegrantes"]}")
 		));
-		$correo -> enviarSendinblue($user["correo"], "{$user["nombre"]} {$user["paterno"]}");
+		$correo -> enviarSendinblue($user["correo"], "{$user["nombre"]} {$user["paterno"]} {$user["materno"]}");
+	}
+	
+	/**
+	 * Envía un correo con el enlace necesario para inscribir al resto de los integrantes del
+	 * equipo a la carrera.
+	 * 
+	 * @param int $idUsuario El ID del usuario que realizó el pago.
+	 * @param int $idEquipo El ID del equipo.
+	 */
+	private static function enviarCorreoEquipos($idUsuario, $idEquipo) {
+		
 	}
 }

@@ -43,7 +43,7 @@ class CorreoInscripcion extends Correos {
 
                         $data = array( "to" => array($correo =>"to whom!"),
                         "from" => array("ti@numeri.mx", "InflaRun"),
-                        "subject" => "¡Te has inscrito con éxito en InflaRun!",
+                        "subject" => "InflaRun - Comprobante de Inscripción - $nombre",
                         "html" => $this -> generarHtmlBody2(),
                         "headers" => array("Content-Type"=> "text/html; charset=iso-8859-1","X-param1"=> "value1", "X-param2"=> "value2","X-Mailin-custom"=>"my custom value", "X-Mailin-IP"=> "102.102.1.2", "X-Mailin-Tag" => "My tag"),
                         "inline_image" => array(

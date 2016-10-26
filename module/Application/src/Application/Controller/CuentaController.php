@@ -12,29 +12,8 @@ use Application\Model\Controller\Cuenta\Handler\EquiposHandler;
 use Application\Model\Controller\Cuenta\Handler\AdminHandler;
 use Application\Model\Controller\Cuenta\Handler\UsuarioHandler;
 use Application\Model\Dao\ConexionDao;
-use Application\Model\Dao\EquipoDao;
 
 class CuentaController extends AbstractActionController {
-	
-	private $FILTRO_MODALIDAD = array(
-		"CODIGO_VACIO" => array(
-			"code" => 6,
-			"message" => "El código de inscripción es obligatorio."
-		),
-		"CODIGO_INVALIDO" => array(
-			"code" => 7,
-			"message" => "El código de inscripción es inválido."
-		),
-		"CODIGO_UTILIZADO" => array(
-			"code" => 8,
-			"message"=> "Lo sentimos, ese código ya ha sido utilizado."
-		),
-		"CODIGO_EN_ESPERA" => array(
-			"code" => 9,
-			"message" => "Estamos a la espera de la confirmación del pago de tu equipo."
-				. " Cuando la tengamos, te habilitaremos este código."
-		)
-	);
 	
 	private $FILTRO_DATOS_BANCARIOS = array(
 		"OK" => array(
@@ -115,14 +94,9 @@ class CuentaController extends AbstractActionController {
 		)
 	);
 	
-	/***************************************************************
-	 * FUNCIONES DE LA VERSIÓN 1.1 DE INFLARUN
-	 * 
-	 * Estas funciones serán con las que se trabajará en las
-	 * siguientes versiones de la aplicación. Se pondrán en
-	 * funcionamiento a partir de la carrera de León a finales del
-	 * 2016.
-	 ***************************************************************/
+	public function indexAction() {
+		return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/inscripciones");
+	}
 	
 	public function inscripcionesAction() {
 		try {
@@ -265,100 +239,6 @@ class CuentaController extends AbstractActionController {
 		return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/inscripciones");
 	}
 	
-	
-	/***************************************************************
-	 * FUNCIONES DE LA VERSIÓN 1 DE INFLARUN
-	 * 
-	 * Eventualmente estas funciones serán reemplazadas por las
-	 * que se escribirán arriba de este aviso.
-	 ***************************************************************/
-	public function indexAction() {
-		return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/inscripciones");
-	}
-	
-	public function elegirmodalidadAction() {
-		if (!(new Container("usuario")) -> offsetExists("usuario"))
-			return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/login");
-		
-		if ($this -> getRequest() -> isPost()) {
-			$params = $this -> obtenerParametrosModalidad();
-			$resultado = $this -> filtrarParametrosModalidad($params);
-			
-			if ($resultado["code"] === $this -> FILTRO_MODALIDAD["OK"]["code"]) {
-				$session = new Container("usuario");
-				$session -> offsetSet("modalidad", $params);
-				
-				if ($params["rdbModalidad"] === "codigo") {
-					try {
-						$dao = new EquipoDao();
-						$equipo = $dao
-							-> consultaGenerica("SELECT * FROM Equipo WHERE codigoCanje = ?", array($params["codigoInscripcion"]));
-						if (empty($equipo)) {
-							$session -> offsetUnset("modalidad");
-							return new ViewModel(array("Error" => $this -> FILTRO_MODALIDAD["CODIGO_INVALIDO"]["message"]));
-						} else {
-							$idEquipo = $equipo[0]["idEquipo"];
-							$noIntegrantes = $equipo[0]["noIntegrantes"];
-							$integrantes = $dao
-								-> consultaGenerica("SELECT * FROM UsuarioEquipo WHERE idEquipo = ?", array($idEquipo));
-							
-							if (!empty($integrantes)) {
-								if ($noIntegrantes <= count($integrantes)) {
-									return new ViewModel(array("Error" => $this -> FILTRO_MODALIDAD["CODIGO_UTILIZADO"]["message"]));
-								} else {
-									$pago = $dao -> consultaGenerica("SELECT * FROM Pago WHERE idEquipo = ?", array($idEquipo))[0];
-									if ($pago["estatus"] == 0) {
-										return new ViewModel(array("Error" => $this -> FILTRO_MODALIDAD["CODIGO_EN_ESPERA"]["message"]));
-									}
-								}
-							}
-							
-							$session -> offsetSet("equipoCodigo", $equipo[0]);
-							if (!$equipo[0]["esCortesia"]) {
-								$diaHit["hit"] = $dao -> consultaGenerica("SELECT * FROM DiaHit WHERE idDiaHit = ?", array(
-									$equipo[0]["idDiaHit"])
-								)[0];
-								$diaHit["dia"] = $dao -> consultaGenerica("SELECT * FROM DiaEvento WHERE idDiaEvento = ?", array(
-									$diaHit["hit"]["idDiaEvento"])
-								)[0];
-								$session -> offsetSet("diaHit", $diaHit);
-								return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/confirmardatos");
-							}
-						}
-					} catch (\Exception $ex) {
-						$session -> offsetUnset("modalidad");
-						return new ViewModel(array("Error" => $this -> FILTRO["ERROR_BD"]["message"]));
-					}
-				}
-				
-				return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/elegirbloque");
-			}
-			
-			return new ViewModel(array("Error" => $resultado["message"]));
-		}
-		
-		return new ViewModel();
-	}
-	
-	public function formulariotarjetaAction() {
-		if (!(new Container("usuario")) -> offsetExists("usuario"))
-			return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/login");
-		
-		if ($this -> getRequest() -> isPost()) {
-			$params = $this -> obtenerParametrosBancarios();
-			$resultado = $this -> filtrarParametrosBancarios($params);
-			
-			if ($resultado["code"] === $this -> FILTRO_DATOS_BANCARIOS["OK"]["code"]) {
-				(new Container("usuario")) -> offsetSet("datosBancarios", $params);
-				return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/confirmardatos");
-			}
-			
-			return new ViewModel(array("Error" => $resultado));
-		}
-		
-		return new ViewModel();
-	}
-	
 	/********************************************************************************
 	 * FUNCIONES DEL ADMINISTRADOR
 	 ********************************************************************************/
@@ -382,7 +262,8 @@ class CuentaController extends AbstractActionController {
 		if (!(new Container("admin")) -> offsetExists("admin"))
 			return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/adminlogin");
 		
-		return new ViewModel();
+		$pagos = InscripcionesHandler::obtenerPagosPendientes();
+		return new ViewModel(array("pagos" => $pagos));
 	}
 	
 	public function adminaceptarpagoAction() {
@@ -390,9 +271,12 @@ class CuentaController extends AbstractActionController {
 			return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/adminlogin");
 		
 		try {
-			InscripcionHandler::aceptarPagoEfectivo($this -> params() -> fromQuery("idPago"));
+			InscripcionesHandler::aceptarPagoEfectivo($this -> params() -> fromQuery("idPago"));
 		} catch (\Exception $ex) {
-			(new Container("admin")) -> offsetSet("message", $this -> FILTRO["ERROR_BD"]["message"]);
+			echo "<div class='alert alert-danger fade in'>"
+				. "  <a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a>"
+				. "  Error de sistema: {$ex -> getMessage()}"
+				. "</div>";
 		}
 		
 		return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/adminmain");
@@ -403,9 +287,12 @@ class CuentaController extends AbstractActionController {
 			return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/adminlogin");
 		
 		try {
-			InscripcionHandler::rechazarPagoEfectivo($this -> params() -> fromQuery("idPago"));
+			InscripcionesHandler::rechazarPagoEfectivo($this -> params() -> fromQuery("idPago"));
 		} catch (\Exception $ex) {
-			(new Container("admin")) -> offsetSet("message", $this -> FILTRO["ERROR_BD"]["message"]);
+			echo "<div class='alert alert-danger fade in'>"
+				. "  <a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a>"
+				. "  Error de sistema: {$ex -> getMessage()}"
+				. "</div>";
 		}
 		
 		return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/adminmain");
@@ -639,31 +526,5 @@ class CuentaController extends AbstractActionController {
 			return $this -> FILTRO_DATOS_BANCARIOS["CP_INVALIDO"];
 		else
 			return $this -> FILTRO_DATOS_BANCARIOS["OK"];
-	}
-	
-	/**
-	 * Filtra las contraseñas del usuario al momento del registro en la base de datos.
-	 * 
-	 * @param Array $params Arreglo que incluye los parámetros POST del formulario.
-	 * @return Array Arreglo que contiene el código y el mensaje del resultado validado, de
-	 * acuerdo al arreglo de este Action, $FILTRO.
-	 */
-	private function filtrarPassword($params) {
-		$pwdHash = (new Container("usuario")) -> offsetGet("usuario") -> getPassword();
-		
-		if (empty($params["pwdActual"]))
-			return $this -> FILTRO["PASS_ACTUAL_VACIA"];
-		else if (!password_verify($params["pwdActual"], $pwdHash))
-			return $this -> FILTRO["PASS_ACTUAL_ERRONEA"];
-		else if (empty($params["pwdNueva"]))
-			return $this -> FILTRO["PASS_NUEVA_VACIA"];
-		else if ($params["pwdNueva"] != $params["pwdNuevaConf"])
-			return $this -> FILTRO["PASS_DISTINTAS"];
-		else
-			return $this -> FILTRO["OK"];
-	}
-	
-	public function ejemploAction() {
-		return new ViewModel();
 	}
 }
