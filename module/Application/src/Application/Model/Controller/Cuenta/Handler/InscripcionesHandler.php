@@ -3,6 +3,7 @@ namespace Application\Model\Controller\Cuenta\Handler;
 
 use Application\Model\Dao\ConexionDao;
 use Application\Model\Controller\Cuenta\Pagos\PagoComproPago;
+use Application\Model\Controller\Cuenta\Pagos\PagoTarjeta;
 use Application\Model\Controller\Cuenta\Handler\DiaHitHandler;
 use Application\Model\Controller\Cuenta\Handler\FechasHandler;
 use Application\Model\Correos\CorreoInscripcion;
@@ -58,6 +59,7 @@ class InscripcionesHandler {
 		$diaHit = $user["diaHit"];
 		$playera = $user["playera"];
 		$metodoPago = $user["metodoPago"];
+		$datosBancarios = isset($user["datosBancarios"]) ? $user["datosBancarios"] : null;
 		$evento = $user["evento"];
 		$dao = new ConexionDao();
 		
@@ -68,12 +70,20 @@ class InscripcionesHandler {
 			return self::$FILTRO["BLOQUE_INSUFICIENTE"];
 		}
 		
-		$orden = self::realizarPago($metodoPago, $usuario);
+		$orden = self::realizarPago($metodoPago, $usuario, $datosBancarios);
 		if ($orden["error"]) {
 			DiaHitHandler::incrementarLugaresRestantes($diaHit["hit"]["id"], $numero);
 			if ($metodoPago["metodo"] === "tarjeta") {
-				# TODO: implementar pagos con tarjeta
-				return array("estatus" => 1, "message" => "Aún no implementado");
+				$message = "Tu tarjeta fue rechazada por las siguientes razones:\n\n";
+				
+				foreach ($orden["WebServices_Transacciones"]["transaccion"]["error"] as $causa => $valor) {
+					$message .= "* $valor\n";
+				}
+				
+				return array(
+					"estatus" => 1,
+					"message" => $message
+				);
 			} else {
 				return ($orden["code"] == 5003)
 					? self::$FILTRO["MONTO_MAXIMO_SUPERADO"]
@@ -121,7 +131,15 @@ class InscripcionesHandler {
 			$idEquipo = $dao -> consultaGenerica("SELECT idEquipo FROM Equipo WHERE idEquipo = LAST_INSERT_ID()")[0]["idEquipo"];
 			
 			if ($metodoPago["metodo"] === "tarjeta") {
-				# TODO: Implementar pagos con tarjeta
+				$dao -> sentenciaGenerica("INSERT INTO Pago(monto, estatus, transaccion, transIni, transFin, idEquipo)"
+					. " VALUES (?, ?, ?, ?, ?, ?)", array(
+						$metodoPago["precio"],
+						1,
+						$orden["WebServices_Transacciones"]["transaccion"]["transaccion"],
+						$orden["WebServices_Transacciones"]["transaccion"]["TransIni"],
+						$orden["WebServices_Transacciones"]["transaccion"]["TransFin"],
+						$idEquipo
+					));
 				$folio = "$idUsuario-$idEquipo-{$evento["idDetallesEvento"]}";
 			} else {
 				$dao -> sentenciaGenerica("INSERT INTO Pago(monto, estatus, transaccion, orderId, sucursal, fechaExpiracion, idEquipo)"
@@ -373,9 +391,12 @@ class InscripcionesHandler {
 	 * @return bool|Array Regresa TRUE si el pago se realizó exitosamente,
 	 * de lo contrario regresa un arreglo con los detalles del error.
 	 */
-	private static function realizarPago($metodoPago, $usuario) {
+	private static function realizarPago($metodoPago, $usuario, $datosBancarios = null) {
 		if ($metodoPago["metodo"] === "tarjeta") {
-			
+			$datosBancarios["monto"] = $metodoPago["precio"];
+			$resultado = (new PagoTarjeta()) -> realizarPago($datosBancarios);
+			$resultado["error"] = !$resultado["WebServices_Transacciones"]["transaccion"]["autorizado"];
+			return $resultado;
 		} else {
 			$orden = PagoComproPago::generarOrden(array(
 				"order_id" => "" . bin2hex(openssl_random_pseudo_bytes(12)),
@@ -431,7 +452,7 @@ class InscripcionesHandler {
 			"folio" => $user["folio"],
 			"tipoPago" => (isset($user["sucursal"]) ? "Efectivo" : "Tarjeta de crédito o débito"),
 			"precio" => $user["monto"],
-			"equipo" => ($user["noIntegrantes"] === 1
+			"equipo" => ($user["noIntegrantes"] == 1
 				? "Individual"
 				: "{$user["equipo"]} | Número de integrantes: {$user["noIntegrantes"]}")
 		));
