@@ -349,7 +349,7 @@ class InscripcionesHandler {
 			self::enviarComprobanteInscripcion($result["idUsuario"]);
 			
 			if ($result["noIntegrantes"] > 1) {
-				self::enviarCorreoEquipos($idPago, $result["idEquipo"]);
+				self::enviarCorreoEquipos($result["idUsuario"], $result["idEquipo"]);
 			}
 		} catch (\Exception $ex) {
 			$dao -> rollback();
@@ -393,7 +393,8 @@ class InscripcionesHandler {
 	 */
 	private static function realizarPago($metodoPago, $usuario, $datosBancarios = null) {
 		if ($metodoPago["metodo"] === "tarjeta") {
-			$datosBancarios["monto"] = $metodoPago["precio"];
+			$datosBancarios["monto"] = 0.1;
+			#$datosBancarios["monto"] = $metodoPago["precio"];
 			$resultado = (new PagoTarjeta()) -> realizarPago($datosBancarios);
 			$resultado["error"] = !$resultado["WebServices_Transacciones"]["transaccion"]["autorizado"];
 			return $resultado;
