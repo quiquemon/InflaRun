@@ -369,9 +369,11 @@
 							<select id="bloque" class="form-control">
 								<?php if (!empty($dias)): ?>
 									<?php foreach($dias["hits"] as $hit): ?>
-										<option value="<?php echo $hit["idDiaHit"]; ?>|<?php echo $hit["horario"]; ?>|<?php echo $hit["lugaresRestantes"]; ?>">
-											<?php echo $hit["horario"]; ?> (<?php echo $hit["lugaresRestantes"]; ?> lugares restantes)
-										</option>
+										<?php if ($hit["lugaresRestantes"] > 0): ?>
+											<option value="<?php echo $hit["idDiaHit"]; ?>|<?php echo $hit["horario"]; ?>|<?php echo $hit["lugaresRestantes"]; ?>">
+												<?php echo $hit["horario"]; ?> (<?php echo $hit["lugaresRestantes"]; ?> lugares restantes)
+											</option>
+										<?php endif; ?>
 									<?php endforeach; ?>
 								<?php else: ?>
 									<option value="0|0|0">

@@ -43,7 +43,7 @@ class CorreoInscripcion extends Correos {
 
                         $data = array( "to" => array($correo =>"to whom!"),
                         "from" => array("ti@numeri.mx", "InflaRun"),
-                        "subject" => "¡Te has inscrito con éxito en InflaRun!",
+                        "subject" => "InflaRun - Comprobante de Inscripción - $nombre",
                         "html" => $this -> generarHtmlBody2(),
                         "headers" => array("Content-Type"=> "text/html; charset=iso-8859-1","X-param1"=> "value1", "X-param2"=> "value2","X-Mailin-custom"=>"my custom value", "X-Mailin-IP"=> "102.102.1.2", "X-Mailin-Tag" => "My tag"),
                         "inline_image" => array(
@@ -121,7 +121,7 @@ class CorreoInscripcion extends Correos {
                                                   <table border='0' cellpadding='0' cellspacing='0' width='100%'>
                                                     <tr>
                                                       <td style='color: #153643; font-family: Arial, sans-serif; font-size: 24px;'>
-                                                        <b>Estimado(a):". $nombre."</b>
+                                                        <b>Estimado(a): ". $nombre."</b>
                                                       </td>
                                                     </tr>
                                                     <tr>
@@ -147,7 +147,7 @@ class CorreoInscripcion extends Correos {
                                                                                 . "        <p><strong>UUID de inscripción:</strong> $uuid</p>"
                                                                                 . "        <p><strong>Folio de inscripción:</strong> $folio</p>"
                                                                                 . "        <p><strong>Tipo de pago:</strong> $tipoPago</p>"
-                                                                                . "        <p><strong>Precio:</strong> $precio</p>"
+                                                                                . "        <p><strong>Precio:</strong> \$$precio</p>"
                                                                                 . "        <p><strong>Equipo:</strong> $equipo</p>"
                                                                                 . "        <p><strong>Número de corredor:</strong> $noCorredor</p>"
                                                                                 . "
