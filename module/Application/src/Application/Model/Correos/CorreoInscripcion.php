@@ -51,7 +51,7 @@ class CorreoInscripcion extends Correos {
                             __DIR__ . "/images/barcode.png" => $base65
                          ));
 
-                        var_dump($mailin->send_email($data)); 
+                        $resultado= $mailin->send_email($data); 
 			return true;
 		} catch (\Exception $e) {
 			return $e -> errorMessage();

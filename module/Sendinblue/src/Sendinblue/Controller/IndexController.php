@@ -19,6 +19,8 @@ use Sendinblue\Model\Correo\Lista;
 use Sendinblue\Model\Correo\User;
 use Sendinblue\Model\Correo\Attribute;
 
+use Application\Model\Correos\CorreoEquipo;
+
 
 class IndexController extends AbstractActionController
 {
@@ -195,7 +197,15 @@ class IndexController extends AbstractActionController
     }
     
     public function sincronizarAction(){
-        $User = new User();
+        $params = array(
+            "Nombre"  => "Yeudiel",
+            "Apellido" => "cunjama"
+        );
+        $correoEquipo = new CorreoEquipo($params);
+        $correo ="lenrique@numeri.mx";
+        $nombre = "Yeudiel";
+        $response = $correoEquipo ->enviarSendinblue($correo, $nombre);
+        /*$User = new User();
         $hola ="Hola mundo";
         $contactosdb= $User ->sincronizar();
         $sendinblue = json_decode($this->params()->fromQuery("Sendinblue", "Nada"));
@@ -204,11 +214,15 @@ class IndexController extends AbstractActionController
         $jsondata["success"] = true;
         $jsondata["data"]["message"] = sprintf("Se han encontrado  usuarios");
         $jsondata["data"]["users"] = array();
-        $jsondata["data"]["users"][0] = "fdfdf";
-        $jsondata["data"]["users"][1] = 8;
-        $jsondata["data"]["users"][2] = $sendinblue;
-        
-       return new JsonModel($jsondata);
+        $max = sizeof($equipo);
+        foreach ($sendinblue as $key => $value){
+            $jsondata["data"]["users"][$key] =  $value;    
+        }
+        // $value['correo']
+       return new JsonModel($jsondata);*/
+       return new viewModel(
+               array( "responce" => $response )
+               );
     }
     
     

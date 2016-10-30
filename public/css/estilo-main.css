@@ -781,13 +781,14 @@ Content
 }
 /*  ----- users table page */
 .sib-datatable {
-    width: 100%;
+    width: 60%;
     box-sizing: border-box;
     overflow-x: hidden;
     /*overflow-y: hidden;*/
     height: 100%;
     position:relative;
     border: 1px solid #bbb;border-radius: 10px;-webkit-border-radius: 10px;-moz-border-radius: 10px;
+    left: 20%;
 }
 .sibdatatable-inner {
     width: 100%;
