@@ -10,7 +10,7 @@ return array(
             'trabajo'=>array(
                  'type'=>'Segment',
                     'options'=>array(
-                        'route' => '/sendinblue[/[:action[/:id[/:name[/:idL]]]]]',
+                        'route' => '/reportes[/[:action[/:id[/:name[/:idL]]]]]',
                         'constraints' => array(
                                 'action'  =>  '[a-zA-Z][a-zA-Z0-9_-]*',
                                 'id'  =>  '[0-9-a-z]*',
