@@ -1,21 +1,13 @@
 <?php
-
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 use Application\Model\Correos\Mailin;
 namespace Application\Model\Correos;
 
 /**
- * Description of CorreoEquipo
+ * Envía un correo con el link de inscribir integrantes a un equipo.
  *
  * @author qnhama
  */
 class CorreoEquipo extends Correos {
-    //put your code here
     private $params;
 	
 	/**
@@ -31,23 +23,25 @@ class CorreoEquipo extends Correos {
 		try {
 			$mailin = new Mailin("https://api.sendinblue.com/v2.0","NQGOIrgFEVKYxp51");   
                         
-                        $imagedata = file_get_contents( __DIR__ . "/plantillas/banner-inscripcion.png");
-                        $base64 = base64_encode($imagedata);
-                        $barcode = file_get_contents( __DIR__ . "/images/barcode.png");
-                        $base65 = base64_encode($barcode);
+			$imagedata = file_get_contents( __DIR__ . "/plantillas/banner-inscripcion.png");
+			$base64 = base64_encode($imagedata);
+			$barcode = file_get_contents( __DIR__ . "/images/barcode.png");
+			$base65 = base64_encode($barcode);
 
 
-                        $data = array( "to" => array($correo =>"to whom!"),
-                        "from" => array("ti@numeri.mx", "InflaRun"),
-                        "subject" => "¡Te has inscrito con éxito en InflaRun!",
-                        "html" => $this -> generarHtmlBody2(),
-                        "headers" => array("Content-Type"=> "text/html; charset=iso-8859-1","X-param1"=> "value1", "X-param2"=> "value2","X-Mailin-custom"=>"my custom value", "X-Mailin-IP"=> "102.102.1.2", "X-Mailin-Tag" => "My tag"),
-                        "inline_image" => array(
-                            __DIR__ . "/plantillas/banner-inscripcion.png" => $base64,
-                            __DIR__ . "/images/barcode.png" => $base65
-                         ));
+			$data = array(
+				"to" => array($correo =>"to whom!"),
+				"from" => array("ti@numeri.mx", "InflaRun"),
+				"subject" => "InflaRunner $nombre: ¡Inscribe a tus compañeros de equipo a InflaRun!",
+				"html" => $this -> generarHtmlBody2(),
+				"headers" => array("Content-Type"=> "text/html; charset=iso-8859-1","X-param1"=> "value1", "X-param2"=> "value2","X-Mailin-custom"=>"my custom value", "X-Mailin-IP"=> "102.102.1.2", "X-Mailin-Tag" => "My tag"),
+				"inline_image" => array(
+					__DIR__ . "/plantillas/banner-inscripcion.png" => $base64,
+					__DIR__ . "/images/barcode.png" => $base65
+				 )
+			);
 
-                        $resultado= $mailin->send_email($data); 
+			$resultado = $mailin->send_email($data); 
 			return true;
 		} catch (\Exception $e) {
 			return $e -> errorMessage();
@@ -56,24 +50,9 @@ class CorreoEquipo extends Correos {
         
         
 	private function generarHtmlBody2() {
-		$nombre = $this -> params["nombre"];
-		$paterno = $this -> params["paterno"];
-		$materno = $this -> params["materno"];
-		$sexo = $this -> params["sexo"];
-		$fechaNacimiento = $this -> params["fechaNacimiento"];
-		$noCorredor = $this -> params["noCorredor"];
-		$carrera = $this -> params["carrera"];
-		$fecha = $this -> params["fecha"];
-		$hit = $this -> params["hit"];
-		$direccion = $this -> params["direccion"];
-		$uuid = $this -> params["uuid"];
-		$folio = $this -> params["folio"];
-		$tipoPago = $this -> params["tipoPago"];
-		$precio = $this -> params["precio"];
-		$equipo = $this -> params["equipo"];
-                
-                
-		
+		$nombreCarrera = $this -> params["nombreCarrera"];
+		$codigoCanje = $this -> params["codigoCanje"];
+		$nombreEquipo = $this -> params["nombreEquipo"];
 		$html = "
                     
 
@@ -178,9 +157,9 @@ class CorreoEquipo extends Correos {
 															<table border='0' cellpadding='30' cellspacing='0' width='100%'>
 																<tr>
 																	<td align='center' valign='top' class='textContent'>
-																		<h1 style='color:#FFFFFF;line-height:100%;font-family:Helvetica,Arial,sans-serif;font-size:35px;font-weight:normal;margin-bottom:5px;text-align:center;'>¡Ya eres parte de la carrera InflaRun León 2016!</h1>
-																		<h2 style='text-align:center;font-weight:normal;font-family:Helvetica,Arial,sans-serif;font-size:23px;margin-bottom:10px;color:#205478;line-height:135%;'>Inscribe tu equipo</h2>
-																		<div style='text-align:center;font-family:Helvetica,Arial,sans-serif;font-size:15px;margin-bottom:0;color:#FFFFFF;line-height:135%;'>Ahora debes de inscribir a los demás integrantes de tu equipo, es muy fácil solo debes de seguir los siguientes pasos:</div>
+																		<h1 style='color:#FFFFFF;line-height:100%;font-family:Helvetica,Arial,sans-serif;font-size:35px;font-weight:normal;margin-bottom:5px;text-align:center;'>¡Ya eres parte de la carrera $nombreCarrera!</h1>
+																		<h2 style='text-align:center;font-weight:normal;font-family:Helvetica,Arial,sans-serif;font-size:23px;margin-bottom:10px;color:#205478;line-height:135%;'>Inscribe a tu equipo</h2>
+																		<div style='text-align:center;font-family:Helvetica,Arial,sans-serif;font-size:15px;margin-bottom:0;color:#FFFFFF;line-height:135%;'>Ahora debes inscribir a los demás integrantes de tu equipo. Es muy fácil, solo debes de seguir los siguientes pasos:</div>
 																	</td>
 																</tr>
 															</table>
@@ -233,7 +212,7 @@ class CorreoEquipo extends Correos {
 																			<tr>
 																				<td align='left' class='textContent'>
 																					<h3 style='color:#5F5F5F;line-height:125%;font-family:Helvetica,Arial,sans-serif;font-size:20px;font-weight:normal;margin-top:0;margin-bottom:3px;text-align:left;'>Paso 2</h3>
-																					<div style='text-align:left;font-family:Helvetica,Arial,sans-serif;font-size:15px;margin-bottom:0;color:#5F5F5F;line-height:135%;'>•	Cada uno de ellos deben dar click en el siguiente botones para registrar sus datos.</div>
+																					<div style='text-align:left;font-family:Helvetica,Arial,sans-serif;font-size:15px;margin-bottom:0;color:#5F5F5F;line-height:135%;'>•	Cada uno de ellos debe dar clic en el siguiente botón para registrar sus datos y recibir su comprobante de inscripción.</div>
 																				</td>
 																			</tr>
 																		</table>
@@ -271,7 +250,7 @@ class CorreoEquipo extends Correos {
 															<table border='0' cellpadding='0' cellspacing='0' width='50%' class='emailButton' style='background-color: #3498DB;'>
 																<tr>
 																	<td align='center' valign='middle' class='buttonContent' style='padding-top:15px;padding-bottom:15px;padding-right:15px;padding-left:15px;'>
-																		<a style='color:#FFFFFF;text-decoration:none;font-family:Helvetica,Arial,sans-serif;font-size:20px;line-height:135%;' href='#' target='_blank'>Inscribe tu equipo</a>
+																		<a style='color:#FFFFFF;text-decoration:none;font-family:Helvetica,Arial,sans-serif;font-size:20px;line-height:135%;' href='#' target='_blank'>Tu Equipo: $nombreEquipo</a>
 																	</td>
 																</tr>
 															</table>
