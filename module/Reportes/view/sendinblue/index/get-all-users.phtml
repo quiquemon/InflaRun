@@ -1,0 +1,112 @@
+<?php 
+    //var_dump($this -> contactosdb); 
+    /*echo "</br>";
+    //var_dump($this -> correos); 
+    //var_dump($this -> atributos); */
+    //var_dump($this -> id);
+?>
+<script> 
+
+$(document).ready(function(){
+        var Sendinblue= new Array();
+        var page = 1;
+        var tpages = 0;
+        load2(page);
+        $('#inflaruners').text(tpages);
+});
+
+  
+function load2(page){
+         $.get("<?php echo $this -> basePath(); ?>/sendinblue/displayListUsers/<?php echo $this ->id; ?>", {
+                        pagina: page
+                },  function(response) {
+                        if (response.estatus !== 0) {
+
+                                var TotalContactos = response.data.total_list_records;
+                                var per_page = 50;
+                                tpages = Math.ceil(TotalContactos/per_page);
+                                page += 1;
+                        } else {
+                            $("#inflaruners").html('No ha habido suerte: ' + response.data.message);
+                        }
+                });
+            
+	}
+
+function load(page,Sendinblue){
+                $.get("<?php echo $this -> basePath(); ?>/sendinblue/displayListUsers/<?php echo $this ->id; ?>", {
+				pagina: page
+			},  function(response) {
+				if (response.estatus !== 0) {
+                                       
+                                        var TotalContactos = response.data.total_list_records;
+                                        var adjacents  = 2; //brecha entre páginas después de varios adyacen
+                                        var per_page = 50;
+                                        var datos ="";
+                                        var tpages = Math.ceil(TotalContactos/per_page);
+                                        
+                                        
+                                        //for(var i =1;i<=2;i++) {
+                                            $.each(response.data.data, function( key, value ) {
+                                                //output.push(value['email']);
+                                                Sendinblue.push(value['email']);
+                                            });
+                                        //}
+                                        
+                                        if(page <= tpages){
+                                            page +=1;
+                                            load(page,Sendinblue);
+                                        }
+                                        
+                                       /*$.get("<?php echo $this -> basePath(); ?>/sendinblue/sincronizar", {
+                                                Sendinblue: JSON.stringify(Sendinblue)
+                                        },  function(response) {
+                                                if (response.estatus !== 0) {
+
+                                                        var output = "<h1>" + response.data.message + "</h1>"; 
+                                                        $.each(response.data.users, function(key, value) {
+                                                           output += "<h2>Detalles del usuario " + value + "</h2>";
+                                                        });
+
+                                                        /*for(var i =1;i<=2;i++) {
+                                                            $.each(response.data.data, function( key, value ) {
+                                                                //output.push(value['email']);
+                                                                output.push(value['email']);
+                                                            });
+                                                        }
+                                                        $("#inflaruners").text(response);*/
+                                                        //console.log(response);
+                                                       /* $.each(response.data.data, function( key, value ) {
+                                                                output += value['id'];
+                                                                output += value['email'] ;
+                                                        });
+
+                                                        //$("#inflaruners").html(output);
+                                                        //console.log(response.data.users);
+                                                        //console.log(Sendinblue);
+
+                                                } else {
+                                                    $("#inflaruners").html('No ha habido suerte: ' + response.data.message);
+                                                }
+				
+                                
+			});*/
+                                        console.log(Sendinblue);
+                                        
+				} else {
+                                    $("#inflaruners").html('No ha habido suerte: ' + response.data.message);
+				}
+				
+                                
+			});
+		
+	}
+
+</script>
+
+
+<div id="inflaruners">
+                                            
+          No hay datos                                  
+                                            
+</div>

@@ -1,0 +1,780 @@
+<script>
+    
+    
+    
+    $(document).ready(function(){
+        var loading = "<div class='progress'><div class='progress-bar progress-bar-striped active' aria-valuenow='100' aria-valuemin='0' aria-valuemax='100' style='width: 100%'>Estamos buscando en el sistema. ¡Solo un momento!</div></div>"
+        $("#response-container").prepend(loading);
+        load(1);
+        
+        
+        
+        var str = "";
+        var str2 =""
+        $( "#sldt_combo_list_all_top" ).change(function () {
+            $( "#sldt_combo_list_all_top option:selected" ).each(function() {
+               str = $( this ).val();
+               str2 = $( this ).text( ) ;
+            });
+            $('#response-container').text(str);
+            $("#cambiarNombreLista strong" ).text(str2);   
+            //window.location.href = str;
+       })
+       .change();
+       
+        
+    }); 
+    
+     
+
+    
+        function load(page){
+		$("#response-container").fadeIn('slow');
+                $.get("<?php echo $this -> basePath(); ?>/sendinblue/displayListUsers/<?php echo $this ->id; ?>", {
+				pagina: page
+			},  function(response) {
+				if (response.estatus !== 0) {
+                                       
+                                        var TotalContactos = response.data.total_list_records;
+                                        var adjacents  = 2; //brecha entre páginas después de varios adyacen
+                                        var per_page = 50;
+                                        
+                                        var tpages = Math.ceil(TotalContactos/per_page);
+                                        var output;
+                                        $("#pagina ").text(page);
+                                        //$("#inflaruners").prepend(output);
+                                        $(".progress").remove();
+                                        $.each(response.data.data, function( key, value ) {
+                                            output += "<tr class='contents-row '>";
+                                            output += "<td class='row-head profile-select' style='width: 40px;'>";
+                                                output += "<div class='checkbox checkbox-primary'>";
+                                                output += "<input type='checkbox' id='sib-" + value['id'] + "' data-index='0' name='userIDs[]' value='3901'>";
+                                                output += "<label for='sib-" + value['id'] + "'>";
+                                                output += "</label>";
+                                                output += "</div>";
+                                                output += "</td>";
+                                            output += "<td class=' row-head' title='Email' style='width:314px;'>";
+                                                output += "<div class=' properity'>";
+                                                output += "<a href='javascript:void(0);' index='0' class='openpopup'>"+ value['email'];
+                                                output += "</a>";
+                                                output += "</div>";
+                                                output += "</td>";
+                                           /*
+                                                output += "<td class='' title='NOMBRE' style='width:160px;'>";
+                                                output += "<div class=' properity'>"+ "Mónica Gabriela";
+                                                output += "</div>";
+                                                output += "</td>";
+                                                
+                                             output += "<td class='' title='SMS' style='width:69px;'>";
+                                                output += "<div class=' properity'>";
+                                                output += "</div>";
+                                                output += "</td>";
+                                                output += "<td class='' title='SURNAME' style='width:125px;'>";
+                                                output += "<div class=' properity'>"+"Prendes";
+                                                output += "</div>";
+                                                output += "</td>";
+                                            output += "<td class='' title='SURNAME2' style='width:104px;'>";
+                                                output += "<div class=' properity'>"+0;
+                                                output += "</div>";
+                                                output += "</td>";*/
+                                            output += "<td class='' title='Última modificación' style='width:181px;'>";
+                                                output += "<div class=' properity'>"+ value['last_modified'];
+                                                output += "</div>";
+                                                output += "</td>";
+                                             output += "<td class='' title='Fecha de adición' style='width:160px;'>";
+                                                output += "<div class=' properity'>"+ value['id'];
+                                                output += "</div>";
+                                                output += "</td>";
+                                            output += "</tr>";
+                                        });
+                                        
+                                        
+					$("#paginacion").html( sortpaginate( page, tpages));
+					$("#bottonpaginacion").html( fullpaginate(page, tpages, adjacents));
+                                        $("#inflaruners").html(output);
+                                        $("#total_subscribers").text(TotalContactos);
+				} else {
+                                    $("#inflaruners").html('No ha habido suerte: ' + response.data.message);
+				}
+				
+                                
+			});
+		
+	}
+        
+        function sortpaginate( page, tpages) {
+            var prevlabel = "&lsaquo;";
+            var nextlabel = " &rsaquo;";
+            var anterior ="";
+
+            anterior +=  '<ul class="pagination pagination-large">';
+            if(page===1) {
+                anterior += '<li class="disabled"><span><a>'+prevlabel+'</a></span></li>';
+            } else if(page===2) {
+                anterior += '<li><span><a href="javascript:void(0);" onclick="load(1)">'+prevlabel+'</a></span></li>';
+            }else {
+                anterior += '<li><span><a href="javascript:void(0);" onclick="load('+ (page-1) +')">'+prevlabel+'</a></span></li>';  
+            }
+
+            
+            // next
+
+            if(page<tpages) {
+                anterior += "<li><span><a href='javascript:void(0);' onclick='load("+(page+1)+")'>"+nextlabel+"</a></span></li>";
+            }else {
+                anterior += "<li class='disabled'><span><a>"+nextlabel+"</a></span></li>";
+            }
+
+            anterior += "</ul>";
+            return anterior;
+         }
+        
+        function fullpaginate( page, tpages, adjacents) {
+            var prevlabel = "&lsaquo;";
+            var nextlabel = " &rsaquo;";
+            var anterior ="";
+
+            anterior +=  '<ul class="pagination pagination-large">';
+            if(page===1) {
+                anterior += '<li class="disabled"><span><a>'+prevlabel+'</a></span></li>';
+            } else if(page===2) {
+                anterior += '<li><span><a href="javascript:void(0);" onclick="load(1)">'+prevlabel+'</a></span></li>';
+            }else {
+                anterior += '<li><span><a href="javascript:void(0);" onclick="load('+ (page-1) +')">'+prevlabel+'</a></span></li>';  
+            }
+
+            // first label
+            if(page>(adjacents+1)) {
+                anterior += "<li><a href='javascript:void(0);' onclick='load(1)'>1</a></li>";
+            }
+            // interval
+            if(page>(adjacents+2)) {
+                anterior += "<li><a>...</a></li>";
+            }
+
+            // pages
+
+            var pmin = (page>adjacents) ? (page-adjacents) : 1;
+            var pmax= (page<(tpages-adjacents)) ? (page+adjacents) : tpages;
+            for(i=pmin; i<=pmax; i++) {
+                if(i==page) {
+                        anterior += "<li class='active'><a>"+i+"</a></li>";
+                }else if(i==1) {
+                        anterior += "<li><a href='javascript:void(0);' onclick='load(1)'>"+i+"</a></li>";
+                }else {
+                        anterior += "<li><a href='javascript:void(0);' onclick='load("+i+")'>"+i+"</a></li>";
+                }
+            }
+
+            // interval
+
+            if(page<(tpages-adjacents-1)) {
+                 anterior += "<li><a>...</a></li>";
+            }
+
+            // last
+
+            if(page<(tpages-adjacents)) {
+                anterior += "<li><a href='javascript:void(0);' onclick='load("+tpages+")'>"+tpages+"</a></li>";
+            }
+
+            // next
+
+            if(page<tpages) {
+                anterior += "<li><span><a href='javascript:void(0);' onclick='load("+(page+1)+")'>"+nextlabel+"</a></span></li>";
+            }else {
+                anterior += "<li class='disabled'><span><a>"+nextlabel+"</a></span></li>";
+            }
+
+            anterior += "</ul>";
+            return anterior;
+         }
+         
+       
+            
+             
+    
+     
+   
+                
+</script>
+
+
+<div id="dashboard" class="container-fluid">
+<div id="response-container"></div>        
+<div id="pagina"></div>        
+<div id="test"></div>        
+<div id="main-content">
+    <!-- begin #header -->
+    <div class="spacer-bottom" id="header">
+        <!-- begin .row -->
+        <div class="row">
+            <!-- begin .col -->
+            <div class="col-md-4 col-sm-4 clearfix">
+                <h2 class="title-content-header">
+                    <span>Contacts</span>
+                </h2>
+            </div>
+            <!-- end .col -->
+            
+             <!-- begin .col -->
+            <div class="col-md-8 col-sm-8 clearfix">
+                
+               <div class="calltoaction-content-header">
+                        <div class="btn-group pull-right">
+                            <button type="button" data-toggle="modal" data-target="#confimation_list" class="btn btn-success dropdown-toggle" style=pk margin-right: 10px;">
+                                <i class="fa fa-plus"></i> Sincronizar <span class="caret"></span>
+                            </button>   
+                            <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown">
+                            <i class="fa fa-plus"></i> Agregar suscriptores <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu pull-right" role="menu">
+                                <li class="save-and-add" data-target1="#modal-import-files" is_blacklist="0" list_id="63">
+                                    <a href="#" data-toggle="modal" data-target="#modal-import-files"><i class="fa fa-download"></i> Importar un archivo</a>
+                                </li>
+                                <li class="save-and-add" data-target1="#modal-add-contact" list_id="63">
+                                    <a href="#" data-toggle="modal" data-target="#modal-add-contact"><i class="fa fa-plus"></i> Agregar un suscriptor</a>
+                                </li>
+                                <li class="save-and-add" data-target1="#modal-copy-paste-contacts" list_id="63">
+                                    <a href="#" data-toggle="modal" data-target="#modal-copy-paste-contacts"><i class="fa fa-share-alt"></i> Copiar/Pegar suscriptores</a>
+                                </li>
+                                <li class="save-and-add" data-target1="#modal-import-files" is_blacklist="1" list_id="0">
+                                    <a href="javascript:void(0);"><i class="fa fa-ban"></i> Importar los contactos de EMAIL que desea añadir a la lista negra</a>
+                                </li>
+                                <li class="save-and-add" data-target1="#modal-import-files" is_blacklist="2" list_id="0">
+                                    <a href="javascript:void(0);"><i class="fa fa-ban"></i> Importar los contactos SMS que desea añadir a una lista negra</a>
+                                </li>
+                            </ul>
+                        </div> 
+                </div>
+            </div>
+            <!-- end .col -->
+            
+        </div>
+        <!-- end .row -->
+    </div>
+    <!-- end #header -->    
+    
+<!-----------------------
+    PAGE HEADER
+    ----------------------->
+
+    <!-- begin #content -->
+    <div id="content" class="spacer-bottom-lg" style="max-width: 1089px; width: 1089px;">
+    <div id="message_content"></div>
+        <div class="row spacer-bottom">
+            <div class="col-md-5 col-sm-12">
+                <div class="pull-left">
+                    <select class="form-control" id="sldt_combo_list_all_top" style="width:200px;" >
+                          <?php
+                             
+                                echo "<optgroup label=".$this->ListAllFolder['data'][0]['name'].">Su Primera Carpeta</optgroup>"; 
+                                        
+                                            foreach ($this->allLists['data']['lists'] as $key => $value)  
+                                            {  
+                                                if($value["id"] == $this -> idL){
+                                                    echo "<option value=".$this -> basePath()."/sendinblue/users/".$this->id ."/".$value["id"]."  selected='selected' nombre=". $value["name"]." id=". $value["id"].">". $value["name"]."</option>";
+                                                }else{
+                                                    echo "<option  value=".$this -> basePath()."/sendinblue/users/".$this->id ."/".$value["id"]."   nombre=". $value["name"]." id=". $value["id"].">". $value["name"]."</option>";        
+                                                }
+                                            } 
+                                        ?>
+                        </optgroup>
+                    </select>
+                </div>
+                <div class="pull-left spacer-left-xs">
+                    <h5 class="listSelectBox_title pull-left"><i class="fa fa-lg fa-user"></i> <span id="total_subscribers"></span></h5>
+                </div>
+                
+            </div>
+
+                        <div class="col-md-7 col-sm-12 contacts-search-box">
+				<div class="pull-right spacer-left-xs spacer-bottom-xxs">
+                    <button class="btn btn-primary pull-right" id="advance_search" type="button" data-target="#searchWrapper" data-toggle="collapse"><i class="fa fa-filter"></i> <span id="advanced_segmentation_btn_label" title-state1="Segmentación avanzada" title-state2="Cerrar el motor de búsqueda">Segmentación avanzada</span></button>
+                </div>
+                <div class="input-group pull-right col-lg-6">
+                  <input id="user_table_search_simple_text" type="text" class="form-control" placeholder="Ejemplo: ejemplo@ejemplo.com">
+                    <span class="input-group-btn">
+                        <button id="user_table_search_simple_btn" class="btn btn-default" type="button">Buscar</button>
+                    </span>
+                </div>
+                <!--<button class="btn btn-default" type="button" id="configureAttributes"><i class="fa fa-wrench"></i></button>-->
+            </div>
+                <div id="searchCloseLoader" class="pull-right"></div>
+                    <div class="clearfix"></div>
+        <!-- Original : Action button area -->
+
+
+            <!-- .row -->
+        </div>
+        <!-- .container -->
+        <div>
+            <div class="row" id="search-contacts">
+                <div class="col-md-12">
+                    <!--OR BLOCK STARTS-->
+<div class="well well-sm blk-or-main hide">
+    <div class="txt-blk-or">
+        <span class="txt-or elem-hidden elem-or bold">O </span><button type="button" class="close close-blk-or" aria-hidden="true">×</button>
+    </div>
+    <div class="blk-or">
+        <div class="condition_content row blk-and">
+            <div class="col-md-1 col-sm-1"><b class="txt-and elem-hidden">Y</b></div>
+            <div class="col-md-10 col-sm-10">
+                <div class="form-inline">
+                    <div class="form-group pull-left" style="width:212px;">
+                        <select name="attributes[]" class="form-control attributes" style="width:212px; float:left;"><option value="email_tag_text">EMAIL</option><option value="NOMBRE_text">NOMBRE</option><option value="SMS_text">SMS</option><option value="SURNAME_text">SURNAME</option><option value="SURNAME2_float">SURNAME2</option><option value="added_date" class="date">Fecha de alta</option>                       <option value="list_int" class="include_exclude">Lista</option>                        <option value="category_text" class="include_exclude">Etiqueta</option><optgroup class="email-search-options" label="Campaña Email"><option value="msent_date" class="date">Enviadas</option>                    <option value="mdelivered_date" class="date">Entregados</option>                    <option value="readers_date" class="date">Lectores</option>                    <option value="clickers_date" class="date">Clickers</option>                    <option value="non_readers_date" class="date">No lectores</option>                    <option value="non_clickers_date" class="date">EMAIL no clickers</option>                    <option value="bounced_date" class="date">Bounces</option>                    <option value="blacklisted_date" class="blacklisted_input">En la Lista Negra</option></optgroup></select>
+                    </div>
+                    <div id="search_block" class="form-group pull-left search-block2"><div id="email_search_div" class="form-inline elem-hide" style="display: block;">
+
+        <div class="form-group">
+            <select name="conditions[]" class="conditions form-control">
+                <option value="like">similar a</option>
+                <option value="not">diferente a</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <input type="text" name="search[]" class="search_text form-control">
+
+        </div>
+        <input type="hidden" name="querys[]" class="query">
+
+    </div></div>
+                </div>
+            </div>
+            <div class="btn-group col-md-1 col-sm-1" style="padding-right:0; padding-top:6px;">
+                <button type="button" class="add_and_search pull-left"><i class="fa fa-plus-circle fa-lg"></i></button>
+                <button type="button" class="closeQuery hide pull-left"><i class="fa fa-minus-circle fa-lg"></i></button>
+            </div>
+        </div>
+    </div>
+</div>
+<!--OR BLOCK ENDS-->
+<!-- Modal box to save new filter -->
+<div class="modal fade" id="saveNewFilter">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h4 class="modal-title">Guardar como nuevo filtro</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="">Nombre del filtro</label>
+                    <input type="text" value="" class="pull-left emailtext form-control segment_name" name="segment_name" id="segment_name">
+                    <span id="segmentLoader" class="segmentLoader"></span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" id="segmentSave" onclick="menulink('segment');return false;">Agregar</button>
+                <a class="btn btn-default" data-dismiss="modal">Cancelar</a>
+            </div>
+        </div>
+    </div>
+
+</div>
+<!-- Modal box to save new filter ends-->
+
+<div class="hide pane-pane-default" id="searchWrapper">
+    <div class="clearfix">
+
+        
+            <button type="button" class="close" aria-hidden="true" data-target="#searchWrapper" data-toggle="collapse" id="show-search">×</button>
+            <h4 class="pull-left"><i class="fa fa-search"></i> Buscar Contactos&nbsp;</h4>
+
+            <button type="button" class="btn btn-primary btn-xs hide" data-target="#loadFilter" data-toggle="modal"><i class="fa fa-upload"></i> Cargar un filtro</button>
+
+            </div>
+
+    <form name="search_form" id="search_form" method="post" class="spacer-top">
+
+        <input type="hidden" name="language" id="languageid" value="es">
+        <input type="hidden" name="segments_query_txt" id="segments_query_txt"><!--User Friendly Search Query-->
+
+        <div id="search_blocks_all"><div class="well well-sm blk-or-main" style="display: block;">
+    <div class="txt-blk-or">
+        <span class="txt-or elem-hidden elem-or bold" style="visibility: visible;">Condiciónes</span><button type="button" class="close close-blk-or" aria-hidden="true">×</button>
+    </div>
+    <div class="blk-or">
+        <div class="condition_content row blk-and">
+            <div class="col-md-1 col-sm-1"><b class="txt-and elem-hidden">Y</b></div>
+            <div class="col-md-10 col-sm-10">
+                <div class="form-inline">
+                    <div class="form-group pull-left" style="width:212px;">
+                        <select name="attributes[0][]" class="form-control attributes" style="width:212px; float:left;"><option value="email_tag_text">EMAIL</option><option value="NOMBRE_text">NOMBRE</option><option value="SMS_text">SMS</option><option value="SURNAME_text">SURNAME</option><option value="SURNAME2_float">SURNAME2</option><option value="added_date" class="date">Fecha de alta</option>                       <option value="list_int" class="include_exclude">Lista</option>                        <option value="category_text" class="include_exclude">Etiqueta</option><optgroup class="email-search-options" label="Campaña Email"><option value="msent_date" class="date">Enviadas</option>                    <option value="mdelivered_date" class="date">Entregados</option>                    <option value="readers_date" class="date">Lectores</option>                    <option value="clickers_date" class="date">Clickers</option>                    <option value="non_readers_date" class="date">No lectores</option>                    <option value="non_clickers_date" class="date">EMAIL no clickers</option>                    <option value="bounced_date" class="date">Bounces</option>                    <option value="blacklisted_date" class="blacklisted_input">En la Lista Negra</option></optgroup></select>
+                    </div>
+                    <div id="search_block" class="form-group pull-left search-block2"><div class="attribute_div elem-hide readers_date" id="readers_search_div" style="display: block;">
+
+        <div class="form-group pull-left nomarginL_tabL nomarginL_DT"><select name="" class="camp-options-sel form-control" onchange="showCampaignOptions(this)"><option value="all">Todas las campañas</option><option value="camp">Seleccione una campaña</option><option value="group">Seleccione una etiqueta de campaña</option></select></div> <div class="camp-options-div form-group pull-left"><input type="hidden" name="campaigns[]" value=""></div> <div class="form-group pull-left" id="readers_select_div">
+            <select name="conditions[0][]" class="conditions form-control" id="sldt_combo_readers" style="margin-right:5px;">
+                <option value="whenever">cualquier momento</option>
+                <option value="dateRange">Entre 2 días</option>
+                <option value="daysRange">Entre</option>
+                <!--            <option value="daysRangeFuture">Entre otras fechas futuras</option>-->
+            </select>
+        </div>
+        <div class="clearfix visible-md visible-sm visible-xs" style="display: block;"></div>
+        <div class="form-group pull-left nomarginL_tabL nomarginL_DT calender_hide hide" style="margin-left: 5px; display: none;">
+            <div class="calender_inputrow first-cal">
+                <div class="cal_input hide" style="display: none;">
+                    <input type="text" class="datepicker form-control hasDatepicker" id="dp1477079113249" readonly="readonly"><img class="ui-datepicker-trigger" src="https://my.sendinblue.com/public/theme/version4/assets/images/calender_icon.png" alt="..." title="...">
+                          <span class="for_date elem-hide">
+                          <input type="text" class="fromDate date_field form-control"><small id="date_field1"> días antes de hoy Y</small>
+                          </span>
+                </div>
+
+            </div>
+            <div class="calender_inputrow">
+                <div class="cal_input hide" style="display: none;">
+                    <input type="text" class="datepicker form-control hasDatepicker" id="dp1477079113250" readonly="readonly"><img class="ui-datepicker-trigger" src="https://my.sendinblue.com/public/theme/version4/assets/images/calender_icon.png" alt="..." title="...">
+                          <span class="for_date elem-hide" style="margin-right:3px;">
+                          <input type="text" class="toDate date_field form-control" value="0"> <small id="date_field2">días antes de hoy</small>
+                          </span>
+                </div>
+            </div>
+        </div>
+        <input type="hidden" name="search[0][]" class="search_text" value="yes_yes_">
+        <input type="hidden" name="querys[0][]" class="query">
+
+
+    </div></div>
+                </div>
+            </div>
+            <div class="btn-group col-md-1 col-sm-1" style="padding-right:0; padding-top:6px;">
+                <button type="button" class="add_and_search pull-left"><i class="fa fa-plus-circle fa-lg"></i></button>
+                <button type="button" class="closeQuery hide pull-left"><i class="fa fa-minus-circle fa-lg"></i></button>
+            </div>
+        </div>
+    </div>
+</div></div>
+
+        <input type="hidden" value="false" name="searchActivated" id="searchActivated">
+        <input type="hidden" name="searchFlag" value="false" id="searchFlag">
+        <input type="hidden" name="sortby" value="false" id="sortby">
+
+                    <input type="hidden" name="type" value="user">
+        
+        
+    </form>
+        <div class="row">
+        <div class="col-md-6 col-xs-12 col-sm-6 pull-left sc-mobile-btn2">
+            <button type="submit" class="btn btn-primary pull-left" id="add_or_block"><i class="fa fa-plus"></i> Añadir una condición <b>O</b></button>
+        </div>
+
+        <div class="col-md-6 col-xs-12 col-sm-6 pull-right">
+            
+                <div class="text-right">
+                    <span id="searchLoader"></span>
+                    <span id="total_users" class="result-count">3.816</span>
+                    <div class="btn-group" id="search-form-buttons">
+                        <button type="submit" class="btn btn-success" id="search"><i class="fa fa-search"></i> Buscar</button>
+                    </div>
+                    <button type="submit" class="btn btn-primary" data-target="#saveNewFilter" data-toggle="modal"><i class="fa fa-download"></i> Guardar</button>
+                    
+
+                </div>
+                    </div>
+    </div>
+
+    <div class="clearfix"></div>
+
+</div>
+<!-- / Search contacts -->
+
+
+<!--List Model-->
+<div class="modal fade" id="listModel">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h4 class="modal-title">Crear una nueva lista con los resultados de la búsqueda</h4>
+            </div>
+            <div class="modal-body">
+                <div>
+                    <form name="addListForm" id="addListForm" method="post">
+                        <input type="hidden" name="key" value="NQGOIrgFEVKYxp51">
+                        <input type="hidden" name="webaction" value="ADDLIST">
+                        <!--Parent List Folder List-->
+                        <div class="form-group">
+                            <label>Carpeta: </label>
+                            <select name="listParent" id="listParent" class="form-control"><option value="15">Su Primera Carpeta</option><option value="18">InflaRun CDMX 2016</option></select>
+                        </div>
+                        <div class="clear2"> </div>
+                        <div class="form-group">
+                            <label>Nombre de la lista: </label>
+                            <input type="text" value="" class="list_name form-control" name="listname" id="listname">
+                        </div>
+                        <div class="well" id="sample-div-wrapper">
+                            <div>
+                                <a class="customToggleDiv" href="#" rel="listAdvanceDiv">Opciones avanzadas</a>
+                            </div>
+                            <div id="listAdvanceDiv" class="hide">
+                                <div class="row" id="dynmaic_lists_id">
+                                    <div class="col-md-12">
+                                        <label class="pull-left">
+                                            <input type="checkbox" name="dynamic_lists" id="dynamic_lists" class="fieldcheckbox1 pull-left"> <div class="pull-left spacer-left-xxs">Lista dinámica</div></label>
+                                        <!---Tooltip--><a class="text-muted" href="javascript:void(0);"><i data-html="true" data-content="Aquí puede crear una lista dinámica basada en la búsqueda" data-placement="right" data-toggle="popover" data-container="body" class="fa fa-question-circle spacer-left-xxs" data-original-title="" title=""></i></a>
+
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <label class="col-sm-4 control-label">Muestra aleatoria: </label>
+                                    <div class="col-sm-3">
+                                        <input type="checkbox" name="sample_type" id="sample_type">
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <label class="col-sm-4 control-label">Limite de muestra: </label>
+                                    <div class="col-sm-3">
+                                        <input type="text" value="" class="input-small numberOnly form-control" name="sample_limit" id="sample_limit"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="addLoaderDiv" class="addLoaderDiv listSaveLoader"></div>
+
+                        <!--Parent List Folder List end-->
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a class="btn btn-primary" id="listSave" onclick="dynamicListSave(this);return false;">Agregar</a>
+                <a class="btn btn-default" data-dismiss="modal">Cerrar</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--List Model ends-->
+
+
+<!--Load search modal box starts-->
+<div class="modal fade" id="loadFilter">
+
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h4 class="modal-title">Cargar un filtro</h4>
+            </div>
+            <div class="modal-body">
+                <div id="filters-blk"><table class="table table-bordered table-striped table-white"><tbody><tr><td>Ningún filtro</td></tr></tbody></table></div>
+
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" data-dismiss="modal" aria-hidden="true">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!--Load search modal box ends-->
+
+<div class="modal" id="modalBoxAttributeDiv">
+    <div class="modal-dialog" style="width: 400px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h4 class="modal-title">Configuración de la tabla</h4>
+            </div>
+            <div class="modal-body">
+                <p class="subtitle-tb">Reorganice el orden de las columnas en la tabla con un simple arrastrar y soltar</p>
+                <span id="modalBoxAttributeContent"></span>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" id="save-attr-order">Guardar</button>
+                <button class="btn btn-default" data-dismiss="modal" aria-hidden="true" id="close-attr-dlg">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+                    <div class="tbl-section search-table-content" style="margin-bottom:10px;">
+                        <div class="row" style="margin:20px -15px;position: relative;">
+                            <div class="col-md-7 col-sm-12 pull-left spacer-bottom-xxs sc-mobile-btn">
+                                <div id="option-selected-contacts" class="show pull-left spacer-right-xs spacer-bottom-xxs" style="color: #777777;">
+                                    <div class="btn-group">
+                                        <div class="btn-group">
+                                            <button data-toggle="dropdown" class="btn btn-default dropdown-toggle" type="button"><i class="fa fa-plus"></i> Acción <span class="caret"></span></button>
+                                            <ul role="menu" class="dropdown-menu" aria-labelledby="dropdownMenu">
+                                                                                                <li class="dropdown-submenu">
+                                                    <a href="#" tabindex="-1" data-toggle="dropdown">Mover en la lista</a>
+                                                    <ul class="dropdown-menu">
+                                                        <li><a href="javascript:void(0)" class="contact_action" id="move_to_exist_list" onclick="menulink(this)">Lista existente</a></li>
+                                                        <li><a href="javascript:void(0)" class="contact_action" id="move_to_new_list" onclick="menulink(this)">Nueva lista</a></li>
+                                                    </ul>
+                                                </li>
+                                                                                                <li class="dropdown-submenu">
+                                                    <a href="#" tabindex="-1" data-toggle="dropdown">Copiar en la lista</a>
+                                                    <ul class="dropdown-menu">
+                                                        <li><a href="javascript:void(0)" class="contact_action" id="copy_to_list" onclick="menulink(this)">Lista existente</a></li>
+                                                        <li><a href="javascript:void(0)" class="contact_action" id="createList" onclick="menulink(this)">Nueva lista</a></li>
+                                                    </ul>
+                                                </li>
+                                                                                                <li class="dropdown-submenu">
+                                                    <a href="#" tabindex="-1" data-toggle="dropdown">Eliminar los duplicados</a>
+                                                    <ul class="dropdown-menu">
+                                                        <li><a href="javascript:void(0)" class="contact_action" id="DELUSERTHIS" onclick="menulink(this)">Eliminar los duplicados de esta lista</a></li>
+                                                        <li><a href="javascript:void(0)" class="contact_action" id="DELUSEROTHER" onclick="menulink(this)">Eliminar los duplicados de otras listas</a></li>
+                                                    </ul>
+                                                </li>
+                                                <li class="dropdown-submenu">
+                                                    <a href="#" tabindex="-1" data-toggle="dropdown">Borrar</a>
+                                                    <ul class="dropdown-menu">
+                                                        <li><a href="javascript:void(0)" class="contact_action" id="deleteAll" onclick="menulink(this)">De esta lista</a></li>
+                                                        <li><a href="javascript:void(0)" class="contact_action" id="deleteAll_alllist" onclick="menulink(this)">De todas las listas</a></li>
+														<li><a href="javascript:void(0)" class="contact_action" id="deleteAll_parmanent" onclick="menulink(this)">Eliminar definitivamente</a></li>
+													</ul>
+                                                </li>
+                                                                                                <li><a href="javascript:void(0)" class="contact_action" id="unsubscribeAll" onclick="menulink(this)">Añadir a la lista negra</a></li>
+												                                            
+											</ul>
+                                        </div>
+                                        <div class="btn-group">
+                                            <button data-toggle="dropdown" class="btn btn-default dropdown-toggle" type="button"><i class="fa fa-share"></i>  Exportar <span class="caret"></span></button>
+                                            <ul role="menu" class="dropdown-menu">
+                                                <li><a href="javascript:void(0)" class="contact_action" id="export" onclick="menulink(this)">Sólo una vez</a></li>
+                                                <li><a href="javascript:void(0)" class="contact_action" id="exportDaily" onclick="menulink(this)">Diario</a></li>
+                                            </ul>
+                                        </div>
+                                        <span id="manageRecurringExport_New" class="btn-group"></span>
+                                    </div>
+                                    
+                                </div>
+                                
+                                <div class="pull-left">
+                                    <div class="btn-group">
+                                        <button type="button" class="btn btn-default" data-target="#loadFilter" data-toggle="modal" onclick="return onClinkLoadFilter();"><i class="fa fa-upload"></i>&nbsp;Mis filtros</button>
+                                        <button type="button" id="configureAttributes" class="btn btn-default"><i class="fa fa-wrench"></i>&nbsp;Columnas</button>
+                                    </div>
+                                </div>
+                                <!-- Actions on selection -->
+                                <span id="contact_table_selected_count_area" class="hide spacer-top-xs pull-left text-muted">&nbsp;&nbsp;Seleccionado: <span id="contact_table_selected_count">0</span></span>
+                            </div>
+
+                            <div  class="col-md-5 col-sm-12 text-right pull-right user_table_nav_area contact_table_control_top">
+                                Mostrar las filas:
+                                <select class="contact_table_showing_rows" style="height: 34px;border:1px solid #ccc; width: 50px;vertical-align: 0%;">
+                                    <option value="10">10</option>
+                                    <option value="25">25</option>
+                                    <option value="50" selected="">50</option>
+                                    <option value="100">100</option>
+                                    <option value="200">200</option>
+                                </select>
+                                <span class="contact_table_showing_first">1</span>-<span class="contact_table_showing_last">50</span> de <span class="contact_table_showing_total">3.816</span>
+                                <div class="btn-group" id="paginacion" role="button" style="margin-top: -2px;">
+                                    <button type="button" class="btn btn-default user_table_nav_next"><i class="fa fa-angle-right fa-lg"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="clearfix"></div>
+                        <form id="process_form" method="post">
+                            <div id="sib_contact_table" class="fixedTableWrapper sib-datatable">
+                                <div class="sibdatatable-body-top-scroll sibdatatable-body-scroll sibdatatable-inner" style="display: block; margin-left: 355px; width: 674px;">
+                                    <div class="scroll-content" style="width: 790px;"></div>
+                                        
+                                </div>
+                                <div class="sibdatatable-body sibdatatable-inner" style="margin-top: 0px;">
+                                    <div class="sibdatatable-spin" style="display: none;">
+                                        <i class="fa fa-circle-o-notch fa-spin fa-2x text-muted"></i>
+                                    </div>
+                                    <table class="table-contents" style="display: block; margin-left: 353px;">
+                                        <tbody >
+                                            <tr>
+                                                <td class="col-head row-head row-select" role="columnheader" style="width: 40px; height: 50px; padding-top: 4px;">
+                                                    <div class="checkbox checkbox-primary">
+                                                        <input type="checkbox" id="sib_check_all">
+                                                        <label for="sib_check_all"></label>
+                                                    </div>
+                                                </td>
+                                                <td class="col-head row-head sortable " style="width: 314px; height: 50px; padding-top: 4px;" role="columnheader" data-sort-val="email">Email&nbsp;&nbsp;<i class="fa fa-unsorted" style="color: #a0a0a0;"></i></td>
+                                                <!-- 
+                                                <td class="col-head sortable " style="width: 160px; height: 50px; padding-top: 4px;" role="columnheader" data-sort-val="attributes.NOMBRE">NOMBRE&nbsp;&nbsp;<i class="fa fa-unsorted" style="color: #a0a0a0;"></i></td>
+                                                <td class="col-head sortable " style="width: 69px; height: 50px; padding-top: 4px;" role="columnheader" data-sort-val="attributes.SMS">SMS&nbsp;&nbsp;<i class="fa fa-unsorted" style="color: #a0a0a0;"></i></td>
+                                                <td class="col-head sortable " style="width: 125px; height: 50px; padding-top: 4px;" role="columnheader" data-sort-val="attributes.SURNAME">SURNAME&nbsp;&nbsp;<i class="fa fa-unsorted" style="color: #a0a0a0;"></i></td>
+                                                <td class="col-head sortable " style="width: 104px; height: 50px; padding-top: 4px;" role="columnheader" data-sort-val="attributes.SURNAME2">SURNAME2&nbsp;&nbsp;<i class="fa fa-unsorted" style="color: #a0a0a0;"></i></td>-->
+                                                <td class="col-head sortable " style="width: 181px; height: 50px; padding-top: 4px;" role="columnheader" data-sort-val="user_history.date">Última modificación&nbsp;&nbsp;<i class="fa fa-unsorted" style="color: #a0a0a0;"></i></td> 
+                                                <td class="col-head sortable " style="width: 160px; height: 50px; padding-top: 4px;" role="columnheader" data-sort-val="entered">ID&nbsp;&nbsp;<i class="fa fa-unsorted" style="color: #a0a0a0;"></i></td></tr>
+                                            
+                                            
+                                        </tbody>
+                                        <tbody id="inflaruners">
+                                            
+                                            
+                                            
+                                            </tbody>
+                                    </table>
+                                        
+                                </div>
+                                <div class="sibdatatable-body-no-data-message text-center" style="display: none;">No existe ningún contacto que coincida con sus criterios</div></div>
+                        </form>
+                        <div class="clearfix"></div>
+                        <div class="row spacer-top-md">
+                            <!--<div id="contact_table_showing_area" class="col-md-6 pull-left hide" style="color: #a0a0a0;">
+                                <span id="contact_table_showing_first"></span>-<span id="contact_table_showing_last"></span> <span id="contact_table_showing_total"></span>
+                                </div>-->
+                            <div class="col-md-12 text-right user_table_nav_area">
+                                <div class="col-md-6 pull-left col-sm-6 sc-mobile-btn" style="padding-left:0;">
+                                    <div class="pull-left"> 
+                                        Ir a: <input type="text" class="contact_table_page_number" title="Número de página" style="width: 50px; height: 34px;border: 1px solid #ccc; padding-left: 3px;"> de <span class="contact_table_showing_total_page">77</span> <button type="button" class="btn btn-default contact_table_go_btn" style="vertical-align: 0%;margin-left: 2px;">Ir</button> 
+                                    </div>
+                                </div>
+                                <div class="col-md-6 pull-right col-sm-6" style="padding-right:0;">
+                                    Mostrar las filas:
+                                    <select class="contact_table_showing_rows" style="height: 34px;border:1px solid #ccc;width: 50px;vertical-align: 0%; margin-right:5px;">
+                                        <option value="10">10</option>
+                                        <option value="25">25</option>
+                                        <option value="50" selected="">50</option>
+                                        <option value="100">100</option>
+                                        <option value="200">200</option>
+                                    </select>
+                                    <span class="contact_table_showing_first">1</span>-<span class="contact_table_showing_last">50</span> de <span class="contact_table_showing_total">3.816</span>
+                                    <div class="btn-group" id="bottonpaginacion" role="button" style="margin-top: -2px; margin-right:5px;">
+                                     </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="pagingLoader" class="text-center"></div>
+                    <p class="text-center text-muted hide" id="no-user-found">
+                        <i>Ningún resultado</i><!-- No result text -->
+                    </p>
+                </div>
+            </div>
+            <!-- end .col -->
+        </div>
+        <!-- end .row -->
+    </div>
+    <!-- end #content -->
+    <div class="clearfix"></div>
+
+</div>
+
+</div> 
+
+         <!-- <confimation_modal> -->
+<div class="modal fade modal-primary in" id="confimation_list"  aria-hidden="false">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>          
+                    <h4 id="myModalLabelList" class="modal-title">Eliminar la Lista</h4>          
+                </div>          
+                <div class="modal-body" id="cambiarNombreLista"><p>¿Está seguro de que desea eliminar la lista <strong></strong> y todos sus contactos incluidas?</p>          
+                </div>          
+                <div class="modal-footer" identificador="" id="confElimLista"  >          
+                    <a href="#" class="btn deleteall btn-primary" >Eliminar lista y todos sus contactos</a>          
+                    <a href="#" class="btn btn-default" data-dismiss="modal">Cancelar</a>            
+                    <span id="lightbox_loader"></span>          
+                </div>        
+            </div>        
+        </div>        
+    </div>
+ <!-- </confimation_modal> -->
+        
+        
+        
+
+   
