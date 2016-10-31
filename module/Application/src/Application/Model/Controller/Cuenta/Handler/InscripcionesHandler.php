@@ -7,6 +7,7 @@ use Application\Model\Controller\Cuenta\Pagos\PagoTarjeta;
 use Application\Model\Controller\Cuenta\Handler\DiaHitHandler;
 use Application\Model\Controller\Cuenta\Handler\FechasHandler;
 use Application\Model\Correos\CorreoInscripcion;
+use Application\Model\Correos\CorreoEquipo;
 use Sendinblue\Model\Correo\User;
 
 /**
@@ -468,6 +469,21 @@ class InscripcionesHandler {
 	 * @param int $idEquipo El ID del equipo.
 	 */
 	private static function enviarCorreoEquipos($idUsuario, $idEquipo) {
+		$sql = "SELECT CONCAT(u.nombre, ' ', u.aPaterno, ' ', u.aMaterno) AS usuario, c.correo,"
+			. " e.codigoCanje, e.nombre AS nombreEquipo, CONCAT(ev.nombre, ' - ', det.nombre) AS nombreCarrera"
+			. " FROM Usuario u, Correo c, UsuarioEquipo ue, Equipo e, DiaHit dh, DiaEvento de, DetallesEvento det, Evento ev"
+			. " WHERE u.idCorreo = c.idCorreo AND u.idUsuario = ue.idUsuario AND ue.idEquipo = e.idEquipo AND"
+			. " e.idDiaHit = dh.idDiaHit AND dh.idDiaEvento = de.idDiaEvento AND de.idDetallesEvento = det.idDetallesEvento AND"
+			. " det.idEvento = ev.idEvento"
+			. " AND u.idUsuario = ? AND e.idEquipo = ?";
+		$dao = new ConexionDao();
 		
+		$result = $dao -> consultaGenerica($sql, array($idUsuario, $idEquipo))[0];
+		$correo = new CorreoEquipo(array(
+			"nombreCarrera" => $result["nombreCarrera"],
+			"codigoCanje" => $result["codigoCanje"],
+			"nombreEquipo" => $result["nombreEquipo"]
+		));
+		$correo -> enviarSendinblue($result["correo"], $result["usuario"]);
 	}
 }
