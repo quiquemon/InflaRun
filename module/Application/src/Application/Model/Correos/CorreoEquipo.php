@@ -50,6 +50,7 @@ class CorreoEquipo extends Correos {
         
         
 	private function generarHtmlBody2() {
+		$anyoActual = explode("-", date("Y-m-d"))[0];
 		$nombreCarrera = $this -> params["nombreCarrera"];
 		$codigoCanje = $this -> params["codigoCanje"];
 		$nombreEquipo = $this -> params["nombreEquipo"];
@@ -160,8 +161,8 @@ class CorreoEquipo extends Correos {
 																<tr>
 																	<td align='center' valign='top' class='textContent'>
 																		<h1 style='color:#FFFFFF;line-height:100%;font-family:Helvetica,Arial,sans-serif;font-size:35px;font-weight:normal;margin-bottom:5px;text-align:center;'>¡Ya eres parte de la carrera $nombreCarrera!</h1>
-																		<h2 style='text-align:center;font-weight:normal;font-family:Helvetica,Arial,sans-serif;font-size:23px;margin-bottom:10px;color:#205478;line-height:135%;'>Inscribe a tu equipo</h2>
-																		<div style='text-align:center;font-family:Helvetica,Arial,sans-serif;font-size:15px;margin-bottom:0;color:#FFFFFF;line-height:135%;'>Ahora debes inscribir a los demás integrantes de tu equipo. Es muy fácil, solo debes de seguir los siguientes pasos:</div>
+																		<h2 style='text-align:center;font-weight:normal;font-family:Helvetica,Arial,sans-serif;font-size:23px;margin-bottom:10px;color:#205478;line-height:135%;'>Inscribe a tu equipo: $nombreEquipo</h2>
+																		<div style='text-align:center;font-family:Helvetica,Arial,sans-serif;font-size:15px;margin-bottom:0;color:#FFFFFF;line-height:135%;'>Ahora debes inscribir a los demás integrantes de tu equipo. Es muy fácil, solo debes seguir los siguientes pasos:</div>
 																	</td>
 																</tr>
 															</table>
@@ -252,7 +253,7 @@ class CorreoEquipo extends Correos {
 															<table border='0' cellpadding='0' cellspacing='0' width='50%' class='emailButton' style='background-color: #3498DB;'>
 																<tr>
 																	<td align='center' valign='middle' class='buttonContent' style='padding-top:15px;padding-bottom:15px;padding-right:15px;padding-left:15px;'>
-																		<a style='color:#FFFFFF;text-decoration:none;font-family:Helvetica,Arial,sans-serif;font-size:20px;line-height:135%;' href='#' target='_blank'>Tu Equipo: $nombreEquipo</a>
+																		<a style='color:#FFFFFF;text-decoration:none;font-family:Helvetica,Arial,sans-serif;font-size:20px;line-height:135%;' href='$link' target='_blank'>Inscribe a tu Equipo</a>
 																	</td>
 																</tr>
 															</table>
@@ -306,7 +307,7 @@ class CorreoEquipo extends Correos {
 																	<td valign='top' bgcolor='#E1E1E1'>
 
 																		<div style='font-family:Helvetica,Arial,sans-serif;font-size:13px;color:#828282;text-align:center;line-height:120%;'>
-																			<div>InflRun <!-- &#169; -->2016 <!-- <a href='http://www.charlesmudy.com/respmail/' target='_blank' style='text-decoration:none;color:#828282;'><span style='color:#828282;'>Respmail</span></a>. All&nbsp;rights&nbsp;reserved.</div>
+																			<div>InflaRun <!-- &#169; --> $anyoActual <!-- <a href='http://www.charlesmudy.com/respmail/' target='_blank' style='text-decoration:none;color:#828282;'><span style='color:#828282;'>Respmail</span></a>. All&nbsp;rights&nbsp;reserved.</div>
 																			<div>If you do not want to recieve emails from us, you can <a href='#' target='_blank' style='text-decoration:none;color:#828282;'><span style='color:#828282;'>unsubscribe</span></a>.--></div>
 																		</div>
 
