@@ -54,8 +54,8 @@ class CorreoEquipo extends Correos {
 		$nombreCarrera = $this -> params["nombreCarrera"];
 		$codigoCanje = $this -> params["codigoCanje"];
 		$nombreEquipo = $this -> params["nombreEquipo"];
-		# TODO: Cuando se suba al servidor, cambiar localhost por https://inflarun.mx/InflaRun....
-		$link = "localhost/InflaRun/public/application/cuenta/inscripcionesequipos?codigoCanje=$codigoCanje";
+		# TODO: Cuando se suba al servidor, cambiar <localhost> por <https://inflarun.mx>
+		$link = "https://inflarun.mx/InflaRun/public/application/cuenta/inscripcionesequipos?codigoCanje=$codigoCanje";
 		$html = "
                     
 
@@ -253,7 +253,7 @@ class CorreoEquipo extends Correos {
 															<table border='0' cellpadding='0' cellspacing='0' width='50%' class='emailButton' style='background-color: #3498DB;'>
 																<tr>
 																	<td align='center' valign='middle' class='buttonContent' style='padding-top:15px;padding-bottom:15px;padding-right:15px;padding-left:15px;'>
-																		<a style='color:#FFFFFF;text-decoration:none;font-family:Helvetica,Arial,sans-serif;font-size:20px;line-height:135%;' href='$link' target='_blank'>Inscribe a tu Equipo</a>
+																		<a style='color:#FFFFFF;text-decoration:none;font-family:Helvetica,Arial,sans-serif;font-size:20px;line-height:135%;' href='$link' target='_blank'>Inscribe a tu equipo</a>
 																	</td>
 																</tr>
 															</table>

@@ -3,7 +3,7 @@
 	
 	try {
 		$dao = new \Application\Model\Dao\EquipoDao();
-		$eventos = $dao -> consultaGenerica("SELECT * FROM DetallesEvento");
+		$eventos = $dao -> consultaGenerica("SELECT * FROM DetallesEvento WHERE realizado = 0");
 	} catch (Exception $ex) {
 		$eventos = array();
 	}

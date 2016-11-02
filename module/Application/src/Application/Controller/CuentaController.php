@@ -235,6 +235,11 @@ class CuentaController extends AbstractActionController {
 		return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/adminmain");
 	}
 	
+	/********************************************************************************************
+	 *  MODIFICAR LOS SIGUIENTES ACTIONS PARA QUE FUNCIONEN CON LOS NUEVOS CAMBIOS DE LA
+	 * APLICACIÓN.
+	 ********************************************************************************************/
+	
 	public function adminusuariosAction(){
 		if (!(new Container("admin")) -> offsetExists("admin"))
 			return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/adminlogin");

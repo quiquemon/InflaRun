@@ -2,7 +2,7 @@
 namespace Application\Model\Controller\Cuenta\Handler;
 
 use Application\Model\Correos\CorreoInscripcion;
-use Application\Model\Dao\EquipoDao;
+use Application\Model\Dao\ConexionDao;
 
 /**
  * Clase que maneja las operaciones que el administrador lleva a cabo.
@@ -35,7 +35,7 @@ class AdminHandler {
 	 * @throws Exception
 	 */
 	private static function obtenerInfoPersonal($correo){
-		$dao = new EquipoDao();
+		$dao = new ConexionDao();
 		
 		$usuario = $dao -> consultaGenerica("SELECT * FROM Usuario WHERE correo like ?", array("%$correo%"));
 		if (empty($usuario)) {
@@ -82,7 +82,8 @@ class AdminHandler {
 	 * @throws Exception
 	 */
 	private static function obtenerInfo($correo, $idDetallesEvento) {
-		$dao = new EquipoDao();
+		$dao = new ConexionDao();
+		$sql = "SELECT u.*, c.correo FROM Usuario u";
 		
 		$usuario = $dao -> consultaGenerica("SELECT * FROM Usuario WHERE correo like ?", array("%$correo%"));
 		if (empty($usuario)) {
