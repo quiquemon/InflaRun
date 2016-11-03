@@ -81,13 +81,13 @@ class PagoPayPal {
 				"funding_instruments" => array(
 					array(
 						"credit_card" => array(
-							"number" => "5288439112162377",#$datos["tarjeta"]
-							"type" => "mastercard",#$datos["tipoTarjeta"]
-							"expire_month" => 01,#$datos["mes"]
-							"expire_year" => 2018,#$datos["anyo"]
-							"cvv2" => 113,#$datos["cvv"]
-							"first_name" => "Yeudiel",#datos["nombre"]
-							"last_name" => "Cunjama"#$datos["paterno"]
+							"number" => $datos["tarjeta"],
+							"type" => $datos["tipoTarjeta"],
+							"expire_month" => $datos["mes"],
+							"expire_year" => $datos["anyo"],
+							"cvv2" => $datos["cvv"],
+							"first_name" => datos["nombre"],
+							"last_name" => $datos["paterno"],
 						)
 					)
 				)
@@ -96,7 +96,7 @@ class PagoPayPal {
 				array(
 					"amount" => array(
 						"total" => "0.05",#$datos["precio"]
-						"currency" => "MXN"
+						"currency" => "USD"
 					),
 					"description" => "inflarun_inscripcion_tarjeta"
 				)
