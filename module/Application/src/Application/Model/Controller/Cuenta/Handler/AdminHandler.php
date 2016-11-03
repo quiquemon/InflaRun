@@ -83,6 +83,7 @@ class AdminHandler {
 	 */
 	private static function obtenerInfo($correo, $idDetallesEvento) {
 		$dao = new ConexionDao();
+		#TODO: Cambiar consulta para que regrese varias páginas
 		$sql = "SELECT u.*, c.correo FROM Usuario u";
 		
 		$usuario = $dao -> consultaGenerica("SELECT * FROM Usuario WHERE correo like ?", array("%$correo%"));

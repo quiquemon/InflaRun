@@ -77,8 +77,11 @@ class InscripcionesHandler {
 			if ($metodoPago["metodo"] === "tarjeta") {
 				$message = "Tu tarjeta fue rechazada por las siguientes razones:\n\n";
 				
-				foreach ($orden["WebServices_Transacciones"]["transaccion"]["error"] as $causa => $valor) {
-					$message .= "* $valor\n";
+				if (isset($orden["WebServices_Transacciones"]["transaccion"]["autorizado"])) {
+					foreach ($orden["WebServices_Transacciones"]["transaccion"]["error"] as $causa => $valor)
+						$message .= "* $valor\n";
+				} else {
+					$message .= "* {$orden["WebServices_Transacciones"]["transaccion"]["response"]["message"]}\n";
 				}
 				
 				return array(
@@ -397,7 +400,9 @@ class InscripcionesHandler {
 			$datosBancarios["monto"] = 0.1;
 			#$datosBancarios["monto"] = $metodoPago["precio"];
 			$resultado = (new PagoTarjeta()) -> realizarPago($datosBancarios);
-			$resultado["error"] = !$resultado["WebServices_Transacciones"]["transaccion"]["autorizado"];
+			$resultado["error"] = isset($resultado["WebServices_Transacciones"]["transaccion"]["autorizado"])
+				? !$resultado["WebServices_Transacciones"]["transaccion"]["autorizado"]
+				: ($resultado["WebServices_Transacciones"]["transaccion"]["status"] !== "success");
 			return $resultado;
 		} else {
 			$orden = PagoComproPago::generarOrden(array(

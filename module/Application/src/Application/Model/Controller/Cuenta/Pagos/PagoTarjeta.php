@@ -9,6 +9,11 @@ use Application\Model\Controller\Cuenta\Pagos\Pagos;
  * de acuerdo a la documentación de la API v.1.4.3 de PagoFácil.
  */
 class PagoTarjeta extends Pagos {
+	
+	private $endpoints = array(
+		"pruebas" => "https://www.pagofacil.net/st/public/Wsrtransaccion/index/format/json?",
+		"produccion" => "https://www.pagofacil.net/ws/public/Wsrtransaccion/index/format/json?"
+	);
 
 	public function realizarPago($params) {
 		$params["nombre"] = urlencode($params["nombre"]);
@@ -19,7 +24,7 @@ class PagoTarjeta extends Pagos {
 		$params["estado"] = urlencode($params["estado"]);
 		$params["pais"] = urlencode($params["pais"]);
 		
-		$url = "https://www.pagofacil.net/ws/public/Wsrtransaccion/index/format/json?"
+		$url = "{$this -> endpoints["pruebas"]}"
 			. "method=transaccion"
 			. "&data[nombre]={$params["nombre"]}"
 			. "&data[apellidos]={$params["apellidos"]}"
@@ -29,8 +34,8 @@ class PagoTarjeta extends Pagos {
 			. "&data[mesExpiracion]={$params["mesExpiracion"]}"
 			. "&data[anyoExpiracion]={$params["anyoExpiracion"]}"
 			. "&data[monto]={$params["monto"]}"
-			. "&data[idSucursal]={$this -> idSucursal}"
-			. "&data[idUsuario]={$this -> idUsuario}"
+			. "&data[idSucursal]={$this -> llaves["pruebas"]["sucursal"]}"
+			. "&data[idUsuario]={$this -> llaves["pruebas"]["usuario"]}"
 			. "&data[idServicio]=3"
 			. "&data[email]={$params["email"]}"
 			. "&data[telefono]={$params["telefono"]}"
