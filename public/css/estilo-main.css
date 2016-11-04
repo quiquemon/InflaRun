@@ -161,7 +161,6 @@ select {
 
 .navbar-custom {
   background-color: #7d1e94;
-  border-color: #661878;
   background-image: -webkit-gradient(linear, left 0%, left 100%, from(#a127be), to(#7d1e94));
   background-image: -webkit-linear-gradient(top, #a127be, 0%, #7d1e94, 100%);
   background-image: -moz-linear-gradient(top, #a127be 0%, #7d1e94 100%);
@@ -182,12 +181,9 @@ select {
 .navbar-custom .navbar-text {
   color: #ffffff;
 }
-.navbar-custom .navbar-nav > li:last-child > a {
-  /*border-right: 1px solid #661878;*/
-}
 .navbar-custom .navbar-nav > li > a {
   color: #ffffff;
-  border-left: 1px solid #661878;
+  /*border-left: 1px solid #661878;*/
 }
 .navbar-custom .navbar-nav > li > a:hover,
 .navbar-custom .navbar-nav > li > a:focus {
@@ -206,6 +202,29 @@ select {
   background-repeat: repeat-x;
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff661878', endColorstr='#ff8a21a3', GradientType=0);
 }
+
+/* Estilo específico para el botón de Inscripciones */
+.navbar-custom .navbar-nav > li > #li-inscripciones:hover,
+.navbar-custom .navbar-nav > li > #li-inscripciones:focus {
+  color: #777;
+  background-color: transparent;
+}
+#li-inscripciones,
+#li-inscripciones:hover,
+#li-inscripciones:focus,
+.active #li-inscripciones,
+.active #li-inscripciones:hover,
+.active #li-inscripciones:focus{
+  color: black;
+  background-color: #333;
+  background-image: -webkit-gradient(linear, left 0%, left 100%, from(#661878), to(#8a21a3));
+  background-image: -webkit-linear-gradient(top, #661878, 0%, #8a21a3, 100%);
+  background-image: -moz-linear-gradient(top, yellow 0%, yellow 100%);
+  background-image: linear-gradient(to bottom, #ECE948 0%, #ECE948 100%);
+  background-repeat: repeat-x;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff661878', endColorstr='#ff8a21a3', GradientType=0);
+}
+
 .navbar-custom .navbar-nav > .disabled > a,
 .navbar-custom .navbar-nav > .disabled > a:hover,
 .navbar-custom .navbar-nav > .disabled > a:focus {

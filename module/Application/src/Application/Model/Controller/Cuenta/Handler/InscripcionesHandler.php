@@ -397,8 +397,7 @@ class InscripcionesHandler {
 	 */
 	private static function realizarPago($metodoPago, $usuario, $datosBancarios = null) {
 		if ($metodoPago["metodo"] === "tarjeta") {
-			$datosBancarios["monto"] = 0.1;
-			#$datosBancarios["monto"] = $metodoPago["precio"];
+			$datosBancarios["monto"] = $metodoPago["precio"];
 			$resultado = (new PagoTarjeta()) -> realizarPago($datosBancarios);
 			$resultado["error"] = isset($resultado["WebServices_Transacciones"]["transaccion"]["autorizado"])
 				? !$resultado["WebServices_Transacciones"]["transaccion"]["autorizado"]

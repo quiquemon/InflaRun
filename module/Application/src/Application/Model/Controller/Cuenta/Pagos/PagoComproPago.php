@@ -32,7 +32,7 @@ class PagoComproPago {
 	 * @return Array Un arreglo asociativo con los resultados de la operación.
 	 */
 	public static function generarOrden($datos) {
-		$url = "https://" . self::$llaves["pruebas"]["publica"] . ":@api.compropago.com/v1/charges";
+		$url = "https://" . self::$llaves["produccion"]["publica"] . ":@api.compropago.com/v1/charges";
 		$options = array(
 			"http" => array(
 				"header" => "Content-type: application/x-www-form-urlencoded\r\n",
