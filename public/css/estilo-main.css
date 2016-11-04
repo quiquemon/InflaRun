@@ -183,7 +183,7 @@ select {
   color: #ffffff;
 }
 .navbar-custom .navbar-nav > li:last-child > a {
-  border-right: 1px solid #661878;
+  /*border-right: 1px solid #661878;*/
 }
 .navbar-custom .navbar-nav > li > a {
   color: #ffffff;

@@ -54,7 +54,6 @@ class CorreoEquipo extends Correos {
 		$nombreCarrera = $this -> params["nombreCarrera"];
 		$codigoCanje = $this -> params["codigoCanje"];
 		$nombreEquipo = $this -> params["nombreEquipo"];
-		# TODO: Cuando se suba al servidor, cambiar <localhost> por <https://inflarun.mx>
 		$link = "https://inflarun.mx/InflaRun/public/application/cuenta/inscripcionesequipos?codigoCanje=$codigoCanje";
 		$html = "
                     
