@@ -29,13 +29,13 @@ class CorreoInscripcion extends Correos {
 	
 	
         
-        public function enviarSendinblue($correo, $nombre = "Destinatario") {
+    public function enviarSendinblue($correo, $nombre = "Destinatario") {
 		try {
 			$mailin = new Mailin("https://api.sendinblue.com/v2.0","NQGOIrgFEVKYxp51");   
                         
                         $this ->Barcodebakery($this -> params["folio"]); 
                         
-                        $imagedata = file_get_contents( __DIR__ . "/plantillas/banner-inscripcion.png");
+                        $imagedata = file_get_contents( __DIR__ . "/plantillas/banner-inscripcion-2.png");
                         $base64 = base64_encode($imagedata);
                         $barcode = file_get_contents( __DIR__ . "/images/barcode.png");
                         $base65 = base64_encode($barcode);
@@ -47,7 +47,7 @@ class CorreoInscripcion extends Correos {
                         "html" => $this -> generarHtmlBody2(),
                         "headers" => array("Content-Type"=> "text/html; charset=iso-8859-1","X-param1"=> "value1", "X-param2"=> "value2","X-Mailin-custom"=>"my custom value", "X-Mailin-IP"=> "102.102.1.2", "X-Mailin-Tag" => "My tag"),
                         "inline_image" => array(
-                            __DIR__ . "/plantillas/banner-inscripcion.png" => $base64,
+                            __DIR__ . "/plantillas/banner-inscripcion-2.png" => $base64,
                             __DIR__ . "/images/barcode.png" => $base65
                          ));
 
@@ -113,7 +113,7 @@ class CorreoInscripcion extends Correos {
                                             <table align='center' border='0' cellpadding='0' cellspacing='0' width='600' style='border: 1px solid #cccccc; border-collapse: collapse;'>
                                               <tr>
                                                 <td align='center'  style=' color: #153643; font-size: 28px; font-weight: bold; font-family: Arial, sans-serif;'>
-                                                  <img src=\"{".__DIR__ . "/plantillas/banner-inscripcion.png"."}\" alt='image1' width='100%'  style='display: block;' border='0'><br/>
+                                                  <img src=\"{".__DIR__ . "/plantillas/banner-inscripcion-2.png"."}\" alt='image1' width='100%'  style='display: block;' border='0'><br/>
                                                 </td>
                                               </tr>
                                               <tr>
@@ -151,7 +151,7 @@ class CorreoInscripcion extends Correos {
 																	<br>
 																	<div class='text-justify'>
 																		<h4>Términos y Condiciones</h4>
-																		<p>Admito que al firmar este documento conozco las bases de la convocatoria, que mis datos son verdaderos y
+																		<p>Admito que al recibir este documento conozco las bases de la convocatoria, que mis datos son verdaderos y
 																		si fueran falsos seré descalificado del evento. Soy el único responsable de mi salud y de cualquier accidente
 																		o deficiencia que pudiera causar alteración a mi salud física e incluso la muerte. Por esta razón libero al
 																		comité organizador, a los patrocinadores, a las autoridades deportivas y a los prestadores de servicios de
