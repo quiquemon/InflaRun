@@ -432,12 +432,19 @@ class InscripcionesHandler {
 	 * @param string $idUsuario El ID del usuario.
 	 */
 	private static function enviarComprobanteInscripcion($idUsuario) {
+		$tallas = array(
+			"S" => "Chica",
+			"M" => "Mediana",
+			"L" => "Grande",
+			"XL" => "Extra Grande",
+			"XS" => "Extra Chica"
+		);
 		$sql = "SELECT u.idUsuario, u.nombre, u.aPaterno AS paterno, u.aMaterno AS materno,"
 			. " u.sexo, u.fechaNacimiento, c.correo, ue.folio, ue.idNumeroCorredor, e.nombre AS equipo,"
 			. " e.noIntegrantes, p.sucursal, p.monto, dh.horario, de.fechaRealizacion, det.direccion,"
-			. " det.nombre AS detallesNombre, ev.nombre AS evento FROM Usuario u, Correo c, UsuarioEquipo ue,"
-			. " Equipo e, Pago p, DiaHit dh, DiaEvento de, DetallesEvento det, Evento ev WHERE"
-			. " u.idUsuario = ue.idUsuario AND u.idCorreo = c.idCorreo AND ue.idEquipo = e.idEquipo"
+			. " det.nombre AS detallesNombre, ev.nombre AS evento, tp.tamanyo FROM Usuario u, Correo c, UsuarioEquipo ue,"
+			. " Equipo e, Pago p, DiaHit dh, DiaEvento de, DetallesEvento det, Evento ev, TamPlayera tp WHERE"
+			. " u.idUsuario = ue.idUsuario AND u.idCorreo = c.idCorreo AND ue.idEquipo = e.idEquipo AND ue.idTamPlayera = tp.idTamPlayera"
 			. " AND e.idEquipo = p.idEquipo AND e.idDiaHit = dh.idDiaHit AND dh.idDiaEvento = de.idDiaEvento AND"
 			. " de.idDetallesEvento = det.idDetallesEvento AND det.idEvento = ev.idEvento AND u.idUsuario = ?";
 		$dao = new ConexionDao();
@@ -454,6 +461,7 @@ class InscripcionesHandler {
 			"fecha" => (new FechasHandler()) -> traducirFecha($user["fechaRealizacion"]),
 			"hit" => $user["horario"],
 			"direccion" => $user["direccion"],
+			"talla" => $tallas[$user["tamanyo"]],
 			"uuid" => $user["idUsuario"],
 			"folio" => $user["folio"],
 			"tipoPago" => (isset($user["sucursal"]) ? "Efectivo" : "Tarjeta de crédito o débito"),

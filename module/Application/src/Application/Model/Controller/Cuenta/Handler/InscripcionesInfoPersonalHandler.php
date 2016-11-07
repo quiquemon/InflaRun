@@ -280,7 +280,7 @@ class InscripcionesInfoPersonalHandler {
 			return self::$FILTRO["NUMERO_INTEGRANTES_INVALIDO"];
 		else if (($equipo["modalidad"] === "equipo") && ($equipo["noIntegrantes"] > $diaHit["hit"]["lugaresRestantes"]))
 			return self::$FILTRO["BLOQUE_INSUFICIENTE"];
-		else if (($playera["tamanyo"]["id"] < 1) || ($playera["tamanyo"]["id"] > 4))
+		else if (($playera["tamanyo"]["id"] < 1) || ($playera["tamanyo"]["id"] > 5))
 			return self::$FILTRO["TALLA_INVALIDA"];
 		else if (($playera["color"]["id"] < 1) || ($playera["color"]["id"] > 4))
 			return self::$FILTRO["COLOR_INVALIDO"];
@@ -332,7 +332,7 @@ class InscripcionesInfoPersonalHandler {
 			return self::$FILTRO["BOLETIN_INVALIDO"];
 		else if (($usuario["idEstado"] < 1) || ($usuario["idEstado"] > 32))
 			return self::$FILTRO["ESTADO_INVALIDO"];
-		else if (($usuario["tamanyo"] < 1) || ($usuario["tamanyo"] > 4))
+		else if (($usuario["tamanyo"] < 1) || ($usuario["tamanyo"] > 5))
 			return self::$FILTRO["TALLA_INVALIDA"];
 		else
 			return self::$FILTRO["OK_EQUIPO"];
