@@ -1,3 +1,4 @@
+<script src="https://connect.facebook.net/es_LA/sdk.js" id="facebook-jssdk"></script>
 <script>
 	(function() {
 		$("#navbarCollapse ul li").each(function() {
@@ -5,6 +6,15 @@
 		});
 		$("#navbarCollapse ul").children().eq(1).addClass("active");
 		document.title = "¿Qué es? - InflaRun";
+	})();
+	
+	(function() {
+		// Carga de Facebook.
+		FB.init({
+			appId: "1783216848631932",
+			xfbml: true,
+			version: "v2.6"
+		});
 	})();
 </script>
 <section id="carrera">
