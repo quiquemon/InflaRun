@@ -7,6 +7,7 @@ use Application\Model\Controller\Cuenta\Pagos\PagoTarjeta;
 use Application\Model\Controller\Cuenta\Handler\DiaHitHandler;
 use Application\Model\Controller\Cuenta\Handler\FechasHandler;
 use Application\Model\Correos\CorreoInscripcion;
+use Application\Model\Correos\CorreoEquipo;
 use Sendinblue\Model\Correo\User;
 
 /**
@@ -76,8 +77,11 @@ class InscripcionesHandler {
 			if ($metodoPago["metodo"] === "tarjeta") {
 				$message = "Tu tarjeta fue rechazada por las siguientes razones:\n\n";
 				
-				foreach ($orden["WebServices_Transacciones"]["transaccion"]["error"] as $causa => $valor) {
-					$message .= "* $valor\n";
+				if (isset($orden["WebServices_Transacciones"]["transaccion"]["autorizado"])) {
+					foreach ($orden["WebServices_Transacciones"]["transaccion"]["error"] as $causa => $valor)
+						$message .= "* $valor\n";
+				} else {
+					$message .= "* {$orden["WebServices_Transacciones"]["transaccion"]["response"]["message"]}\n";
 				}
 				
 				return array(
@@ -393,10 +397,11 @@ class InscripcionesHandler {
 	 */
 	private static function realizarPago($metodoPago, $usuario, $datosBancarios = null) {
 		if ($metodoPago["metodo"] === "tarjeta") {
-			$datosBancarios["monto"] = 0.1;
-			#$datosBancarios["monto"] = $metodoPago["precio"];
+			$datosBancarios["monto"] = $metodoPago["precio"];
 			$resultado = (new PagoTarjeta()) -> realizarPago($datosBancarios);
-			$resultado["error"] = !$resultado["WebServices_Transacciones"]["transaccion"]["autorizado"];
+			$resultado["error"] = isset($resultado["WebServices_Transacciones"]["transaccion"]["autorizado"])
+				? !$resultado["WebServices_Transacciones"]["transaccion"]["autorizado"]
+				: ($resultado["WebServices_Transacciones"]["transaccion"]["status"] !== "success");
 			return $resultado;
 		} else {
 			$orden = PagoComproPago::generarOrden(array(
@@ -427,12 +432,19 @@ class InscripcionesHandler {
 	 * @param string $idUsuario El ID del usuario.
 	 */
 	private static function enviarComprobanteInscripcion($idUsuario) {
+		$tallas = array(
+			"S" => "Chica",
+			"M" => "Mediana",
+			"L" => "Grande",
+			"XL" => "Extra Grande",
+			"XS" => "Extra Chica"
+		);
 		$sql = "SELECT u.idUsuario, u.nombre, u.aPaterno AS paterno, u.aMaterno AS materno,"
 			. " u.sexo, u.fechaNacimiento, c.correo, ue.folio, ue.idNumeroCorredor, e.nombre AS equipo,"
 			. " e.noIntegrantes, p.sucursal, p.monto, dh.horario, de.fechaRealizacion, det.direccion,"
-			. " det.nombre AS detallesNombre, ev.nombre AS evento FROM Usuario u, Correo c, UsuarioEquipo ue,"
-			. " Equipo e, Pago p, DiaHit dh, DiaEvento de, DetallesEvento det, Evento ev WHERE"
-			. " u.idUsuario = ue.idUsuario AND u.idCorreo = c.idCorreo AND ue.idEquipo = e.idEquipo"
+			. " det.nombre AS detallesNombre, ev.nombre AS evento, tp.tamanyo FROM Usuario u, Correo c, UsuarioEquipo ue,"
+			. " Equipo e, Pago p, DiaHit dh, DiaEvento de, DetallesEvento det, Evento ev, TamPlayera tp WHERE"
+			. " u.idUsuario = ue.idUsuario AND u.idCorreo = c.idCorreo AND ue.idEquipo = e.idEquipo AND ue.idTamPlayera = tp.idTamPlayera"
 			. " AND e.idEquipo = p.idEquipo AND e.idDiaHit = dh.idDiaHit AND dh.idDiaEvento = de.idDiaEvento AND"
 			. " de.idDetallesEvento = det.idDetallesEvento AND det.idEvento = ev.idEvento AND u.idUsuario = ?";
 		$dao = new ConexionDao();
@@ -449,6 +461,7 @@ class InscripcionesHandler {
 			"fecha" => (new FechasHandler()) -> traducirFecha($user["fechaRealizacion"]),
 			"hit" => $user["horario"],
 			"direccion" => $user["direccion"],
+			"talla" => $tallas[$user["tamanyo"]],
 			"uuid" => $user["idUsuario"],
 			"folio" => $user["folio"],
 			"tipoPago" => (isset($user["sucursal"]) ? "Efectivo" : "Tarjeta de crédito o débito"),
@@ -468,6 +481,21 @@ class InscripcionesHandler {
 	 * @param int $idEquipo El ID del equipo.
 	 */
 	private static function enviarCorreoEquipos($idUsuario, $idEquipo) {
+		$sql = "SELECT CONCAT(u.nombre, ' ', u.aPaterno, ' ', u.aMaterno) AS usuario, c.correo,"
+			. " e.codigoCanje, e.nombre AS nombreEquipo, CONCAT(ev.nombre, ' - ', det.nombre) AS nombreCarrera"
+			. " FROM Usuario u, Correo c, UsuarioEquipo ue, Equipo e, DiaHit dh, DiaEvento de, DetallesEvento det, Evento ev"
+			. " WHERE u.idCorreo = c.idCorreo AND u.idUsuario = ue.idUsuario AND ue.idEquipo = e.idEquipo AND"
+			. " e.idDiaHit = dh.idDiaHit AND dh.idDiaEvento = de.idDiaEvento AND de.idDetallesEvento = det.idDetallesEvento AND"
+			. " det.idEvento = ev.idEvento"
+			. " AND u.idUsuario = ? AND e.idEquipo = ?";
+		$dao = new ConexionDao();
 		
+		$result = $dao -> consultaGenerica($sql, array($idUsuario, $idEquipo))[0];
+		$correo = new CorreoEquipo(array(
+			"nombreCarrera" => $result["nombreCarrera"],
+			"codigoCanje" => $result["codigoCanje"],
+			"nombreEquipo" => $result["nombreEquipo"]
+		));
+		$correo -> enviarSendinblue($result["correo"], $result["usuario"]);
 	}
 }

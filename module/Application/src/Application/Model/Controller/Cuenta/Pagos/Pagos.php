@@ -7,10 +7,16 @@ namespace Application\Model\Controller\Cuenta\Pagos;
  */
 abstract class Pagos {
 	
-	#protected $idSucursal = "c2b7e1176199806f88ac93f641b7a6b69e8ace0a";
-	#protected $idUsuario = "c3bed3605b305660ba7a053b8fbbb7663ea54c0a";
-	protected $idSucursal = "84a67340ba79c027fb93cb3a4a950e4a073e1a42";
-	protected $idUsuario = "42dc22feba0a010ee090bd7d58e69cc946292649";
+	protected $llaves = array(
+		"pruebas" => array(
+			"usuario" => "ae04ac26148f20a8f3379c527095bd6344ea2c2b",
+			"sucursal" => "430e1dab88003fd4cf06621c3e315e4fe33d8b53"
+		),
+		"produccion" => array(
+			"usuario" => "41d8cbab7337c4b3c038e8dc26462394fe9dbd16",
+			"sucursal" => "0ea688a37ffafb3324c89d68dd3635f5fe4d0ed8"
+		)
+	);
 	
 	/**
 	 * Realiza el pago utilizando la información indicada.
