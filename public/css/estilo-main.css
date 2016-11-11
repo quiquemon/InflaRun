@@ -49,6 +49,7 @@ select {
 	color:  rgba(255,255,255,0.7);
 	text-align:  center;
 	padding: 1em;
+        margin-top: 30px;
 }
 
 #foot p:first-child
@@ -605,13 +606,14 @@ Content
  
 #main-content {
 	/* box model properties */
-	min-height: 650px;
 	
 	/* background and borders */
 	background: #f5f5f5;
 	
 	/* additional properties */
 	border-radius: 3px 0 0 3px;
+        
+        min-height: 200px;
 }
 #header,
 #content,
@@ -749,10 +751,7 @@ Content
 	margin: 0;
 	padding: 19px 0;
 }
-#content {
-	/* box model properties */
-	min-height: 460px;
-}
+
 #header ,
 #footer {
 	/* box model properties */
@@ -777,7 +776,7 @@ Content
 .pane {
 	/* box model properties */
 	margin-bottom: 30px;
-	padding: 20px;
+	padding: 20px 20px 5px 20px;
 	
 	/* background and borders */
 	background: #fff;
