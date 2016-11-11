@@ -1,0 +1,446 @@
+<?php
+	$session = new \Zend\Session\Container("user");
+	$user = $session -> offsetGet("user");
+	$evento = $user["evento"];
+	$equipo = $user["equipo"];
+	$dias = $evento["dias"];
+	$playeras = $user["playeras"];
+	$fechaHandler = new \Application\Model\Controller\Cuenta\Handler\FechasHandler();
+	
+	$tallas = array(
+		"S" => "Chica",
+		"M" => "Mediana",
+		"L" => "Grande",
+		"XL" => "Extra Grande",
+		"XS" => "Extra Chica"
+	);
+?>
+<script>
+	(function() {
+		$("#navbarCollapse ul li").each(function() {
+			$(this).removeClass("active");
+		});
+		$("#navbarCollapse ul").children().last().addClass("active");
+		document.title = "Taquillas - InflaRun";
+	})();
+	
+	function habilitarDialogExito(dialog, message) {
+		dialog.setTitle("¡Te has inscrito con éxito a InflaRun!");
+		dialog.setMessage(message);
+		dialog.setType(BootstrapDialog.TYPE_SUCCESS);
+		dialog.setButtons([{
+			label: "Finalizar",
+			icon: "glyphicon glyphicon-ok",
+			cssClass: "btn-success",
+			action: function() {
+				window.location = "<?php echo $this -> basePath(); ?>/application";
+			}
+		}]);
+	}
+	
+	function habilitarDialogError(dialog, message) {
+		dialog.setTitle("Error en Inscripción");
+		dialog.setMessage("<strong>Recuerda:</strong> " + message);
+		dialog.setType(BootstrapDialog.TYPE_DANGER);
+		dialog.setClosable(true);
+		dialog.setButtons([{
+			label: "Cerrar",
+			icon: "glyphicon glyphicon-remove",
+			cssClass: "btn-danger",
+			action: function(dialog) {
+				dialog.close();
+			}
+		}]);
+	}
+	
+	function cancelarInscripcion() {
+		$("#btnCancelar").click(function() {
+			BootstrapDialog.show({
+				title: "Cancelar Inscripción",
+				message: "¿Realmente quiere cancelar su inscripción?",
+				type: BootstrapDialog.TYPE_WARNING,
+				buttons: [{
+					label: "Cancelar mi inscripción",
+					icon: "glyphicon glyphicon-remove-circle",
+					cssClass: "btn-warning",
+					action: function() {
+						window.location = "<?php echo $this -> basePath(); ?>/application/cuenta/cancelarinscripcion";
+					}
+				}, {
+					label: "Continuar con mi inscripción",
+					icon: "glyphicon glyphicon-ok-circle",
+					cssClass: "btn-success",
+					action: function(dialog) {
+						dialog.close();
+					}
+				}]
+			});
+		});
+	}
+	
+	function finalizarInscripcion() {
+		var progressBar = "<div class='progress'>"
+			+	"<div class='progress-bar progress-bar-striped active' style='width:100%'>"
+			+		"Estamos generando tu inscripción. ¡Solo un momento!"
+			+	"</div>"
+			+ "</div>";
+
+		$("#btnContinuar").click(function() {
+			var dialog = BootstrapDialog.show({
+				title: "Inscripción en progreso...",
+				message: progressBar,
+				type: BootstrapDialog.TYPE_PRIMARY,
+				closable: false
+			});
+			
+			$.post("<?php echo $this -> basePath(); ?>/application/cuenta/taquillasfinalizar", {
+				nombre: $("#nombre").val(),
+				paterno: $("#paterno").val(),
+				materno: $("#materno").val(),
+				sexo: $("#sexo").val(),
+				fechaNacimiento: $("#fechaNac").val(),
+				correo: $("#correo").val(),
+				estado: $("#estado").val(),
+				boletin: $("#boletin").val(),
+				dia: $("#dia").val(),
+				bloque: $("#bloque").val(),
+				tamanyo: $("#tamanyo").val(),
+				idEquipo: <?php echo $equipo["idEquipo"]; ?>,
+				idDetallesEvento: <?php echo $evento["idDetallesEvento"]; ?>
+			}, function(response) {
+				if (response.estatus === 0) {
+					habilitarDialogExito(dialog, response.message);
+				} else {
+					habilitarDialogError(dialog, response.message);
+				}
+			});
+		});
+	}
+	
+	$(document).ready(function() {
+		cancelarInscripcion();
+		finalizarInscripcion();
+	});
+</script>
+<div id="cuentaBody" class="container-fluid">
+	<div class="row">
+		<div class="col-sm-12 col-xs-12">
+			<h1>Inscripción a la carrera: <?php echo $evento["nombre"]; ?> - Taquillas</h1>
+			<br>
+			<div class="panel panel-info">
+				<div class="panel-heading">
+					<strong>Información Personal</strong>
+				</div>
+				<div class="panel-body">
+					<div class="col-sm-6">
+						<div class="form-group">
+							<label>Nombre:</label>
+							<div class="input-group">
+								<input type="text" class="form-control" id="nombre" />
+								<span class="input-group-addon">
+									<span class="glyphicon glyphicon-pencil"></span>
+								</span>
+							</div>
+						</div>
+						<div class="form-group">
+							<label>Apellido paterno:</label>
+							<div class="input-group">
+								<input type="text" class="form-control" id="paterno" />
+								<span class="input-group-addon">
+									<span class="glyphicon glyphicon-pencil"></span>
+								</span>
+							</div>
+						</div>
+						<div class="form-group">
+							<label>Apellido materno:</label>
+							<div class="input-group">
+								<input type="text" class="form-control" id="materno" />
+								<span class="input-group-addon">
+									<span class="glyphicon glyphicon-pencil"></span>
+								</span>
+							</div>
+						</div>
+						<div class="form-group">
+							<label>Sexo:</label>
+							<select class="form-control" id="sexo">
+								<option value="H">Hombre</option>
+								<option value="M">Mujer</option>
+							</select>
+						</div>
+					</div>
+					<div class="col-sm-6">
+						<div class="form-group">
+							<label>Fecha de Nacimiento</label>
+							<div id="fechaNacPicker" class="input-group date datetimepicker">
+								<input type="text" id="fechaNac" class="form-control" />
+								<span class="input-group-addon">
+									<span class="glyphicon glyphicon-calendar" style="cursor: pointer;"></span>
+								</span>
+							</div>
+						</div>
+						<div class="form-group">
+							<label>Correo electrónico:</label>
+							<div class="input-group">
+								<input type="text" class="form-control" id="correo" />
+								<span class="input-group-addon">
+									<span class="glyphicon glyphicon-envelope"></span>
+								</span>
+							</div>
+						</div>
+						<div class="form-group">
+							<label>Estado:</label>
+							<select class="form-control" id="estado">
+								<option value="1">Aguascalientes</option>
+								<option value="2">Baja California</option>
+								<option value="3">Baja California Sur</option>
+								<option value="4">Campeche</option>
+								<option value="5">Chiapas</option>
+								<option value="6">Chihuahua</option>
+								<option value="7">Ciudad de México</option>
+								<option value="8">Coahuila de Zaragoza</option>
+								<option value="9">Colima</option>
+								<option value="10">Durango</option>
+								<option value="11">Estado de México</option>
+								<option value="12">Guanajuato</option>
+								<option value="13">Guerrero</option>
+								<option value="14">Hidalgo</option>
+								<option value="15">Jalisco</option>
+								<option value="16">Michoacán de Ocampo</option>
+								<option value="17">Morelos</option>
+								<option value="18">Nayarit</option>
+								<option value="19">Nuevo León</option>
+								<option value="20">Oaxaca</option>
+								<option value="21">Puebla</option>
+								<option value="22">Querétaro</option>
+								<option value="23">Quintana Roo</option>
+								<option value="24">San Luis Potosí</option>
+								<option value="25">Sinaloa</option>
+								<option value="26">Sonora</option>
+								<option value="27">Tabasco</option>
+								<option value="28">Tamaulipas</option>
+								<option value="29">Tlaxcala</option>
+								<option value="30">Veracruz de Ignacio de la Llave</option>
+								<option value="31">Yucatán</option>
+								<option value="32">Zacatecas</option>
+							</select>
+						</div>
+						<div class="form-group">
+							<label>¿Suscribirse al boletín?</label>
+							<select id="boletin" class="form-control">
+								<option value="1">Sí</option>
+								<option value="0">No</option>
+							</select>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="panel panel-info">
+				<div class="panel-heading">
+					<strong>Elige tu día y bloque</strong>
+				</div>
+				<div class="panel-body">
+					<div class="col-sm-12">
+						<div class="form-group">
+							<label>Día:</label>
+							<select id="dia" class="form-control">
+								<?php if(!empty($dias)): ?>
+									<option value="<?php echo $dias["idDiaEvento"]; ?>">
+										<?php echo $fechaHandler -> traducirFecha($dias["fechaRealizacion"]); ?>
+									</option>
+								<?php else: ?>
+									<option value="0">
+										Lo sentimos, todos los bloques se han agotado.
+									</option>
+								<?php endif; ?>
+							</select>
+						</div>
+						<div class="form-group">
+							<label>Bloque:</label>
+							<select id="bloque" class="form-control">
+								<?php if (!empty($dias)): ?>
+									<?php foreach($dias["hits"] as $hit): ?>
+										<?php if ($hit["lugaresRestantes"] > 0): ?>
+											<option value="<?php echo $hit["idDiaHit"]; ?>">
+												<?php echo $hit["horario"]; ?> (<?php echo $hit["lugaresRestantes"]; ?> lugares restantes)
+											</option>
+										<?php endif; ?>
+									<?php endforeach; ?>
+								<?php else: ?>
+									<option value="0">
+										Lo sentimos, todos los bloques se han agotado.
+									</option>
+								<?php endif; ?>
+							</select>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="panel panel-info">
+				<div class="panel-heading">
+					<strong>Elige tu playera</strong>
+				</div>
+				<div class="panel-body">
+					<div class="panel panel-success">
+						<div class="panel-heading">
+							<strong>Tamaño</strong>
+						</div>
+						<div class="panel-body">
+							<select id="tamanyo" class="form-control">
+								<?php foreach($playeras["tamanyo"] as $tamanyo): ?>
+									<option value="<?php echo $tamanyo["idTamPlayera"]; ?>">
+										<?php echo $tallas[$tamanyo["tamanyo"]]; ?>
+									</option>
+								<?php endforeach; ?>
+							</select>
+						</div>
+					</div>
+				</div>
+			</div>
+			<?php if (!empty($dias)): ?>
+				<div id="terminosCondiciones" class="modal fade" role="dialog">
+					<div class="modal-dialog">
+						<div class="modal-contentAviso">
+							<div class="modal-header">
+								<button class="close" data-dismiss="modal">&times;</button>
+								<h1 class="modal-title">Términos y Condiciones</h1>
+							</div>
+							<div class="modal-body">
+								<div class="sub">Términos y Condiciones</div>
+								<p>
+									Estos son los términos y condiciones de participación en la carrera INFLARUN, aplica cualquier
+									sede donde se realice; declaración de exoneración de responsibilidades y autorización.
+								</p>
+								<p>
+									<strong>1.-</strong> Esta página web y todo su contenido son propiedad de INFLARUN S.A. de C.V.
+									con todos los derechos reservados. El uso de cualquier información, salvo lo dispuesto en los
+									presentes Términos y Condiciones, sin el permiso escrito del propietario de la información está
+									estrictamente prohibido. Usted puede descargar, visualizar o imprimir la información de esta
+									página web únicamente para uso personal no comercial.
+								</p>
+								<p>
+									<strong>2.-</strong> El registro e inscripción de los usuarios es única y exclusivamente dentro
+									del portal web y en las fechas señaladas en la convocatoria presente. <strong>No habrá venta
+									de boletos el día del evento</strong> bajo ninguna circunstancia.
+								</p>
+								<p>
+									<strong>3.-</strong> INFLARUN se compromete a proteger y cifrar todas las transacciones y pagos
+									realizados con tarjeta de crédito/débito, así como toda la información personal dentro del sitio
+									mediante un certificado de seguridad SSL.
+								</p>
+								<p>
+									<strong>4.-</strong> Al suscribirme al boletín se acepta recibir correos relacionados con el
+									evento actual, próximos eventos e información relacionada con la carrera INFLARUN.
+								</p>
+								<p>
+									<strong>5.-</strong> Al inscribirme, realizar el pago de la inscripción, reclamar el kit de
+									competencia y participar en la carrera, entiendo y acepto ls términos y condiciones de
+									participación en la carrera INFLARUN en cualquiera de sus sedes, aquí descritos.
+								</p>
+								<p>
+									<strong>6.-</strong> Acepto las condiciones de inscripción y participación.
+								</p>
+								<p>
+									<strong>6.1.-</strong> Entiendo que es obligatorio proporcionar todos mis datos de contacto,
+									sin importar la categoría u horario de bloque en el que me he inscrito.
+								</p>
+								<p>
+									<strong>7.-</strong> Declaro que participo en la carrera de forma libre y por voluntad propia.
+								</p>
+								<p>
+									<strong>8.-</strong> Entiendo que la inscripción en la carrera me da el derecho de participar
+									en la competencia.
+								</p>
+								<p>
+									<strong>9.-</strong> Es de mi conocimiento que en caso de no poder asistir a la carrera, bajo
+									ninguna circunstancia podré exigir un reembolso del valor de la inscripción.
+								</p>
+								<p>
+									<strong>10.-</strong> Acepto de que en caso de cancelación del evento por causas de fuerza mayor
+									o fortuitos, ajenos a la organización, no habrá devoluciones del valor de la inscripción.
+								</p>
+								<p>
+									<strong>11.-</strong> Soy conciente de que en caso de no poder asistir a recoger el kit de
+									competencia en las fechas establecidas por la organización, no podré reclamarlo posteriormente.
+								</p>
+								<p>
+									<strong>12.-</strong> Comprendo que la entrega de playeras será sujeta a existencias y que la
+									organización no se hace responsable por falta de ellas.
+								</p>
+								<p>
+									<strong>13.-</strong> Al participar en esta carrera, declaro mi comprensión y aceptación acerca
+									de la naturaleza de las actividades relacionadas, por lo que hago constar que cuento con buen
+									estado de salud para participar en dicha carrera, entiendo y acepto que mi participación en la
+									carrera INFLARUN, dada su naturaleza puede representar riesgos de accidentes que ocasionen
+									lesiones graves antes, durante y después, incluyendo discapacidad parcial o total, temporal o
+									permanente y hasta la perdida de la vida, por lo que acepto la responsabilidad total por cualquier
+									incidente que pueda ser motivo de mi participación en la carrera, y renuncio a cualquier acción
+									legal que pudiera ejercerse en contra de todo el personal organizador, trabajadores de INFLARUN
+									en <strong>cualquier sede</strong> donde se realice la carrera.
+								</p>
+								<p>
+									<strong>14.-</strong> Declaro que conozco el lugar, la información general y particular de la carrera.
+								</p>
+								<p>
+									<strong>15.-</strong> Entiendo que la carrera está sujeta a cambios sin previo aviso.
+								</p>
+								<p>
+									<strong>16.-</strong> Declaro que conozco y he leído atentamente el reglamento de la carrera.
+								</p>
+								<p>
+									<strong>17.-</strong> Habiendo leído esta declaración, conociendo estos hechos y considerando que
+									los acepto por el hecho de participar en la carrera INFLARUN yo, en mi nombre y en el de cualquier
+									persona que actúe en mi represntación, sucesores, legatarios u herederos, libero y eximo de cualquier
+									responsabilidad, reclamo, indemnización, costo por daño, perjuicio reclamado o lucro cesante a los
+									organizadores de INFLARUN, aliados, patrocinadores, sus representantes y sucesores de todo reclamo o
+									responsabilidad de cualquier tipo, que surja de mi participación en esta competencia, incluso en
+									circunstancias de caso fortuito o fuerza mayor, en razón a que la actividad durante el desarrollo
+									de la carrera se encontrará bajo mi control y ejecución exclusiva como participante, así como cualquier
+									extravío, robo y/o hurto que pudiera sufrir.
+								</p>
+								<p>
+									<strong>18.-</strong> Autorizo a los organizadores y operadores de la carrera INFLARUN, aliados y
+									patrocinadores el uso de fotografías, película, video, grabación y cualquier otro medio de registro
+									de este evento para cualquier uso legítimo sin compensación económica alguna.
+								</p>
+								<p>
+									<strong>19.-</strong> Estos términos y condiciones están sujetos a cambios sin previo aviso, con la
+									actualización de esta publicación.
+								</p>
+								<p>
+									<strong>Acepto los términos y condiciones establecidos en el presente documento, los cuales he
+									entendido y aceptado voluntariamente.</strong>
+								</p>
+							</div>
+						</div>
+					</div>
+				</div>
+				<p>
+					Al hacer clic en el botón <strong>Finalizar Inscripción</strong> estás aceptando los 
+					<a href="#" data-toggle="modal" data-target="#terminosCondiciones">Términos y Condiciones</a> y el
+					<a href="#" data-toggle="modal" data-target="#aviso">Aviso de Privacidad</a>.
+				</p>
+			<?php endif; ?>
+			<br>
+			<div class="row">
+				<?php if (empty($dias)): ?>
+					<div class="col-sm-12">
+						<div class="alert alert-danger">
+							Lo sentimos, todos los bloques de esta carrera están agotados.
+						</div>
+						<a href="<?php echo $this -> basePath(); ?>/application" class="btn btn-success btn-lg btn-block" style="white-space: normal">
+							Regresar a Página Principal
+						</a>
+					</div>
+				<?php else: ?>
+					<div class="col-sm-6 col-xs-6">
+						<button id="btnCancelar" class="btn btn-danger btn-lg btn-block" style="white-space: normal;">Cancelar Inscripción</button>
+					</div>
+					<div class="col-sm-6 col-xs-6">
+						<button id="btnContinuar" class="btn btn-primary btn-lg btn-block" style="white-space: normal;">Finalizar Inscripción</button>
+					</div>
+				<?php endif; ?>
+			</div>
+			<br>
+		</div>	
+	</div>
+</div>

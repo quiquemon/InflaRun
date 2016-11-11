@@ -6,6 +6,7 @@ use Application\Model\Controller\Cuenta\Pagos\PagoComproPago;
 use Application\Model\Controller\Cuenta\Pagos\PagoTarjeta;
 use Application\Model\Controller\Cuenta\Handler\DiaHitHandler;
 use Application\Model\Controller\Cuenta\Handler\FechasHandler;
+use Application\Model\Controller\Cuenta\Handler\TaquillasHandler;
 use Application\Model\Correos\CorreoInscripcion;
 use Application\Model\Correos\CorreoEquipo;
 use Sendinblue\Model\Correo\User;
@@ -288,6 +289,108 @@ class InscripcionesHandler {
 			return self::$FILTRO["OK_TARJETA"];
 		} catch (\Exception $ex) {
 			$dao -> rollback();
+			return array(
+				"estatus" => 10,
+				"message" => $ex -> getMessage()
+			);
+		}
+	}
+	
+	/**
+	 * Inscribe al usuario dado y le envía su comprobante de inscripción
+	 * a su correo.
+	 * 
+	 * @param Array $usuario Contiene los datos personales del usuario y el ID de su equipo de taquilla.
+	 * @return Array Arreglo asociativo que contiene la respuesta de la operación de acuerdo a la
+	 * variable estática de esta clase, $FILTRO.
+	 */
+	public static function inscribirUsuarioPorTaquilla($usuario) {
+		try {
+			DiaHitHandler::decrementarLugaresRestantes($usuario["bloque"]);
+		} catch (Exception $ex) {
+			DiaHitHandler::incrementarLugaresRestantes($usuario["bloque"]);
+			return self::$FILTRO["BLOQUE_INSUFICIENTE"];
+		}
+		
+		$dao = new ConexionDao();
+		
+		try {
+			$dao -> beginTransaction();
+			
+			$eq = $dao -> consultaGenerica("SELECT * FROM Equipo WHERE idEquipo = ?", array($usuario["idEquipo"]))[0];
+			if (isset($eq["idDiaHit"])) {
+				throw new \Exception("Ese código de canje ya ha sido utilizado.");
+			}
+			
+			$correo = $dao -> consultaGenerica("SELECT * FROM Correo WHERE correo = ?", array($usuario["correo"]));
+			if (empty($correo)) {
+				$dao -> sentenciaGenerica("INSERT INTO Correo(correo) VALUES (?)", array($usuario["correo"]));
+				$correo = $dao -> consultaGenerica("SELECT * FROM Correo WHERE idCorreo = LAST_INSERT_ID()");
+			}
+			
+			$correo = $correo[0];
+			$dao -> sentenciaGenerica("INSERT INTO Usuario(nombre, aPaterno, aMaterno, sexo, fechaNacimiento, fechaRegistro,"
+					. " recibeCorreos, idEstado, idCorreo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", array(
+				$usuario["nombre"],
+				$usuario["paterno"],
+				$usuario["materno"],
+				$usuario["sexo"],
+				$usuario["fechaNacimiento"],
+				date("Y-m-d"),
+				$usuario["boletin"],
+				$usuario["idEstado"],
+				$correo["idCorreo"]
+			));
+			
+			$idUsuario = $dao -> consultaGenerica("SELECT idUsuario FROM Usuario WHERE idUsuario = LAST_INSERT_ID()")[0]["idUsuario"];
+			$folio = "$idUsuario-{$usuario["idEquipo"]}-{$usuario["idDetallesEvento"]}";
+			
+			$dao -> sentenciaGenerica("UPDATE Equipo SET idDiaHit = ? WHERE idEquipo = ?", array(
+				$usuario["bloque"], $usuario["idEquipo"]
+			));
+			
+			$dao -> sentenciaGenerica("INSERT INTO Pago(monto, estatus, transaccion, idEquipo)"
+					. " VALUES ((SELECT precio FROM DetallesEvento WHERE idDetallesEvento = ?), ?, ?, ?)", array(
+				$usuario["idDetallesEvento"],
+				1,
+				bin2hex(openssl_random_pseudo_bytes(12)),
+				$usuario["idEquipo"]
+			));
+			
+			$dao -> sentenciaGenerica("INSERT INTO NumeroCorredor VALUES ()");
+			$noCorredor = $dao
+				-> consultaGenerica("SELECT * FROM NumeroCorredor WHERE idNumeroCorredor = LAST_INSERT_ID()")[0]["idNumeroCorredor"];
+			
+			$dao -> sentenciaGenerica("INSERT INTO UsuarioEquipo VALUES (?, ?, ?, ?, ?, ?, ?, ?)", array(
+				$idUsuario,
+				$usuario["idEquipo"],
+				1,
+				0,
+				$folio,
+				$noCorredor,
+				$usuario["tamanyo"],
+				1
+			));
+			
+			$dao -> commit();
+			self::enviarComprobanteInscripcion($idUsuario);
+			
+			// --------- Agregar a Sendinblue -------------
+			if ($usuario["boletin"]) {
+				$User = new User();
+				$User -> IDLista = 43; // <-----  ID lista en sendinblue donde se agregaran los nuevos contactos
+				$attributes= array(
+					"NOMBRE" => $usuario['nombre'],
+					"SURNAME" => $usuario['paterno']
+				);
+				$User ->createUser($correo['correo'], $attributes, $User -> IDLista);
+			}
+			// --------- /Agregar a Sendinblue -------------
+			
+			return self::$FILTRO["OK_TARJETA"];
+		} catch (\Exception $ex) {
+			$dao -> rollback();
+			DiaHitHandler::incrementarLugaresRestantes($usuario["bloque"]);
 			return array(
 				"estatus" => 10,
 				"message" => $ex -> getMessage()

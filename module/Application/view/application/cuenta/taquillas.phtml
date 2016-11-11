@@ -1,0 +1,130 @@
+<?php $eventos = $this -> eventos; ?>
+<script>
+	(function() {
+		$("#navbarCollapse ul li").each(function() {
+			$(this).removeClass("active");
+		});
+		$("#navbarCollapse ul").children().last().addClass("active");
+		document.title = "Taquillas - InflaRun";
+	})();
+	
+	function habilitarDialogExito(dialog, message) {
+		dialog.setTitle("Datos Correctos");
+		dialog.setMessage(message);
+		dialog.setType(BootstrapDialog.TYPE_INFO);
+	}
+	
+	function habilitarDialogError(dialog, message) {
+		dialog.setTitle("Error en los Campos de Entrada");
+		dialog.setMessage("<strong>Lo sentimos, ocurrió un error al validar tus datos:</strong> " + message);
+		dialog.setType(BootstrapDialog.TYPE_DANGER);
+		dialog.setClosable(true);
+		dialog.setButtons([{
+			label: "Cerrar",
+			icon: "glyphicon glyphicon-remove",
+			cssClass: "btn-danger",
+			action: function(dialog) {
+				dialog.close();
+			}
+		}]);
+	}
+	
+	function cancelarInscripcion() {
+		$("#btnCancelar").click(function() {
+			BootstrapDialog.show({
+				title: "Cancelar Inscripción",
+				message: "¿Realmente quiere cancelar su inscripción?",
+				type: BootstrapDialog.TYPE_WARNING,
+				buttons: [{
+					label: "Cancelar mi inscripción",
+					icon: "glyphicon glyphicon-remove-circle",
+					cssClass: "btn-warning",
+					action: function() {
+						window.location = "<?php echo $this -> basePath(); ?>/application/cuenta/cancelarinscripcion";
+					}
+				}, {
+					label: "Continuar con mi inscripción",
+					icon: "glyphicon glyphicon-ok-circle",
+					cssClass: "btn-success",
+					action: function(dialog) {
+						dialog.close();
+					}
+				}]
+			});
+		});
+	}
+	
+	function ingresarCodigoCanje() {
+		var progressBar = "<div class='progress'>"
+			+	"<div class='progress-bar progress-bar-striped active' style='width:100%'>"
+			+		"Estamos validando tus datos. ¡Solo un momento!"
+			+	"</div>"
+			+ "</div>";
+
+		$("#btnContinuar").click(function() {
+			var dialog = BootstrapDialog.show({
+				title: "Validando datos...",
+				message: progressBar,
+				type: BootstrapDialog.TYPE_PRIMARY,
+				closable: false
+			});
+			
+			$.post("<?php echo $this -> basePath(); ?>/application/cuenta/taquillasvalidarcodigo", {
+				codigoCanje: $("#codigoCanje").val(),
+				idDetallesEvento: $("#idDetallesEvento").val()
+			}, function(response) {
+				if (response.estatus === 0) {
+					habilitarDialogExito(dialog, response.message);
+					setTimeout(function() {
+						window.location = "<?php echo $this -> basePath(); ?>/application/cuenta/taquillasdatos";
+					}, 2000);
+				} else {
+					habilitarDialogError(dialog, response.message);
+				}
+			});
+		});
+	}
+	
+	$(document).ready(function() {
+		cancelarInscripcion();
+		ingresarCodigoCanje();
+	});
+</script>
+<div id="cuentaBody" class="container-fluid">
+	<div class="row">
+		<div class="col-sm-12 col-xs-12">
+			<h1>Inscripción a InflaRun - Taquillas</h1>
+			<br>
+			<div class="panel panel-info">
+				<div class="panel-heading">
+					<strong>Por favor, ingresa los siguientes campos</strong>
+				</div>
+				<div class="panel-body">
+					<div class="form-group">
+						<label>Código de canje:</label>
+						<input type="text" id="codigoCanje" class="form-control" />
+					</div>
+					<div class="form-group">
+						<label>Evento:</label>
+						<select id="idDetallesEvento" class="form-control">
+							<?php foreach ($eventos as $evento): ?>
+								<option value="<?php echo $evento["idDetallesEvento"]; ?>">
+									<?php echo $evento["nombre"]; ?>
+								</option>
+							<?php endforeach; ?>
+						</select>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-sm-6 col-xs-6">
+					<button id="btnCancelar" class="btn btn-danger btn-lg btn-block" style="white-space: normal;">Cancelar</button>
+				</div>
+				<div class="col-sm-6 col-xs-6">
+					<button id="btnContinuar" class="btn btn-primary btn-lg btn-block" style="white-space: normal;">Continuar</button>
+				</div>
+			</div>
+			<br>
+		</div>	
+	</div>
+</div>

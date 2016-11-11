@@ -10,6 +10,7 @@ use Application\Model\Controller\Cuenta\Handler\InscripcionesHandler;
 use Application\Model\Controller\Cuenta\Handler\InscripcionesInfoPersonalHandler;
 use Application\Model\Controller\Cuenta\Handler\TarjetaHandler;
 use Application\Model\Controller\Cuenta\Handler\EquiposHandler;
+use Application\Model\Controller\Cuenta\Handler\TaquillasHandler;
 use Application\Model\Controller\Cuenta\Handler\AdminHandler;
 use Application\Model\Controller\Cuenta\Handler\UsuarioHandler;
 use Application\Model\Dao\ConexionDao;
@@ -162,6 +163,62 @@ class CuentaController extends AbstractActionController {
 		
 		if ($resultado["code"] === 0) {
 			$r = InscripcionesHandler::integrarUsuarioAEquipo($datos["usuario"]);
+			return new JsonModel($r);
+		}
+		
+		return new JsonModel(array(
+			"estatus" => $resultado["code"],
+			"message" => $resultado["message"]
+		));
+	}
+	
+	public function taquillasAction() {
+		try {
+			$dao = new ConexionDao();
+			$eventos = $dao -> consultaGenerica("SELECT * FROM DetallesEvento WHERE realizado = 0");
+			return new ViewModel(array("eventos" => $eventos));
+		} catch (\Exception $ex) {
+			return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/inscripciones");
+		}
+	}
+	
+	public function taquillasvalidarcodigoAction() {
+		$codigoCanje = trim($this -> params() -> fromPost("codigoCanje", ""));
+		$idDetallesEvento = $this -> params() -> fromPost("idDetallesEvento", 0);
+		$resultado = TaquillasHandler::validarCodigo($codigoCanje, $idDetallesEvento);
+		
+		if ($resultado["estatus"] === 0) {
+			try {
+				$datos = TaquillasHandler::obtenerDatosEvento($codigoCanje, $idDetallesEvento);
+				$session = new Container("user");
+				$session -> offsetSet("user", $datos);
+			} catch (\Exception $ex) {
+				return new JsonModel(array(
+					"estatus" => 1,
+					"message" => $ex -> getMessage()
+				));
+			}
+		}
+		
+		return new JsonModel($resultado);
+	}
+	
+	public function taquillasdatosAction() {
+		return (!(new Container("user")) -> offsetExists("user"))
+			? $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/taquillas")
+			: new ViewModel();
+	}
+	
+	public function taquillasfinalizarAction() {
+		$datos = InscripcionesInfoPersonalHandler::obtenerDatosTaquillaPost($this -> params());
+		$resultado = InscripcionesInfoPersonalHandler::validarDatosTaquillas($datos);
+		
+		if ($resultado["code"] === 0) {
+			$r = InscripcionesHandler::inscribirUsuarioPorTaquilla($datos["usuario"]);
+			if ($r["estatus"] === 0) {
+				(new Container("user")) -> getManager() -> getStorage() -> clear();
+			}
+			
 			return new JsonModel($r);
 		}
 		
@@ -366,10 +423,4 @@ class CuentaController extends AbstractActionController {
 		
 		return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/login");
 	}
-	
-	/**
-	 * *************************************************************************************************
-	 * TERMINAN FUNCIONES DEL ADMINISTRADOR
-	 * *************************************************************************************************
-	 */
 }
