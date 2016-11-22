@@ -107,6 +107,10 @@ class InscripcionesInfoPersonalHandler {
 		"SUCURSAL_DESCONOCIDA" => array(
 			"code" => 22,
 			"message" => "Esa sucursal no está disponible."
+		),
+		"CUPON_DESCUENTO_INVALIDO" => array(
+			"code" => 23,
+			"message" => "Ese cupón de descuento no es válido."
 		)
 	);
 	
@@ -137,13 +141,29 @@ class InscripcionesInfoPersonalHandler {
 		$tamanyo = $params -> fromPost("tamanyo", "1|S");
 		$color = $params -> fromPost("color", "1|Azul");
 		
+		$cuponDescuento = $params -> fromPost("cuponDescuento", "");
 		$metodoPago = $params -> fromPost("rdbMetodoPago", "tarjeta");
 		$sucursal = $params -> fromPost("rdbSucursal", "");
 		
 		$idDetallesEvento = $params -> fromPost("idDetallesEvento", 0);
-		$evento = (new ConexionDao())
-				-> consultaGenerica("SELECT * FROM DetallesEvento WHERE idDetallesEvento = ?",
-					array($idDetallesEvento))[0];
+		$evento = (new ConexionDao()) -> consultaGenerica("SELECT * FROM DetallesEvento WHERE idDetallesEvento = ?",
+			array($idDetallesEvento))[0];
+		
+		$cupon = (new ConexionDao()) -> consultaGenerica("SELECT * FROM CuponDescuento WHERE cupon = ?",
+			array(trim($cuponDescuento)));
+
+		if (!empty($cupon)) {
+			$cupon = $cupon[0];
+			$precio = ($modalidad === "individual")
+				? $evento["precio"] - $cupon["descuento"]
+				: ($evento["precio"] - $cupon["descuento"]) * $noIntegrantes;
+			$descuento = $cupon;
+		} else {
+			$precio = ($modalidad === "individual")
+				? $evento["precio"]
+				: $evento["precio"] * $noIntegrantes;
+			$descuento = false;
+		}
 		
 		return array(
 			"usuario" => array(
@@ -185,11 +205,10 @@ class InscripcionesInfoPersonalHandler {
 			"metodoPago" => array(
 				"metodo" => $metodoPago,
 				"sucursal" => $sucursal,
-				"precio" => ($modalidad === "individual")
-					? $evento["precio"]
-					: $evento["precio"] * $noIntegrantes
+				"precio" => $precio
 			),
-			"evento" => $evento
+			"evento" => $evento,
+			"cuponDescuento" => $descuento
 		);
 	}
 	

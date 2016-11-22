@@ -7,6 +7,7 @@
 	$diaHit = $session -> offsetGet("user")["diaHit"];
 	$playera = $session -> offsetGet("user")["playera"];
 	$metodoPago = $session -> offsetGet("user")["metodoPago"];
+	$descuento = $session -> offsetGet("user")["cuponDescuento"];
 ?>
 <script>
 	(function() {
@@ -156,25 +157,31 @@
 							<?php else: ?>
 								Efectivo - Sucursal
 								<?php if ($metodoPago["sucursal"] === "OXXO"): ?>
-									Oxxo <img src="<?php echo $this -> basePath(); ?>/css/Imagenes/tienda_oxxo.png" height="30" />
+									Oxxo <img src="<?php echo $this -> basePath(); ?>/css/Imagenes/tienda_oxxo.png" height="20" />
 								<?php elseif ($metodoPago["sucursal"] === "SEVEN_ELEVEN"): ?>
 									Seven Eleven <img src="<?php echo $this -> basePath(); ?>/css/Imagenes/tienda_seven.png" height="30" />
 								<?php elseif ($metodoPago["sucursal"] === "EXTRA"): ?>
-									Extra <img src="<?php echo $this -> basePath(); ?>/css/Imagenes/tienda_extra.png" height="30" />
+									Extra <img src="<?php echo $this -> basePath(); ?>/css/Imagenes/tienda_extra.png" height="20" />
 								<?php elseif ($metodoPago["sucursal"] === "ELEKTRA"): ?>
-									Elektra <img src="<?php echo $this -> basePath(); ?>/css/Imagenes/tienda_elektra.png" height="30" />
+									Elektra <img src="<?php echo $this -> basePath(); ?>/css/Imagenes/tienda_elektra.png" height="25" />
 								<?php elseif ($metodoPago["sucursal"] === "COPPEL"): ?>
-									Coppel <img src="<?php echo $this -> basePath(); ?>/css/Imagenes/tienda_coppel.png" height="30" />
-								<?php elseif ($metodoPago["sucursal"] === "CHEDRAUI"): ?>
-									Chedraui <img src="<?php echo $this -> basePath(); ?>/css/Imagenes/tienda_chedraui.png" height="30" />
+									Coppel <img src="<?php echo $this -> basePath(); ?>/css/Imagenes/tienda_coppel.png" height="25" />
 								<?php elseif ($metodoPago["sucursal"] === "FARMACIA_BENAVIDES"): ?>
-									Farmacias Benavides <img src="<?php echo $this -> basePath(); ?>/css/Imagenes/tienda_benavides.png" height="30" />
+									Farmacias Benavides <img src="<?php echo $this -> basePath(); ?>/css/Imagenes/tienda_benavides.png" height="15" />
 								<?php elseif ($metodoPago["sucursal"] === "FARMACIA_ESQUIVAR"): ?>
-									Farmacias Esquivar <img src="<?php echo $this -> basePath(); ?>/css/Imagenes/tienda_esquivar.png" height="30" />
+									Farmacias Esquivar <img src="<?php echo $this -> basePath(); ?>/css/Imagenes/tienda_esquivar.png" height="25" />
 								<?php endif; ?>
 							<?php endif; ?>
 						</a>
-						<a class='list-group-item'><strong>Precio Total: $</strong><?php echo $metodoPago["precio"]; ?></a>
+						<?php if ($descuento): ?>
+							<a class="list-group-item">
+								<strong>
+									Cupón de Descuento <p class="text-success"><?php echo $descuento["descripcion"]; ?></p>
+									($<?php echo $descuento["descuento"]; ?> por cada inscripción)
+								</strong>
+							</a>
+						<?php endif; ?>
+						<a class="list-group-item"><strong>Precio Total: $</strong><?php echo $metodoPago["precio"]; ?></a>
 					</div>
 				</div>
 			</div>
