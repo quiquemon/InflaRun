@@ -6,7 +6,6 @@ use Application\Model\Controller\Cuenta\Pagos\PagoComproPago;
 use Application\Model\Controller\Cuenta\Pagos\PagoTarjeta;
 use Application\Model\Controller\Cuenta\Handler\DiaHitHandler;
 use Application\Model\Controller\Cuenta\Handler\FechasHandler;
-use Application\Model\Controller\Cuenta\Handler\TaquillasHandler;
 use Application\Model\Correos\CorreoInscripcion;
 use Application\Model\Correos\CorreoEquipo;
 use Sendinblue\Model\Correo\User;
