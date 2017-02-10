@@ -153,7 +153,7 @@ class CuentaController extends AbstractActionController {
 			$inscripcion = EquiposHandler::obtenerDatosEquipo($codigoCanje);
 			return new ViewModel(array("inscripcion" => $inscripcion));
 		} catch (\Exception $ex) {
-			return $this -> redirect() -> toUrl("/application/cuenta/inscripciones?ex={$ex -> getMessage()}");
+			return $this -> redirect() -> toUrl("/application/cuenta/inscripciones");
 		}
 	}
 	
