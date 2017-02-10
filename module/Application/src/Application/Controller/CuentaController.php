@@ -18,7 +18,7 @@ use Application\Model\Dao\ConexionDao;
 class CuentaController extends AbstractActionController {
 	
 	public function indexAction() {
-		return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/inscripciones");
+		return $this -> redirect() -> toUrl("/application/cuenta/inscripciones");
 	}
 	
 	public function inscripcionesAction() {
@@ -54,7 +54,7 @@ class CuentaController extends AbstractActionController {
 				array($idDetallesEvento));
 			
 			if (empty($evento)) {
-				return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/inscripciones");
+				return $this -> redirect() -> toUrl("/application/cuenta/inscripciones");
 			} else {
 				$sql = "SELECT DISTINCT de.* FROM DiaEvento de, DiaHit dh WHERE de.idDiaEvento = dh.idDiaEvento AND"
 					. " de.idDetallesEvento = ? AND dh.lugaresRestantes > 0";
@@ -72,7 +72,7 @@ class CuentaController extends AbstractActionController {
 				$playeras["tamanyo"] = $dao -> consultaGenerica("SELECT * FROM TamPlayera");
 			}
 		} catch (\Exception $ex) {
-			return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/inscripciones");
+			return $this -> redirect() -> toUrl("/application/cuenta/inscripciones");
 		}
 		
 		return new ViewModel(array("evento" => $evento[0], "playeras" => $playeras));
@@ -96,7 +96,7 @@ class CuentaController extends AbstractActionController {
 	
 	public function inscripcionesformtarjetaAction() {
 		if (!(new Container("user")) -> offsetExists("user")) {
-			return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/inscripciones");
+			return $this -> redirect() -> toUrl("/application/cuenta/inscripciones");
 		}
 		
 		return new ViewModel();
@@ -119,7 +119,7 @@ class CuentaController extends AbstractActionController {
 	
 	public function inscripcionesconfirmardatosAction() {
 		if (!(new Container("user")) -> offsetExists("user")) {
-			return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/inscripciones");
+			return $this -> redirect() -> toUrl("/application/cuenta/inscripciones");
 		}
 		
 		return new ViewModel();
@@ -147,13 +147,13 @@ class CuentaController extends AbstractActionController {
 		$codigoCanje = $this -> params() -> fromQuery("codigoCanje", "");
 		
 		if (empty($codigoCanje))
-			return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/inscripciones");
+			return $this -> redirect() -> toUrl("/application/cuenta/inscripciones");
 		
 		try {
 			$inscripcion = EquiposHandler::obtenerDatosEquipo($codigoCanje);
 			return new ViewModel(array("inscripcion" => $inscripcion));
 		} catch (\Exception $ex) {
-			return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/inscripciones");
+			return $this -> redirect() -> toUrl("/application/cuenta/inscripciones?ex={$ex -> getMessage()}");
 		}
 	}
 	
@@ -178,7 +178,7 @@ class CuentaController extends AbstractActionController {
 			$eventos = $dao -> consultaGenerica("SELECT * FROM DetallesEvento WHERE realizado = 0");
 			return new ViewModel(array("eventos" => $eventos));
 		} catch (\Exception $ex) {
-			return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/inscripciones");
+			return $this -> redirect() -> toUrl("/application/cuenta/inscripciones");
 		}
 	}
 	
@@ -205,7 +205,7 @@ class CuentaController extends AbstractActionController {
 	
 	public function taquillasdatosAction() {
 		return (!(new Container("user")) -> offsetExists("user"))
-			? $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/taquillas")
+			? $this -> redirect() -> toUrl("/application/cuenta/taquillas")
 			: new ViewModel();
 	}
 	
@@ -230,7 +230,7 @@ class CuentaController extends AbstractActionController {
 	
 	public function cancelarinscripcionAction() {
 		(new Container("user")) -> getManager() -> getStorage() -> clear();
-		return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/inscripciones");
+		return $this -> redirect() -> toUrl("/application/cuenta/inscripciones");
 	}
 	
 	/********************************************************************************
@@ -243,7 +243,7 @@ class CuentaController extends AbstractActionController {
 			
 			if ($pwdLogin === "InflaRun2016AdminPa$$") {
 				(new Container("admin")) -> offsetSet("admin", "logged in");
-				return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/adminmain");
+				return $this -> redirect() -> toUrl("/application/cuenta/adminmain");
 			} else {
 				return new ViewModel(array("Error" => "La contraseña es incorrecta."));
 			}
@@ -254,7 +254,7 @@ class CuentaController extends AbstractActionController {
 	
 	public function adminmainAction() {
 		if (!(new Container("admin")) -> offsetExists("admin"))
-			return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/adminlogin");
+			return $this -> redirect() -> toUrl("/application/cuenta/adminlogin");
 		
 		$pagos = InscripcionesHandler::obtenerPagosPendientes();
 		return new ViewModel(array("pagos" => $pagos));
@@ -262,7 +262,7 @@ class CuentaController extends AbstractActionController {
 	
 	public function adminaceptarpagoAction() {
 		if (!(new Container("admin")) -> offsetExists("admin"))
-			return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/adminlogin");
+			return $this -> redirect() -> toUrl("/application/cuenta/adminlogin");
 		
 		try {
 			InscripcionesHandler::aceptarPagoEfectivo($this -> params() -> fromQuery("idPago"));
@@ -273,12 +273,12 @@ class CuentaController extends AbstractActionController {
 				. "</div>";
 		}
 		
-		return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/adminmain");
+		return $this -> redirect() -> toUrl("/application/cuenta/adminmain");
 	}
 	
 	public function adminrechazarpagoAction() {
 		if (!(new Container("admin")) -> offsetExists("admin"))
-			return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/adminlogin");
+			return $this -> redirect() -> toUrl("/application/cuenta/adminlogin");
 		
 		try {
 			InscripcionesHandler::rechazarPagoEfectivo($this -> params() -> fromQuery("idPago"));
@@ -289,7 +289,7 @@ class CuentaController extends AbstractActionController {
 				. "</div>";
 		}
 		
-		return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/adminmain");
+		return $this -> redirect() -> toUrl("/application/cuenta/adminmain");
 	}
 	
 	/********************************************************************************************
@@ -299,7 +299,7 @@ class CuentaController extends AbstractActionController {
 	
 	public function adminusuariosAction(){
 		if (!(new Container("admin")) -> offsetExists("admin"))
-			return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/adminlogin");
+			return $this -> redirect() -> toUrl("/application/cuenta/adminlogin");
 		
 		return new ViewModel();
 	}
@@ -317,7 +317,7 @@ class CuentaController extends AbstractActionController {
 		$usuario = AdminHandler::obtenerInformacionUsuario($correo, $idDetallesEvento);
 		AdminHandler::reenviarCorreo($usuario);
 		(new Container("admin")) -> offsetSet("message", "El correo se ha enviado exitosamente.");
-		return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/adminusuarios");
+		return $this -> redirect() -> toUrl("/application/cuenta/adminusuarios");
 	}
 	
 	public function adminusuariosreenviarcorreoajaxAction() {
@@ -333,7 +333,7 @@ class CuentaController extends AbstractActionController {
 	
 	public function adminmoduserAction() {
 		if (!(new Container("admin")) -> offsetExists("admin"))
-			return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/adminlogin");
+			return $this -> redirect() -> toUrl("/application/cuenta/adminlogin");
 		
 		return new ViewModel();
 	}
@@ -357,7 +357,7 @@ class CuentaController extends AbstractActionController {
 			(new Container("admin")) -> offsetSet("message", $result["message"]);
 		}
 		
-		return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/adminmoduser");
+		return $this -> redirect() -> toUrl("/application/cuenta/adminmoduser");
 	}
 	
 	public function adminmodpassAction() {
@@ -369,7 +369,7 @@ class CuentaController extends AbstractActionController {
 		else
 			(new Container("admin")) -> offsetSet("message", $r);
 		
-		return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/adminmoduser");
+		return $this -> redirect() -> toUrl("/application/cuenta/adminmoduser");
 	}
 	
 	public function admincambiarhorarioAction() {
@@ -393,7 +393,7 @@ class CuentaController extends AbstractActionController {
 		else
 			(new Container("admin")) -> offsetSet("message", $r);
 		
-		return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/admincambiarhorario");
+		return $this -> redirect() -> toUrl("/application/cuenta/admincambiarhorario");
 	}
 	
 	public function adminregistromanualAction() {
@@ -418,9 +418,9 @@ class CuentaController extends AbstractActionController {
 		
 		if ($session -> offsetExists("admin")) {
 			$session -> offsetUnset("admin");
-			return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/adminlogin");
+			return $this -> redirect() -> toUrl("/application/cuenta/adminlogin");
 		}
 		
-		return $this -> redirect() -> toUrl("/InflaRun/public/application/cuenta/login");
+		return $this -> redirect() -> toUrl("/application/cuenta/login");
 	}
 }

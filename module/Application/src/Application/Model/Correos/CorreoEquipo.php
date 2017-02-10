@@ -54,7 +54,9 @@ class CorreoEquipo extends Correos {
 		$nombreCarrera = $this -> params["nombreCarrera"];
 		$codigoCanje = $this -> params["codigoCanje"];
 		$nombreEquipo = $this -> params["nombreEquipo"];
-		$link = "https://inflarun.mx/InflaRun/public/application/cuenta/inscripcionesequipos?codigoCanje=$codigoCanje";
+		// servicioscooper.com ES ÚNICAMENTE PARA HACER PRUEBAS EN EL SERVIDOR CON WINDOWS SERVER 2012
+		// MODIFICAR ESTE LINK PARA CUANDO ESTÉ EN SU SITIO ACTUAL
+		$link = "http://servicioscooper.com/application/cuenta/inscripcionesequipos?codigoCanje=$codigoCanje";
 		$html = "
                     
 
