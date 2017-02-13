@@ -1,0 +1,267 @@
+
+<div id="dashboard" class="container-fluid">
+    <div class="row">
+	<div class="col-sm-12">
+            <div class="container-fluid">
+                <!-- begin <row> -->
+                <!-- begin #main-content -->
+                <div id="main-content">
+
+                    <!-- begin #header -->
+                    <div id="header" class="spacer-bottom">
+
+                        <!-- begin .row -->
+                        <div class="row">
+
+                            <!-- begin .col -->
+                            <div class="col-md-12 clearfix">
+
+                                <h2 class="title-content-header">
+                                    <span>  Eventos</span>
+                                </h2>
+
+                                              
+
+                            </div>
+                            <!-- end .col -->
+
+                        </div>
+                        <!-- end .row -->
+
+                    </div>
+                    <!-- end #header -->
+
+                    <!-- begin #content -->
+                    <div id="content" class="spacer-bottom-lg">
+
+                
+
+
+                        <!-- begin .row -->
+                        <div class="row spacer-bottom-sm">
+
+                          
+
+                            <!-- begin .col -->
+                            <div class="col-md-5" style="float: right; width: 15%;">
+                                <div class="spacer-top-xs">
+                                    <b id="listCount"></b> 
+                                    <span class="listWord"> <?php echo count($this -> eventos);?> <strong> Eventos</strong>  </span>
+                                    
+                                </div>
+                            </div>
+                            <!-- end .col -->
+
+                            
+
+                        </div>
+                        <!-- end .row -->
+
+                        <!-- begin .row -->
+                        <div class="row">
+
+                            <!-- begin .col -->
+                            <div class="col-md-12">
+
+                                <div class="showLoader" id="showLoader"></div>
+                                <div id="message"></div>
+
+                                <!-- begin Listing -->
+                                <div id="listsDetails" class="pane pane-default">
+
+                                    <div id="listsDetails" class="pane pane-default">
+                                    <div class="table-responsive">                
+                                            <table class="table table-hover table-middle">                    
+                                                <?php if (isset($this -> Alert)): ?>
+							<div class="alert <?php echo ($this -> Alert["code"] === 0 ? "alert-success" : "alert-danger"); ?> fade in">
+								<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+								<?php echo $this -> Alert["message"]; ?>
+							</div>
+                                                <?php else: ?>
+                                                <thead>                        
+                                                    <tr>                            
+                                                        <th class='td-w-xs'>Id</th>                            
+                                                        <th class='td-w-xlg'>Nombre</th>                                          
+                                                    </tr>                    
+                                                </thead>      
+                                                                  
+                                                <tbody>
+                                                    <?php foreach ($this -> eventos as $evento): ?>
+                                                    <tr>                               
+                                                        <td class='text-muted'><?php echo $evento["idDetallesEvento"]; ?></td>                               
+                                                        <td class='listRename' > <a href='<?php echo $this -> basePath(); ?>/reportes/users/<?php echo $evento["idDetallesEvento"]; ?>'><span><?php echo $evento["nombre"]; ?></span></a></td> 
+                                                    </tr>
+                                                    <?php endforeach; ?>
+                                                </tbody>
+                                                <?php endif; ?>
+                                            </table>
+                                        </div>
+                                </div>
+                                <!-- end Listing -->
+
+                                
+
+                            </div>
+                            <!-- end .col -->
+
+                        </div>
+                        <!-- end .row -->
+
+                    </div>
+                    <!-- end #content -->
+                    <div class="clearfix"></div>
+
+                </div>
+                <!-- end #main-content -->
+            </div>
+        <!-- end </row> --> 
+    </div>
+    </div>
+</div>
+</div>
+
+<!-- Pop -->
+
+ <!-- <ActualizarFolder> -->
+<div class="modal fade modal-primary in" id="ActualizarFolder">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h4 class="modal-title"><span class="fa fa-plus"></span> Editar nombre de Carpeta<span id="updatelistLoader"></span></h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="listupdatename" class="sr-only">Nombre de la carpeta</label>
+                    <input type="text" value="" data-target2="#modal-import-files" class="emailtext form-control" name="listupdatename" placeholder="Nombre de lista" id="listupdatename">
+                </div>
+                <div class="row">
+                    <div class="col-sm-4" id="agregarCarpeta" style="left: 30%;">
+                        <a  href="" data-toggle="modal"  data-target1="#modal-import-files" class="btn btn-primary btn-lg btn-block save-and-add" style="min-height:95px; padding:15% 0px;"><i class="fa fa-pencil-square-o"></i><br> <span style="white-space:pre-wrap;">Actualizar</span></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+ <!-- </ActualizarFolder> -->
+
+ <!-- <nuevoFolder> -->
+
+<div class="modal fade modal-primary in" id="nuevoFolder">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h4 class="modal-title"><span class="fa fa-plus"></span> Agregar una nueva Carpeta<span id="newlistLoader"></span></h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="folderaddname" class="sr-only">Nombre de la carpeta</label>
+                    <input type="text" value="" data-target2="#modal-import-files" class="emailtext form-control" name="folderaddname" placeholder="Nombre de carpeta" id="folderddname">
+                </div>
+                <div class="row">
+                    <div class="col-sm-4" id="nuevaCarpeta" style="left: 30%;">
+                        <a  href="" data-toggle="modal"  onclick="this.href='/sendinblue/addFolder/0/'+document.getElementById('folderddname').value" data-target1="#modal-import-files" class="btn btn-primary btn-lg btn-block save-and-add" style="min-height:95px; padding:15% 0px;"><i class="fa fa-folder-open"></i><br> <span style="white-space:pre-wrap;">agregar</span></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+ <!-- </nuevoFolder> -->
+ <!-- <confimation_modal> -->
+<div class="modal fade modal-primary in" id="confimation_modal"  aria-hidden="false">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>          
+                    <h4 id="myModalLabel" class="modal-title">Eliminar la carpeta</h4>          
+                </div>          
+                <div class="modal-body" id="nombreCarpeta"><p>¿Está seguro de que desea eliminar la carpeta <strong>Prueba 2</strong> y todas las listas incluidas?</p>          
+                </div>          
+                <div class="modal-footer">          
+                    <a href="#" class="btn deleteall btn-primary" id="deleteList">Eliminar carpeta y todas sus listas</a>          
+                    <a href="#" class="btn btn-default" data-dismiss="modal">Cancelar</a>            
+                    <span id="lightbox_loader"></span>          
+                </div>        
+            </div>        
+        </div>        
+    </div>
+ <!-- </confimation_modal> -->
+
+
+ <!-- <nuevaLista> -->
+<div class="modal fade modal-primary in" id="nuevaLista">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h4 class="modal-title"><span class="fa fa-plus"></span> Agregar nueva lista<span id="updatelistLoader"></span></h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="listaddname" class="sr-only">Nombre de la carpeta</label>
+                    <input type="text" value="" data-target2="#modal-import-files" class="emailtext form-control" name="listaddname" placeholder="Nombre de lista" id="listaddname">
+                </div>
+                <div class="row">
+                    <div class="col-sm-4" id="agregarLista" style="left: 30%;">
+                        <a  href="" data-toggle="modal"  data-target1="#modal-import-files" class="btn btn-primary btn-lg btn-block save-and-add" style="min-height:95px; padding:15% 0px;"><i class="fa fa-list-ul"></i><br> <span style="white-space:pre-wrap;">Agregar</span></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+ <!-- </nuevaLista> -->
+
+
+ <!-- <ActualizarList> -->
+<div class="modal fade modal-primary in" id="ActualizarList">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h4 class="modal-title"><span class="fa fa-plus"></span> Editar nombre de Lista<span id="updatelistLoader"></span></h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="listaupdatename" class="sr-only">Nombre de la lista</label>
+                    <input type="text" value="" data-target2="#modal-import-files" class="emailtext form-control" name="listaupdatename" placeholder="Nombre de lista" id="listaupdatename">
+                </div>
+                <div class="row">
+                    <div class="col-sm-4" id="actualizarLista" identificador="" style="left: 30%;">
+                        <a  href="" data-toggle="modal"  data-target1="#modal-import-files" class="btn btn-primary btn-lg btn-block save-and-add" style="min-height:95px; padding:15% 0px;"><i class="fa fa-pencil-square-o"></i><br> <span style="white-space:pre-wrap;">Actualizar</span></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+ <!-- </ActualizarList> -->
+ <!-- <confimation_modal> -->
+<div class="modal fade modal-primary in" id="confimation_list"  aria-hidden="false">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>          
+                    <h4 id="myModalLabelList" class="modal-title">Eliminar la Lista</h4>          
+                </div>          
+                <div class="modal-body" id="cambiarNombreLista"><p>¿Está seguro de que desea eliminar la lista <strong>Prueba 2</strong> y todos sus contactos incluidas?</p>          
+                </div>          
+                <div class="modal-footer" identificador="" id="confElimLista"  >          
+                    <a href="#" class="btn deleteall btn-primary" >Eliminar lista y todos sus contactos</a>          
+                    <a href="#" class="btn btn-default" data-dismiss="modal">Cancelar</a>            
+                    <span id="lightbox_loader"></span>          
+                </div>        
+            </div>        
+        </div>        
+    </div>
+ <!-- </confimation_modal> -->
+   
+
+  
+                   
+
+
+ 

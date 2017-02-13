@@ -7,7 +7,7 @@ return array(
     ),
     'router'=>array(
         'routes'=>array(
-            'trabajo'=>array(
+            'reportes'=>array(
                  'type'=>'Segment',
                     'options'=>array(
                         'route' => '/reportes[/[:action[/:id[/:name[/:idL]]]]]',
@@ -20,7 +20,7 @@ return array(
                         
                         'defaults'  =>  array(
                                 'controller' => 'Reportes\Controller\Index',
-                                'action'     => 'index'
+                                'action'     => 'eventos'
                          
                         ),
                     ),
@@ -35,12 +35,12 @@ return array(
         'not_found_template'       => 'error/404',
         'exception_template'       => 'error/index',
         'template_map' => array(
-            'sendinblue/index/index' => __DIR__ . '/../view/Reportes/index/index.phtml',
+            'reportes/index/index' => __DIR__ . '/../view/reportes/index/eventos.phtml',
             'error/404'               => __DIR__ . '/../view/error/404.phtml',
             'error/index'             => __DIR__ . '/../view/error/index.phtml',
         ),
         'template_path_stack' => array(
-          'sendinblue' =>  __DIR__ . '/../view',
+          'reportes' =>  __DIR__ . '/../view',
         ),
     ), 
 );

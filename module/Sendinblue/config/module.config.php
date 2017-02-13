@@ -7,7 +7,7 @@ return array(
     ),
     'router'=>array(
         'routes'=>array(
-            'trabajo'=>array(
+            'sendinblue'=>array(
                  'type'=>'Segment',
                     'options'=>array(
                         'route' => '/sendinblue[/[:action[/:id[/:name[/:idL]]]]]',

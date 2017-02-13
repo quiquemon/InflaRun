@@ -44,6 +44,8 @@
                                         $("#pagina ").text(page);
                                         //$("#inflaruners").prepend(output);
                                         $(".progress").remove();
+                                        $("#total_users").text(TotalContactos);
+                                        $(".contact_table_showing_total").text(TotalContactos);
                                         $.each(response.data.data, function( key, value ) {
                                             output += "<tr class='contents-row '>";
                                             output += "<td class='row-head profile-select' style='width: 40px;'>";
@@ -102,6 +104,8 @@
 		
 	}
         
+        //----- Paginacion en la parte superior solo agregar los botones de avanzar y regresar
+        
         function sortpaginate( page, tpages) {
             var prevlabel = "&lsaquo;";
             var nextlabel = " &rsaquo;";
@@ -128,6 +132,9 @@
             anterior += "</ul>";
             return anterior;
          }
+        
+        //----- Paginacion completa en la parte inferior 
+
         
         function fullpaginate( page, tpages, adjacents) {
             var prevlabel = "&lsaquo;";
@@ -465,7 +472,7 @@
             
                 <div class="text-right">
                     <span id="searchLoader"></span>
-                    <span id="total_users" class="result-count">3.816</span>
+                    <span id="total_users" class="result-count">Cargando...</span>
                     <div class="btn-group" id="search-form-buttons">
                         <button type="submit" class="btn btn-success" id="search"><i class="fa fa-search"></i> Buscar</button>
                     </div>
@@ -671,7 +678,7 @@
                         </div>
                         <div class="clearfix"></div>
                         <form id="process_form" method="post">
-                            <div id="sib_contact_table" class="fixedTableWrapper sib-datatable">
+                            <div id="sib_contact_table" class="fixedTableWrapper sib-datatable" style=" width: 60%;left: 20%;">
                                 <div class="sibdatatable-body-top-scroll sibdatatable-body-scroll sibdatatable-inner" style="display: block; margin-left: 355px; width: 674px;">
                                     <div class="scroll-content" style="width: 790px;"></div>
                                         
