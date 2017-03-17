@@ -342,8 +342,8 @@ html {
 #introFundacion {
 	background: #0099ff;
 	color: white;
-	left: 13.5%;
 	font-size: 170%;
+	left: 13.5%;
 }
 
 @media only screen and (max-width: 420px) {
